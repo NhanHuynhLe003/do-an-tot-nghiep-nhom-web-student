@@ -1,0 +1,70 @@
+.bookcard {
+    padding: 0.5rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 100ms ease-in-out;
+}
+
+.bookcard:hover {
+    opacity: 0.8;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.contentContainer {
+    text-align: left;
+    padding: 0.25rem;
+}
+
+.cardImg {
+    width: 100%;
+}
+
+.cardImg img {
+    aspect-ratio: 1/1.4;
+
+}
+
+.title {
+    text-transform: capitalize;
+    color: var(--color-primary2);
+    font-size: 13px;
+    margin-bottom: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+    /* Ngăn không cho văn bản xuống dòng */
+    overflow: hidden;
+    /* Ẩn các phần của văn bản không vừa */
+    text-overflow: ellipsis;
+    /* Thêm dấu ba chấm khi cần */
+}
+
+.author {
+    text-transform: capitalize;
+    color: var(--color-primary2);
+    font-size: 11px;
+    white-space: nowrap;
+    /* Ngăn không cho văn bản xuống dòng */
+    overflow: hidden;
+    /* Ẩn các phần của văn bản không vừa */
+    text-overflow: ellipsis;
+    /* Thêm dấu ba chấm khi cần */
+}
+
+.releaseYear {
+    padding-right: 0.25rem;
+    color: var(--color-primary2);
+    font-size: 11px;
+    white-space: nowrap;
+    /* Ngăn không cho văn bản xuống dòng */
+    overflow: hidden;
+    /* Ẩn các phần của văn bản không vừa */
+    text-overflow: ellipsis;
+    /* Thêm dấu ba chấm khi cần */
+}
+
+.rating {
+
+    color: var(--color-primary2);
+    font-size: 11px;
+}

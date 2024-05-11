@@ -1,0 +1,48 @@
+.navName {
+    font-family: "Roboto", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-left: 1rem;
+}
+
+.imgContainer {
+    width: 6rem;
+    margin-right: 3rem;
+}
+
+.navItem {
+    padding: 0.5rem 0.5rem;
+    border-radius: 6px;
+}
+
+.navlistbar {
+    width: 100%;
+}
+
+.linkNav {
+    color: none;
+    text-decoration: none;
+    color: var(--color-gray1);
+    padding: 0 2rem;
+
+    /* Thêm transition cho background-color */
+}
+
+.activeLinkNav {
+    border-left: 0.35rem solid var(--color-primary1);
+}
+
+.active {
+    transition: background-color 0.3s ease;
+    /* them hieu ung chuyen trang*/
+    font-weight: bold;
+    color: var(--color-white1);
+    background-color: var(--color-primary1);
+
+    text-align: center;
+
+}
+
+.active * {
+    fill: var(--color-white1);
+}

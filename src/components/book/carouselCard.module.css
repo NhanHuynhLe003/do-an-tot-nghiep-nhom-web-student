@@ -1,0 +1,15 @@
+.CarouselCard {
+    width: 35%;
+    background-image: linear-gradient(to bottom right, var(--color-blue2), var(--color-blue1));
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+.CarouselCard .titleCard {
+    color: var(--color-white1);
+    font-weight: 400;
+}
+
+
+
+.cardContainer {}

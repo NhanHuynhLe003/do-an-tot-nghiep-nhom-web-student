@@ -1,0 +1,19 @@
+.container {
+    margin-bottom: 1rem;
+}
+
+.container img {
+    width: 20%;
+    color: var(--color-primary2);
+}
+
+.title {
+    margin: 0.5rem 0;
+    /* background: #5361f8; */
+}
+
+.desc {
+    margin: 0 0 1rem 0;
+    color: var(--color-gray5);
+
+}

@@ -1,0 +1,15 @@
+.formFieldContainer .ButtonGuestLogin {
+    text-transform: capitalize;
+    color: var(--color-primary2);
+}
+
+.formFieldContainer .rememberCheckbox+span {
+    /* font-family: "Inter, sans-serif"; */
+    color: var(--color-primary2);
+}
+
+.formFieldContainer .forgotPassword {
+    color: var(--color-primary2);
+    /* font-family: "Inter, sans-serif"; */
+    text-transform: capitalize;
+}

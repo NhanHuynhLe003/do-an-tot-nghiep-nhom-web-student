@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+/* Reset CSS */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
+
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+@font-face {
+    font-family: 'DigitalFont';
+    src: url('../assets/fonts/digital-7/digital-7.ttf') format('truetype');
+
+    /* 
+        use: font-family: 'DigitalFont', sans-serif; 
+    */
+}
+
+* {
+    /* font-family: "Inter, sans-serif"; */
+    font-family: "Roboto", sans-serif;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-primary1: #5496FA;
+    /* Primary theme color */
+    --color-primary2: #4D4D4D;
+
+    /* Dark grey color for active page selection */
+    --color-secondary1: #2CECEC;
+    --color-secondary2: #42BB4E;
+    --color-secondary3: #F34040;
+
+    --color-bg-book: #F3F3F7;
+
+    --color-blue1: #2cc2ec;
+    --color-blue2: #6154FA;
+
+    --color-gray1: #8A8A8A;
+    /* Inactive text color */
+    --color-gray2: #B6B6B6;
+    /* Favorite heart color */
+    --color-gray3: #A7A7A7;
+    /* Total vote color */
+    --color-gray4: #A0A0A0;
+
+    --color-gray5: #ABABAB;
+    /* Borrowed book color */
+    --color-white1: #FFFFFF;
+    --color-linear1: linear-gradient(90deg, #5496FA 0%, #2CECEC 100%);
+    --color-linear2: linear-gradient(90deg, #FFC6AE 0%, #FFFFFF 100%);
+
+    --font-primary: 'Inter', sans-serif;
+    --font-secondary: 'Helvetica', sans-serif;
+
+    --breakpoint-xs: 576;
+    --breakpoint-sm: 768;
+    --breakpoint-md: 992;
+    --breakpoint-lg: 1200;
+    --breakpoint-xl: 1400;
+}

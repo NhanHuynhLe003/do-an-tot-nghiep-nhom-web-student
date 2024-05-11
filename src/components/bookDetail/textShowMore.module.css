@@ -1,0 +1,12 @@
+.viewMoreTextDesc {
+    font-weight: 500;
+    background: none;
+    color: var(--color-primary1);
+    border: none;
+    cursor: pointer;
+
+}
+
+.viewMoreTextDesc:hover {
+    opacity: 0.7;
+}

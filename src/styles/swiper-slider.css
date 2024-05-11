@@ -1,0 +1,57 @@
+.book-quotes-carousel {
+    width: 100%;
+    height: 100%;
+}
+
+.book-quotes-carousel .swiper-slide {
+
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.book-quotes-carousel .swiper-pagination.swiper-pagination-clickable.swiper-pagination-bullets.swiper-pagination-horizontal {
+    text-align: left;
+    position: relative;
+    bottom: 4rem;
+}
+
+.book-quotes-carousel .swiper-pagination .book-quotes-pagination.swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    text-align: center;
+    color: transparent;
+    opacity: 1;
+    background: transparent;
+    border: 0.5px solid #fff;
+}
+
+.book-quotes-carousel .swiper-pagination .swiper-pagination-bullet.book-quotes-pagination.swiper-pagination-bullet-active {
+    color: #fff;
+    background: #fff;
+}
+
+
+/* Book Main Page */
+.book-newest-carousel {
+    width: 100%;
+    height: 100%;
+}
+
+.book-newest-carousel .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    height: fit-content;
+    /* Center slide text vertically */
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+}
+
+.book-newest-carousel .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

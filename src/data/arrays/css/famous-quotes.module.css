@@ -1,0 +1,11 @@
+.cardContainer {
+    background-color: transparent;
+}
+
+.authorCard {
+    color: var(--color-white1)
+}
+
+.contentCard {
+    color: var(--color-white1);
+}
