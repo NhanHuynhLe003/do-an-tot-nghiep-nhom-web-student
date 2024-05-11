@@ -1,0 +1,95 @@
+const dataTest = [
+  {
+    id: "001",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4, //4,4.5,5 => ko 4.6, 4.7, 4.8, 4.9
+  },
+  {
+    id: "002",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4.5,
+  },
+  {
+    id: "003",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 5,
+  },
+  {
+    id: "004",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4,
+  },
+  {
+    id: "005",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4.5,
+  },
+  {
+    id: "006",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 5,
+  },
+  {
+    id: "007",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4,
+  },
+  {
+    id: "008",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4.5,
+  },
+  {
+    id: "009",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 5,
+  },
+  {
+    id: "010",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4,
+  },
+  {
+    id: "011",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4.5,
+  },
+  {
+    id: "012",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 5,
+  },
+  {
+    id: "013",
+    img: "/imgs/avatar-user.jpg",
+    name: "DONG HO APPLE WATCH",
+    price: "1.500.000",
+    danhgia: 4,
+  },
+];
+
+export { dataTest };

@@ -24,8 +24,10 @@
 
 :root {
     --color-primary1: #5496FA;
+    /* var(--color-primary1)*/
     /* Primary theme color */
     --color-primary2: #4D4D4D;
+    /* --color-primary3: #b14545; */
 
     /* Dark grey color for active page selection */
     --color-secondary1: #2CECEC;

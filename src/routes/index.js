@@ -8,6 +8,7 @@ import BookDetailPage from "../pages/BookPage/BookDetail";
 import BookSearchPage from "../pages/BookPage/BookSearch";
 import Home from "../pages/Home";
 import Login from "../pages/login";
+import TrangChinh from "../pages/GhiChu/TrangChinh";
 
 const routes = [
   {
@@ -16,8 +17,8 @@ const routes = [
   },
   {
     path: "/admin",
-    component: AdminMainPage,
-    layout: MainLayout,
+    component: AdminMainPage, // là các page
+    layout: MainLayout, // là các layout
   },
   {
     path: "/admin/book-manage",
@@ -43,6 +44,11 @@ const routes = [
     path: "/book/:bookId",
     component: BookDetailPage,
     layout: MainLayout,
+  },
+  {
+    path: "/ghi-chu",
+    component: TrangChinh, // là các page
+    layout: MainLayout, //
   },
 ];
 export { routes };
