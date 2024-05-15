@@ -9,6 +9,9 @@ import BookSearchPage from "../pages/BookPage/BookSearch";
 import Home from "../pages/Home";
 import Login from "../pages/login";
 import TrangChinh from "../pages/GhiChu/TrangChinh";
+import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
+import CreateBookPage from "../pages/Admin/AdminBookManagePage/CreateBookPage";
+import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
 
 const routes = [
   {
@@ -19,17 +22,26 @@ const routes = [
     path: "/admin",
     component: AdminMainPage, // là các page
     layout: MainLayout, // là các layout
+    isAdmin: true,
   },
   {
     path: "/admin/book-manage",
     component: AdminBookManagePage,
     layout: MainLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/book-manage/create-book",
+    component: CreateBookPage,
+    layout: MainLayout,
+    isAdmin: true,
   },
   {
     path: "/login",
     component: Login,
     layout: AccessLayout,
   },
+  //===========================BOOK===========================
   {
     path: "/book",
     component: Book,
@@ -45,10 +57,22 @@ const routes = [
     component: BookDetailPage,
     layout: MainLayout,
   },
+
+  //===========================GHI CHU===========================
   {
     path: "/ghi-chu",
     component: TrangChinh, // là các page
     layout: MainLayout, //
+  },
+  {
+    path: "/chi-tiet-ghi-chu",
+    component: TrangGhiChuChiTiet, // là các page
+    layout: MainLayout, //
+  },
+  {
+    path: "/on-tap-chi-tiet",
+    component: TrangOnTapChiTiet,
+    layout: MainLayout,
   },
 ];
 export { routes };

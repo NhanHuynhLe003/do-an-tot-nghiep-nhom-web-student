@@ -4,8 +4,12 @@ import React, { useState } from "react";
 import ITable from "../../../components/ITable/ITable";
 import { dataListBooks, headerListBooks } from "../../../data/arrays";
 import SubmitDialog from "../../../components/IDialog/SubmitDialog";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminBookManagePage() {
+  // nevigate
+  const navigate = useNavigate();
+
   const [listRowSelected, setListRowSelected] = useState([]);
 
   //=============fnc================
@@ -18,6 +22,10 @@ export default function AdminBookManagePage() {
     console.log("Delete All:", listRowSelected);
 
     //fetch api delete cac sp da chon bang promise.all co id giống id trong listRowSelected
+  }
+
+  function handleClickCreateBookBtn() {
+    navigate("/admin/book-manage/create-book");
   }
 
   return (
@@ -33,14 +41,15 @@ export default function AdminBookManagePage() {
         flexWrap={"wrap"}
         justifyContent={"space-between"}
       >
-        <Box>
+        <Box mb={3} width={"20rem"}>
           <Input
             endAdornment={<Search></Search>}
             placeholder="Tìm kiếm sách...."
+            fullWidth
           ></Input>
         </Box>
 
-        <Stack direction={"row"} justifyContent={"right"} gap={2}>
+        <Stack direction={"row"} justifyContent={"right"} gap={2} mb={3}>
           {listRowSelected.length > 1 && (
             <SubmitDialog
               buttonShowInfo={{
@@ -57,7 +66,9 @@ export default function AdminBookManagePage() {
             ></SubmitDialog>
           )}
           <Button variant="contained">Tạo Danh Mục</Button>
-          <Button variant="contained">Tạo Sách</Button>
+          <Button variant="contained" onClick={handleClickCreateBookBtn}>
+            Tạo Sách
+          </Button>
           <Button variant="contained">Thùng Rác</Button>
           <Button variant="contained">Sách Nháp</Button>
         </Stack>

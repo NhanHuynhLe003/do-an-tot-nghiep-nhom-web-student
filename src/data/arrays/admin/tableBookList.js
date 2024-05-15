@@ -6,8 +6,9 @@ export const headerListBooks = [
   {
     field: "BookImage",
     headerName: "Image",
-    width: 200,
+    width: 150,
     renderCell: (params) => (
+      // Giup render html trong cell
       <img
         src={params.value}
         alt="Book"

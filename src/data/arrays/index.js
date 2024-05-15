@@ -11,3 +11,4 @@ export * from "./science-books";
 export * from "./list-sort-type";
 export * from "./comment-list";
 export * from "./admin/tableBookList";
+export * from "./list-category";
