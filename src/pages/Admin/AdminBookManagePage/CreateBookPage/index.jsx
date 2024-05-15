@@ -1,14 +1,11 @@
-import { Box, Grid, Stack, Typography } from "@mui/material";
-import React from "react";
-import { InputArea } from "../../../../components/form-support/input-area";
-import { useForm } from "react-hook-form";
-import { Label } from "@mui/icons-material";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import DragAndDropFile from "../../../../components/DragDropFile";
+import { Grid, Stack, Typography } from "@mui/material";
 import axios from "axios";
+import React from "react";
+import { useForm } from "react-hook-form";
+import DragAndDropFile from "../../../../components/DragDropFile";
+import { InputArea } from "../../../../components/form-support/input-area";
 import { SelectInputField } from "../../../../components/form-support/select-input-field";
 import { listCategory } from "../../../../data/arrays";
-import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 
 export default function CreateBookPage() {
   const {
