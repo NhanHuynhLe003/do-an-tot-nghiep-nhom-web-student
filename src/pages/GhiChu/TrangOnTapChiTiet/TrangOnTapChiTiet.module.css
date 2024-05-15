@@ -117,8 +117,10 @@
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
+    display: none;
 }
-
+/* khoa dep chai */
+/* qua dep luon */
 .Buttonnho:hover {
     /* dùng chuyển màu khi đưa trỏ vào nút nhấn*/
     background-color: #969c96;
