@@ -1,0 +1,235 @@
+:root {
+    --width-indicator: 6.5rem;
+    --height-indicator: 6.5rem;
+
+    --width-node-li: 80px;
+    --height-node-li: 80px;
+
+    /* khoảng cách vòng tròn và tâm khi select */
+    --top-pst-indicator: -3.25rem;
+    --left-pst-indicator: -10.5rem;
+
+    --width-circleMenu: 600px;
+    --height-circleMenu: 600px;
+
+
+    /*size toggle button*/
+    --width-toggle: 9rem;
+    --height-toggle: 9rem;
+}
+
+.containerNav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+
+
+.menu {
+    padding: 0;
+    position: relative;
+    width: var(--width-circleMenu);
+    height: var(--height-circleMenu);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.overlayCircle {
+    position: absolute;
+    background: #fff;
+    width: calc(var(--width-circleMenu) - 9rem);
+    height: calc(var(--height-circleMenu) - 9rem);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+
+    opacity: 0;
+    transition: 0.3s ease;
+}
+
+.activeOverlay {
+
+    opacity: 1;
+}
+
+
+
+
+
+.menu .toggle {
+    position: absolute;
+    width: var(--width-toggle);
+    height: var(--height-toggle);
+    background: #fff;
+    color: var(--color-primary1);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+    transition: 400ms;
+    border: none;
+    box-shadow: 0 0 10px #ccc;
+    z-index: 10;
+}
+
+.menu .toggle>* {
+    font-size: 3.5rem;
+}
+
+.menu .toggle.active {
+    transform: rotate(315deg);
+    /* box-shadow: 0 0 0 180px #fff; */
+    /*vòng tròn tạo lớp phủ bao các số*/
+    /* độ lớn bóng bao phủ các số, */
+    color: #fff;
+    background-color: var(--color-primary1);
+
+}
+
+.menu li {
+    position: absolute;
+    list-style: none;
+
+    /* Khoảng cách các số so với tâm và độ dịch */
+    transform: rotate(calc(360deg / 5 * var(--i))) translateX(-3.5rem);
+    transform-origin: 140px;
+
+    /* left: 10%; chỉnh sửa dịch các số theo vòng tròn sang trái */
+    left: 26%;
+    visibility: hidden;
+    opacity: 0;
+    z-index: 10;
+    transition: 0.3s;
+    /* background-color: var(--color-primary1); */
+
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: var(--width-node-li);
+    height: var(--height-node-li);
+}
+
+.menu.active li {
+    visibility: visible;
+    opacity: 1;
+}
+
+.menu li a {
+    text-decoration: none;
+    /* 5 phần tử nên phải chia -5 */
+    transform: rotate(calc(360deg / -5 * var(--i)));
+    width: 70px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3.25em;
+
+    /* background-color: #ccc; */
+    color: var(--color-primary2);
+    border-radius: 50%;
+
+    transition: 0.4s;
+}
+
+.menu.active li.activeBtn {
+    /* transform: rotate(calc(360deg / 5 * var(--i))) translate(-24px); */
+    /*điều chỉnh khoảng cách số với tâm khi select: số càng âm thì số đó càng xa tâm*/
+    transform: rotate(calc(360deg / 5 * var(--i))) translate(-7rem);
+
+
+}
+
+
+.menu.active li.activeBtn a {
+    color: var(--color-primary1);
+    font-size: 3.75em;
+}
+
+.indicator {
+    transform-origin: right;
+    position: absolute;
+
+    /* Khoảng cách vòng tròn và tâm */
+    left: calc(50% - 100px);
+    width: 100px;
+    height: 1px;
+    /* background: #f00; */
+    /*màu sắc làm đường thẳng nối tâm */
+    pointer-events: none;
+    transition: 0.3s;
+
+    /* cho nó chỉ nằm dưới sô nhưng trên overlay */
+    z-index: 9;
+}
+
+.indicator::before {
+    content: '';
+    position: absolute;
+    width: var(--width-indicator);
+    height: var(--height-indicator);
+    background: #db5e5e;
+    /* box-shadow: 0 0 0 6px var(--color-primary1); */
+    border-radius: 50%;
+    transition: 0.4s;
+    /*Chỉnh sửa kích thước vòng tròn truoc khi select*/
+    top: -2rem;
+    left: 8rem;
+    opacity: 0;
+
+}
+
+
+
+.menu.active .indicator::before {
+    opacity: 1;
+    /* Vị trí của vòng tròn so với tâm khi select*/
+    /* top: -1.5rem;
+    left: -3.75rem; */
+
+    top: var(--top-pst-indicator);
+    left: var(--left-pst-indicator);
+
+    /* viền của vòng tròn select */
+    box-shadow: 0 0 0 1.5rem var(--color-primary1);
+
+    /* mau sac cho vòng tròn select */
+    background-color: var(--color-white1);
+
+}
+
+
+
+.menu li.activeBtn:nth-child(2)~.indicator {
+    transform: rotate(0deg);
+
+}
+
+
+
+.menu li.activeBtn:nth-child(3)~.indicator {
+    /* 360 / 5 = 72, cứ thế cộng thêm 72 vào cho bên dưới  */
+    transform: rotate(72deg);
+
+}
+
+
+.menu li.activeBtn:nth-child(4)~.indicator {
+    transform: rotate(144deg);
+
+}
+
+.menu li.activeBtn:nth-child(5)~.indicator {
+    transform: rotate(216deg);
+
+}
+
+.menu li.activeBtn:nth-child(6)~.indicator {
+    transform: rotate(288deg);
+
+}
