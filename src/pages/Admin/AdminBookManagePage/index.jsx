@@ -67,7 +67,7 @@ export default function AdminBookManagePage() {
           )}
           <Button variant="contained">Tạo Danh Mục</Button>
           <Button variant="contained" onClick={handleClickCreateBookBtn}>
-            Tạo Sách
+            Thêm Sách
           </Button>
           <Button variant="contained">Thùng Rác</Button>
           <Button variant="contained">Sách Nháp</Button>

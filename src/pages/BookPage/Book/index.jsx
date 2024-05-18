@@ -38,13 +38,19 @@ export default function Book() {
   }
 
   return (
-    <Box className={clsx("book-main-page", style.contentBookContainer)}>
+    <Box
+      className={clsx(
+        "book-main-page",
+        style.contentBookContainer,
+        "animate__animated animate__fadeIn"
+      )}
+    >
       <h1 className={style.heading01}>Book Store Home</h1>
 
       <br />
       <br />
       <Stack
-        className={style.section1}
+        className={clsx(style.section1, "animate__animated animate__zoomIn")}
         direction={"row"}
         justifyContent={"space-between"}
         px={6}
@@ -63,7 +69,7 @@ export default function Book() {
       </Stack>
 
       <Stack
-        className={style.section2}
+        className={clsx(style.section2, "animate__animated animate__fadeIn")}
         direction={"column"}
         gap={"1rem"}
         px={6}

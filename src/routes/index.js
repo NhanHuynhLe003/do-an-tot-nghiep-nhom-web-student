@@ -10,7 +10,7 @@ import Home from "../pages/Home";
 import Login from "../pages/login";
 import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
-import CreateBookPage from "../pages/Admin/AdminBookManagePage/CreateBookPage";
+import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
 
 const routes = [
@@ -32,7 +32,7 @@ const routes = [
   },
   {
     path: "/admin/book-manage/create-book",
-    component: CreateBookPage,
+    component: CreateAndEditBookPage,
     layout: MainLayout,
     isAdmin: true,
   },
