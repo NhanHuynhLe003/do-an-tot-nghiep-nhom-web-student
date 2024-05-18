@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import style from "./CircleNav.module.css";
 import { AddCircle } from "@mui/icons-material";
 import clsx from "clsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaHome, FaUser } from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
 import { RiBarChartFill } from "react-icons/ri";
@@ -15,8 +15,25 @@ import animationUserLogin from "../../assets/animations/animation-user-login-jum
 import animationBarChart from "../../assets/animations/animation-bar-chart.json";
 import animationNotePen from "../../assets/animations/animation-note-pen.json";
 import animationCvTemplate from "../../assets/animations/animation-cv-template.json";
+import PageLoader from "../pageLoader";
 
 export default function CircleNav({ isOpenToggle = false }) {
+  //Dieu huong
+  const navigate = useNavigate();
+
+  //=====================PAGE LOADING
+  const [loaderActive, setLoaderActive] = useState(false);
+
+  // Xử lý hiển thị loader
+  const toggleLoader = (pageUrl = "/") => {
+    setLoaderActive(true);
+    setTimeout(() => {
+      setLoaderActive(false); //Loading sau 5s tắt
+      navigate(pageUrl);
+    }, 3000);
+  };
+
+  //==================Lottie: Hiển thị ảnh dạng animation json
   const lottieJsonOptions = (imgFile = animationUserLogin) => ({
     loop: true,
     autoplay: true,
@@ -26,6 +43,7 @@ export default function CircleNav({ isOpenToggle = false }) {
     },
   });
 
+  //==================Button: xử lý nhấn nút và hover
   const [btnSelected, setBtnSelected] = useState(0);
   const [isOpen, setIsOpen] = useState(isOpenToggle);
   const handleClickToggleButton = () => {
@@ -36,11 +54,9 @@ export default function CircleNav({ isOpenToggle = false }) {
     setBtnSelected(index);
   };
 
-  const handleLeaveNode = () => {
-    setBtnSelected(0);
-  };
   return (
     <div className={style.containerNav}>
+      <PageLoader active={loaderActive} />
       <ul className={clsx(style.menu, { [style.active]: isOpen })}>
         {/* <div className={clsx(style.circleOverlay)}></div> */}
         <button
@@ -54,7 +70,7 @@ export default function CircleNav({ isOpenToggle = false }) {
           style={{ "--i": 0 }}
           className={clsx({ [style.activeBtn]: btnSelected === 0 })}
         >
-          <Link to={"/login"}>
+          <Link to={"#"} onClick={() => toggleLoader("/login")}>
             {btnSelected === 0 ? (
               <Lottie
                 title="Trang đăng nhập"
@@ -72,7 +88,7 @@ export default function CircleNav({ isOpenToggle = false }) {
           style={{ "--i": 1 }}
           className={clsx({ [style.activeBtn]: btnSelected === 1 })}
         >
-          <Link to={"/book"}>
+          <Link to={"#"} onClick={() => toggleLoader("/book")}>
             {btnSelected === 1 ? (
               <Lottie
                 options={lottieJsonOptions(animationBookShelf)}
@@ -90,7 +106,7 @@ export default function CircleNav({ isOpenToggle = false }) {
           style={{ "--i": 2 }}
           className={clsx({ [style.activeBtn]: btnSelected === 2 })}
         >
-          <Link to={"/xep-hang"}>
+          <Link to={"#"} onClick={() => toggleLoader("/xep-hang")}>
             {btnSelected === 2 ? (
               <Lottie
                 options={lottieJsonOptions(animationBarChart)}
@@ -108,7 +124,7 @@ export default function CircleNav({ isOpenToggle = false }) {
           style={{ "--i": 3 }}
           className={clsx({ [style.activeBtn]: btnSelected === 3 })}
         >
-          <Link to={"/ghi-chu"}>
+          <Link to={"#"} onClick={() => toggleLoader("/ghi-chu")}>
             {btnSelected === 3 ? (
               <Lottie
                 options={lottieJsonOptions(animationNotePen)}
@@ -126,7 +142,7 @@ export default function CircleNav({ isOpenToggle = false }) {
           style={{ "--i": 4 }}
           className={clsx({ [style.activeBtn]: btnSelected === 4 })}
         >
-          <Link to={"/cv"}>
+          <Link to={"#"} onClick={() => toggleLoader("/cv")}>
             {btnSelected === 4 ? (
               <Lottie
                 options={lottieJsonOptions(animationCvTemplate)}

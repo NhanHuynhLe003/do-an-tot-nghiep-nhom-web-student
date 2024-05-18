@@ -1,0 +1,72 @@
+.loader {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100vh;
+    transition: width 0s 1.4s ease;
+}
+
+.loaderIcon {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    opacity: 0;
+    transition: opacity .5s ease;
+}
+
+.loaderIcon svg {
+    transform-origin: 0 0;
+}
+
+/* Màu sắc thanh loading */
+.loaderTile {
+    position: absolute;
+    left: 0;
+    width: 0;
+    height: 20%;
+    background: linear-gradient(to right, var(--color-blue2), var(--color-blue1));
+    transition: width .7s ease;
+}
+
+.loaderTile:nth-child(1) {
+    top: 0;
+    transition-delay: 0s;
+}
+
+.loaderTile:nth-child(2) {
+    top: 20%;
+    transition-delay: 0.2s;
+}
+
+.loaderTile:nth-child(3) {
+    top: 40%;
+    transition-delay: 0.4s;
+}
+
+.loaderTile:nth-child(4) {
+    top: 60%;
+    transition-delay: 0.6s;
+}
+
+.loaderTile:nth-child(5) {
+    top: 80%;
+    transition-delay: 0.8s;
+}
+
+.loaderActive {
+    width: 100%;
+    transition-delay: 0s;
+}
+
+.loaderActive .loaderIcon {
+    opacity: 1;
+    transition: opacity .5s 1.4s ease;
+}
+
+.loaderActive .loaderTile {
+    width: 100%;
+}
