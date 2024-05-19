@@ -47,6 +47,10 @@ export default function Book() {
     >
       <h1 className={style.heading01}>Book Store Home</h1>
 
+      <h3>
+        Nơi đây sẽ là Carousel chứa nội dung của Event , đồng thời sẽ chứa pop
+        up hiển thị thông báo event mới
+      </h3>
       <br />
       <br />
       <Stack
@@ -253,8 +257,8 @@ export default function Book() {
             </Link>
           </Typography>
         </Stack>
-        <br />
 
+        <br />
         <ListBookView
           paginationCustomize={paginationCustomize}
           dataList={shuffleArray(ratingBooks)}
@@ -262,6 +266,11 @@ export default function Book() {
           slideCardPerView={6.6}
         ></ListBookView>
       </Stack>
+      <br />
+      <Stack>
+        <h3>Đánh giá của đọc giả</h3>
+      </Stack>
+      <br />
 
       {/* Tiểu Thuyết */}
       <Stack className={style.section9} mt={"3rem"} px={6} direction={"column"}>

@@ -39,12 +39,13 @@ export default function SubmitDialog({
   const handleClickAccept = () => {
     handleClose();
     // do something
-    fncHandleClickAccept("Da nhan nut chap nhan");
+    fncHandleClickAccept(1);
   };
 
   const handleClickCancel = () => {
     handleClose();
     // do something
+    fncHandleClickAccept(0);
   };
 
   return (
