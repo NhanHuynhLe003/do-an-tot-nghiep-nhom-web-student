@@ -92,5 +92,11 @@ const routes = [
     component: TrangOnTapChiTiet,
     layout: MainLayout,
   },
+  //==================TRANG CHINH===================
+  {
+    path: "/trang-chinh",
+    component: TrangChinh,
+    layout: MainLayout,
+  },
 ];
 export { routes };
