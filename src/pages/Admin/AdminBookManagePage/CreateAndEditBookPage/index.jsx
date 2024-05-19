@@ -2,7 +2,7 @@ import { Button, Grid, Stack, Typography } from "@mui/material";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
-import React from "react";
+import React, { useEffect, useId } from "react";
 import { useForm } from "react-hook-form";
 import DragAndDropFile from "../../../../components/DragDropFile";
 import { InputArea } from "../../../../components/form-support/input-area";
@@ -10,6 +10,7 @@ import { SelectInputField } from "../../../../components/form-support/select-inp
 import { listCategory } from "../../../../data/arrays";
 import { format } from "date-fns";
 import { SwitchButton } from "../../../../components/form-support/switch-btn";
+import IBreadcrumbs from "../../../../components/IBreadcrumbs";
 
 /**
  * @description Trang tạo mới hoặc edit sách
@@ -129,8 +130,26 @@ export default function CreateBookPage({
     }
   };
 
+  //========================= HOOOK ========================
+
+  useEffect(() => {}, []);
   return (
     <Stack id="Create-Book-Page" direction={"column"} px={{ xs: 2, sm: 8 }}>
+      <IBreadcrumbs
+        listBreadcrumbs={[
+          {
+            id: 1,
+            path: "/admin/book-manage",
+            name: "Quản lý sách",
+          },
+          {
+            id: 2,
+            path: "/admin/book-manage/create-book",
+            name: "Thêm sách",
+          },
+        ]}
+        sx={{ pt: 3, pb: 2 }}
+      ></IBreadcrumbs>
       <Typography component={"h1"} variant="h4" mt={2} mb={6}>
         Thêm Sách Mới
       </Typography>
@@ -152,7 +171,10 @@ export default function CreateBookPage({
             justifyContent={"center"}
             alignItems={"center"}
           >
-            <DragAndDropFile errors={errors.thumbnailUrl} />
+            <DragAndDropFile
+              handleUploadImage={handleUploadImage}
+              errors={errors.thumbnailUrl}
+            />
           </Stack>
         </Grid>
 
@@ -321,7 +343,19 @@ export default function CreateBookPage({
             name={"isPublicBook"}
             id={"isPublicBook"}
             control={control}
-            label={"Công khai sách"}
+            label={
+              <p>
+                <b>Công khai sách</b>{" "}
+                <span
+                  style={{
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  (nếu không công khai thì sẽ ở dưới dạng bản nháp, mặc định là
+                  công khai)
+                </span>
+              </p>
+            }
             errors={errors.isPublicBook}
           />
         </Grid>

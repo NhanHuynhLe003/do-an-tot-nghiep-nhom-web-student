@@ -12,6 +12,8 @@ import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
 import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
+import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
+import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
 
 const routes = [
   {
@@ -36,6 +38,22 @@ const routes = [
     layout: MainLayout,
     isAdmin: true,
   },
+
+  {
+    path: "/admin/book-manage/trash",
+    component: BookTrashPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+
+  {
+    path: "/admin/book-manage/category",
+    component: CreateCategoryPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+
+  //===========================LOGIN===========================
   {
     path: "/login",
     component: Login,

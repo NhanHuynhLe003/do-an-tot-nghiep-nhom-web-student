@@ -1,0 +1,13 @@
+.linkBreadcrumb {
+    text-decoration: none;
+    color: var(--color-primary2);
+}
+
+.linkBreadcrumb:hover {
+    opacity: 0.6;
+}
+
+.activeLink {
+    color: var(--color-primary1);
+    font-weight: 500;
+}
