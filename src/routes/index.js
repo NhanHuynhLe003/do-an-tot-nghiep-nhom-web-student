@@ -12,6 +12,7 @@ import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
 import CreateBookPage from "../pages/Admin/AdminBookManagePage/CreateBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
+import TrangChart from "../pages/GhiChu/TrangChart";
 
 const routes = [
   {
@@ -74,6 +75,12 @@ const routes = [
     component: TrangOnTapChiTiet,
     layout: MainLayout,
   },
+  {
+    path: "/trang-chart",
+    component: TrangChart,
+    layout: MainLayout,
+  },
+
   //==================TRANG CHINH===================
   {
     path: "/trang-chinh",
