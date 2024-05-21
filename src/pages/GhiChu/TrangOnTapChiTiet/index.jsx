@@ -17,6 +17,7 @@ const notes = [
     tieude: "Note 3",
     nd: "Khoa Học Giỏi Quá Quá Đi .",
     ngay: "2024-05-24",
+
   },
   {
     tieude: "Note 4",
