@@ -12,10 +12,13 @@ import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
 import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
+
 import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
 import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
 import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
+import TrangChart from "../pages/GhiChu/TrangChart";
+
 
 const routes = [
   {
@@ -108,6 +111,12 @@ const routes = [
     component: TrangOnTapChiTiet,
     layout: MainLayout,
   },
+  {
+    path: "/trang-chart",
+    component: TrangChart,
+    layout: MainLayout,
+  },
+
   //==================TRANG CHINH===================
   {
     path: "/trang-chinh",

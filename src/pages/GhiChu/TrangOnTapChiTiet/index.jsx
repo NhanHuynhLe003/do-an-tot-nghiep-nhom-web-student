@@ -17,46 +17,7 @@ const notes = [
     tieude: "Note 3",
     nd: "Khoa Học Giỏi Quá Quá Đi .",
     ngay: "2024-05-24",
-  },
-  {
-    tieude: "Note 4",
-    nd: "Khoa Học Giỏi Quá Quá Quá Quá Đi.",
-    ngay: "2024-05-12",
-  },
-  {
-    tieude: "Note 1",
-    nd: "Khoa Học Giỏi Quá Đi.",
-    ngay: "2024-05-15",
-  },
-  {
-    tieude: "Note 2",
-    nd: "Khoa Học Giỏi Quá Quá Đi.",
-    ngay: "2024-05-14",
-  },
-  {
-    tieude: "Note 3",
-    nd: "Khoa Học Giỏi Quá Quá Đi .",
-    ngay: "2024-05-24",
-  },
-  {
-    tieude: "Note 4",
-    nd: "Khoa Học Giỏi Quá Quá Quá Quá Đi.",
-    ngay: "2024-05-12",
-  },
-  {
-    tieude: "Note 1",
-    nd: "Khoa Học Giỏi Quá Đi.",
-    ngay: "2024-05-15",
-  },
-  {
-    tieude: "Note 2",
-    nd: "Khoa Học Giỏi Quá Quá Đi.",
-    ngay: "2024-05-14",
-  },
-  {
-    tieude: "Note 3",
-    nd: "Khoa Học Giỏi Quá Quá Đi .",
-    ngay: "2024-05-24",
+
   },
   {
     tieude: "Note 4",
@@ -111,7 +72,7 @@ export default function TrangOnTapChiTiet() {
             <span className={style.date}>Documents</span>
           </div>
         </div>
-        <div className={style.contentEditable} contentEditable="true">
+        <div className={style.contentEditable} >
           {selectedNote.nd}
         </div>
         <div className={style.buttonKQ}>
