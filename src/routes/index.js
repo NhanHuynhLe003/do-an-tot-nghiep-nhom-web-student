@@ -14,6 +14,7 @@ import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndE
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
 import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
 import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
+import TrangChart from "../pages/GhiChu/TrangChart";
 
 const routes = [
   {
@@ -92,6 +93,12 @@ const routes = [
     component: TrangOnTapChiTiet,
     layout: MainLayout,
   },
+  {
+    path: "/trang-chart",
+    component: TrangChart,
+    layout: MainLayout,
+  },
+
   //==================TRANG CHINH===================
   {
     path: "/trang-chinh",
