@@ -14,6 +14,8 @@ import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndE
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
 import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
 import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
+import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
+import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 
 const routes = [
   {
@@ -49,6 +51,20 @@ const routes = [
   {
     path: "/admin/book-manage/category",
     component: CreateCategoryPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+
+  {
+    path: "/admin/order-manage",
+    component: AdminBookOrderPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+
+  {
+    path: "/admin/cv-manage",
+    component: AdminCvManagePage,
     layout: MainLayout,
     isAdmin: true,
   },
