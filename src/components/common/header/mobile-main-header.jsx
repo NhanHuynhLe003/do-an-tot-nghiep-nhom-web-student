@@ -101,7 +101,7 @@ export default function MobileMainHeader() {
   );
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1 }} className="animate__animated animate__fadeInDown">
       <AppBar position="static">
         <Toolbar>
           {/* Mở thanh drawer bên góc trái */}

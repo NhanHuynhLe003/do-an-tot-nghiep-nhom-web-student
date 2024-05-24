@@ -18,7 +18,10 @@ export default function TrangChinh() {
   const [selectedNote, setSelectedNote] = useState(notes[0]);
 
   const addNewNote = () => {
-    const newNote = { tieude: `Note ${notes.length + 1}`, nd: "Bạn Chưa Viết Gì!" };
+    const newNote = {
+      tieude: `Note ${notes.length + 1}`,
+      nd: "Bạn Chưa Viết Gì!",
+    };
     setNotes([...notes, newNote]);
   };
 
