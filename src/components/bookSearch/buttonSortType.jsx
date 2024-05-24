@@ -2,7 +2,14 @@ import { ArrowDropDown } from "@mui/icons-material";
 import { Stack } from "@mui/material";
 import React from "react";
 
-export default function ButtonSortType({ content }) {
+/**
+ * @typedef {import('@mui/material').StackProps} StackProps
+ */
+
+/**
+ * @param {StackProps & {content: string}} props
+ */
+export default function ButtonSortType({ content, ...props }) {
   return (
     <Stack
       direction={"row"}
@@ -16,6 +23,7 @@ export default function ButtonSortType({ content }) {
         width: { sm: "10rem", xs: "6rem" },
         fontSize: { sm: "0.8rem", xs: "0.6em" },
       }}
+      {...props}
     >
       <span>{content}</span>
       <ArrowDropDown></ArrowDropDown>

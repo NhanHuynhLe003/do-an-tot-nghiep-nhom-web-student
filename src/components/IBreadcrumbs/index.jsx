@@ -3,6 +3,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import style from "./IBreadcrumbs.module.css";
 import clsx from "clsx";
+
 /**
  * @typedef {Object} BreadcrumbItem
  * @property {number} id
