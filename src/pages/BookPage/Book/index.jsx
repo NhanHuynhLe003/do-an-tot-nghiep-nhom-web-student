@@ -38,13 +38,23 @@ export default function Book() {
   }
 
   return (
-    <Box className={clsx("book-main-page", style.contentBookContainer)}>
+    <Box
+      className={clsx(
+        "book-main-page",
+        style.contentBookContainer,
+        "animate__animated animate__fadeIn"
+      )}
+    >
       <h1 className={style.heading01}>Book Store Home</h1>
 
+      <h3>
+        Nơi đây sẽ là Carousel chứa nội dung của Event , đồng thời sẽ chứa pop
+        up hiển thị thông báo event mới
+      </h3>
       <br />
       <br />
       <Stack
-        className={style.section1}
+        className={clsx(style.section1, "animate__animated animate__zoomIn")}
         direction={"row"}
         justifyContent={"space-between"}
         px={6}
@@ -63,7 +73,7 @@ export default function Book() {
       </Stack>
 
       <Stack
-        className={style.section2}
+        className={clsx(style.section2, "animate__animated animate__fadeIn")}
         direction={"column"}
         gap={"1rem"}
         px={6}
@@ -247,8 +257,8 @@ export default function Book() {
             </Link>
           </Typography>
         </Stack>
-        <br />
 
+        <br />
         <ListBookView
           paginationCustomize={paginationCustomize}
           dataList={shuffleArray(ratingBooks)}
@@ -256,6 +266,11 @@ export default function Book() {
           slideCardPerView={6.6}
         ></ListBookView>
       </Stack>
+      <br />
+      <Stack>
+        <h3>Đánh giá của đọc giả</h3>
+      </Stack>
+      <br />
 
       {/* Tiểu Thuyết */}
       <Stack className={style.section9} mt={"3rem"} px={6} direction={"column"}>

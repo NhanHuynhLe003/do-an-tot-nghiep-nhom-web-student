@@ -1,10 +1,10 @@
 import { Search } from "@mui/icons-material";
 import { Box, Button, Input, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import SubmitDialog from "../../../components/IDialog/SubmitDialog";
 import ITable from "../../../components/ITable/ITable";
 import { dataListBooks, headerListBooks } from "../../../data/arrays";
-import SubmitDialog from "../../../components/IDialog/SubmitDialog";
-import { useNavigate } from "react-router-dom";
 
 export default function AdminBookManagePage() {
   // nevigate
@@ -26,6 +26,10 @@ export default function AdminBookManagePage() {
 
   function handleClickCreateBookBtn() {
     navigate("/admin/book-manage/create-book");
+  }
+
+  function handleClickTrashBtn() {
+    navigate("/admin/book-manage/trash");
   }
 
   return (
@@ -67,9 +71,11 @@ export default function AdminBookManagePage() {
           )}
           <Button variant="contained">Tạo Danh Mục</Button>
           <Button variant="contained" onClick={handleClickCreateBookBtn}>
-            Tạo Sách
+            Thêm Sách
           </Button>
-          <Button variant="contained">Thùng Rác</Button>
+          <Button variant="contained" onClick={handleClickTrashBtn}>
+            Thùng Rác
+          </Button>
           <Button variant="contained">Sách Nháp</Button>
         </Stack>
       </Stack>

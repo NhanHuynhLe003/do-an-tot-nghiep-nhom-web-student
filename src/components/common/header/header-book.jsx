@@ -16,7 +16,9 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
   }
   return (
     <header
-      className={clsx(style.header, { [style.headerOrigin]: topPositon <= 35 })}
+      className={clsx("animate__animated animate__fadeInDown", style.header, {
+        [style.headerOrigin]: topPositon <= 35,
+      })}
       ref={ref}
     >
       <Stack

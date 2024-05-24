@@ -6,9 +6,14 @@ import { routes } from "./routes";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import { useWindowSize } from "./hooks";
 import MobileMainLayout from "./components/layouts/MobileMainLayout";
+//CSS ANIMATE
+import "animate.css";
+
 function App() {
   const { width, height } = useWindowSize();
-
+  /** Xử lý sách nháp tại đây, nếu kiểm tra thấy trong local storage đg có sách nháp thì update lên
+   db sau đó xóa sách nháp trong local storage.
+   */
   return (
     <div className="App">
       <Router>

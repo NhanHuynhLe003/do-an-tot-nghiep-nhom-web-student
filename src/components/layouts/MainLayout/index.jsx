@@ -9,6 +9,7 @@ import style from "./mainlayout.module.css";
 
 import HeaderBook from "../../common/header/header-book";
 import { useWindowSizeDepParent } from "../../../hooks";
+import clsx from "clsx";
 
 export default function MainLayout({ children, typePage = "" }) {
   const refSlideContent = useRef(null);
@@ -62,10 +63,11 @@ export default function MainLayout({ children, typePage = "" }) {
           backgroundColor: theme.colors.white1,
         }}
       >
+        {/* Sidebar */}
         <Box
           width={"18%"}
           padding={"2rem 0 0 0"}
-          className={style.sidebarContainer}
+          className={clsx(style.sidebarContainer)}
         >
           <SideBar></SideBar>
           <Footer></Footer>

@@ -33,12 +33,12 @@ ChartJS.register(
 
 // Khai báo dữ liệu và cấu hình cho biểu đồ cột
 const barData = {
-    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7'], // Nhãn trục X
+    labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], // Nhãn trục X
     datasets: [
         {
             label: 'Dữ liệu 1', // Nhãn chú giải
             data: [65, 59, 80, 81, 56, 55, 40], // Dữ liệu trục Y
-            backgroundColor: 'rgba(75, 192, 192, 0.2)', // Màu nền của cột
+            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Màu nền của cột
             borderColor: 'rgba(75, 192, 192, 1)', // Màu viền của cột
             borderWidth: 1, // Độ rộng của viền
         },
@@ -50,7 +50,7 @@ const barOptions = {
     responsive: true, // Tự động điều chỉnh kích thước
     plugins: {
         legend: {
-            position: 'top', // Vị trí của chú giải
+            position: 'bottom', // Vị trí của chú giải
         },
         title: {
             display: true,
