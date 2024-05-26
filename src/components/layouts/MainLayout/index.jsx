@@ -8,10 +8,14 @@ import theme from "../../../theme";
 import style from "./mainlayout.module.css";
 
 import HeaderBook from "../../common/header/header-book";
+import HeaderCvToolBar from "../../common/header/header-cv-toolbar";
 import { useWindowSizeDepParent } from "../../../hooks";
 import clsx from "clsx";
+import { useLocation } from "react-router-dom";
 
 export default function MainLayout({ children, typePage = "" }) {
+  const location = useLocation();
+  const urlPathName = useRef(location.pathname);
   const refSlideContent = useRef(null);
   const { left, top } = useWindowSizeDepParent(refSlideContent);
   // console.log("TOP:", top);
@@ -78,7 +82,14 @@ export default function MainLayout({ children, typePage = "" }) {
           position={"relative"}
           ref={refSlideContent}
         >
-          <HeaderBook topPositon={top}></HeaderBook>
+          {/* Header */}
+          {urlPathName.current.includes("/book") ? (
+            <HeaderBook topPositon={top}></HeaderBook>
+          ) : urlPathName.current.includes("/admin") ? (
+            <HeaderCvToolBar topPositon={top}></HeaderCvToolBar>
+          ) : (
+            <HeaderBook topPositon={top}></HeaderBook>
+          )}
 
           {children}
         </Box>

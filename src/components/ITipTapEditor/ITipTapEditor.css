@@ -1,0 +1,18 @@
+/* Basic editor styles */
+
+.ITipTapEditor___EditorContentWrapper {
+    margin-top: 1rem;
+    width: 100%;
+
+}
+
+.ITipTapEditor___EditorContentWrapper>.ProseMirror {
+    padding: 0.5rem;
+
+}
+
+.ITipTapEditor___EditorContentWrapper>.ProseMirror:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}

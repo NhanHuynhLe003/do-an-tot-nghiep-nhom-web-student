@@ -15,12 +15,14 @@ export default function SideBar({ listNavigation = [...navList] }) {
     <Box className={style.sideBar}>
       <Stack direction={"column"} alignItems={"center"} gap={"1rem"}>
         <Box className={style.imgContainer}>
-          <img
+          <Box
+            mt={3}
+            component={"img"}
             width={"100%"}
             height={"auto"}
             alt="logo-page"
             src={LogoPage}
-          ></img>
+          ></Box>
         </Box>
 
         <Stack

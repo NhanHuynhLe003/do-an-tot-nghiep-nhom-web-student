@@ -24,7 +24,8 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
       <Stack
         direction={"row"}
         alignItems={"center"}
-        mt={3}
+        // mt={3}
+        py={1}
         position={"relative"}
         className={style.headerContainer}
       >
