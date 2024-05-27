@@ -5,11 +5,12 @@ import TextStyle from "@tiptap/extension-text-style";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { ToolTipTaps } from "./IMenuBarTipTap";
 import "./ITipTapEditor.css";
 import { useDispatch, useSelector } from "react-redux";
 import CvSlice from "../../redux/slices/CvSlice";
+import { sizeEditorSelector } from "../../redux/selector";
 
 // define your extension array
 const extensions = [
@@ -40,19 +41,28 @@ export default function ITipTapEditor({
 }) {
   //Truyen data len thanh toolbar tren header
   const dispatch = useDispatch();
+  const selectorSizeEditor = useSelector(sizeEditorSelector);
 
   const [showToolBar, setShowToolBar] = React.useState(false);
+
+  //Lấy ra size khi change editor từ redux
+
+  const editorRef = useRef(null);
+
   const editorTipTap = useEditor({
     content: content,
     extensions: extensions, //nếu dùng [StarterKit.configure()] - this is the default extension
+    //Lắng nghe khi text thay đổi
     onUpdate: ({ editor }) => {
       const htmlConvertText = editor.getHTML();
+      // console.log("HTML CONVERT TEXT", htmlConvertText);
+      dispatch(CvSlice.actions.setTextEditorChange(editor.getHTML()));
     },
     onFocus: ({ editor }) => {
       /*(*) Quan trọng nhất vì khi focus vào component mới thì editor sẽ được truyền lên header
       , sau khi header nhận được editor sẽ tiến hành khởi tạo ra 1 component IMenuBar mới, đồng
       thời editor này cũng được truyền cho component ITipTapEditor bên dưới nên IMenuBar với
-      ITipTapEditor mới có thể kết nối được.
+      ITipTapEditor mới có thể kết nối được. => editor sẽ tự động kết nối IMenuBar khi nhận cùng 1 editor
       
       (*)Lưu ý: trong TipTap không có 1 controller quản lý nhiều form mà chỉ có theo quy tắc 1-1,
       có thể khi ITipTapEditor và IMenuBar kết nối thì useEditor thiết lập 2 component này chung ID,
@@ -63,45 +73,51 @@ export default function ITipTapEditor({
 
       setShowToolBar(true);
     },
-    onTransaction: ({ editor, transaction }) => {
-      dispatch(CvSlice.actions.setTextEditorChange(editor.getHTML()));
-    },
 
+    // Lắng nghe sự kiện khi editor thay đổi(moi thu nhu select, noi dung,...)
+    onTransaction: ({ editor, transaction }) => {},
+
+    //Lắng nghe sự kiện khi chuột thay đổi
     onSelectionUpdate: ({ editor }) => {
       const state = editor.state;
       const selection = state.selection;
+      // Lấy vị trí con trỏ đang chọn trong input from...to
       const from = selection.from;
       const to = selection.to;
       dispatch(CvSlice.actions.setPositionPointer({ from, to }));
     },
+
+    // Xóa id khi blur ra khỏi editor
+    onBlur: ({ editor }) => {
+      dispatch(CvSlice.actions.setIdEditor(-1));
+    },
   });
 
+  //Update editor thanh công cụ lên header mỗi khi mount
   useEffect(() => {
-    //Truyền editor lên menu lần đầu tiên
-    if (editorTipTap) {
-      dispatch(CvSlice.actions.setEditorContent(editorTipTap));
-      dispatch(CvSlice.actions.setIdEditor(id));
-    }
+    dispatch(CvSlice.actions.setEditorContent(editorTipTap));
   }, [editorTipTap]);
 
   if (!editorTipTap) {
     return null;
   }
-  // dispatch(CvSlice.actions.setEditorContent(editor));
+
   return (
-    // Ý tưởng: Dùng thẳng luôn nhưng dùng bảng nào thì header render ra toolbar bảng đó riêng
-    // Dùng onFocus để lắng nghe đang chọn bảng nào, tốt nhất mỗi bảng nên có id
-    //id content trùng với id toolbar thì hiển thị toolbar còn ko thì thôi
     <Stack
       className="ITipTapEditor___CustomEditorWrapper"
       direction={"column"}
-      height={"100%"}
-      width={"100%"}
-      justifyContent={"center"}
-      alignItems={"center"}
+      height={"fit-content"}
+      width={"fit-content"}
+      sx={{
+        // Điều chỉnh kích thước cho component editor bên trong
+        "& .ITipTapEditor___EditorContentWrapper .ProseMirror": {
+          width: selectorSizeEditor.width,
+          height: selectorSizeEditor.height,
+        },
+      }}
     >
-      {/* {showToolBar && <IMenuBarTipTap editor={editor} tools={tools} />} */}
       <EditorContent
+        ref={editorRef}
         className="ITipTapEditor___EditorContentWrapper"
         editor={editorTipTap}
       />

@@ -57,7 +57,10 @@ export default function IDraggableItem({
         "--translate-y": `${transform?.y ?? 0}px`,
       }}
     >
-      <button {...listeners}>{childElement}</button>
+      {/* Listener quăng vào đây thì chỉ có button mới có các hành động */}
+      <button className={style.buttonDragger} {...listeners}>
+        {childElement}
+      </button>
     </div>
   );
 }

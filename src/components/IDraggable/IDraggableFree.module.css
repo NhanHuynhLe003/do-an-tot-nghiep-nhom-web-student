@@ -33,7 +33,36 @@
         transition: box-shadow 300ms ease;
     }
 
-    >button:hover {}
+    >button:hover::before {
+        opacity: 0.6;
+        content: "nhấn giữ để kéo";
+        font-size: 0.75rem;
+        position: absolute;
+        bottom: -1.25rem;
+        left: 1.15rem;
+        width: fit-content;
+        min-width: 6rem;
+    }
+
+    >button:hover::after {
+        content: "";
+        opacity: 0.4;
+        width: 1.25rem;
+        /* Đặt kích thước rộng */
+        height: 1.25rem;
+        /* Đặt kích thước cao */
+        background-image: url('/public/imgs/all-directions.png');
+        background-size: cover;
+        /* Adjust as needed */
+        margin-right: 8px;
+        /* Adjust as needed */
+        vertical-align: middle;
+        /* Adjust as needed */
+        position: absolute;
+        bottom: -1.5rem;
+        left: 0rem;
+        opacity: 0.6;
+    }
 
     &:not(.handle) {
         >button {

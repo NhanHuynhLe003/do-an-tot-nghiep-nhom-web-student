@@ -9,6 +9,7 @@ const cvIdSelector = (state) => state.cvs.id;
 // const cvStateChangeSelector = (state) => state.cvs.stateChange;
 const cvTextSelector = (state) => state.cvs.textEditor;
 const positionPointerSelector = (state) => state.cvs.coordPointer;
+const sizeEditorSelector = (state) => state.cvs.sizeEditor;
 
 //Combine với các selector khác(nếu có)
 const remainingSelector = createSelector(
@@ -21,5 +22,6 @@ export {
   cvEditorContentSelector,
   cvIdSelector,
   positionPointerSelector,
+  sizeEditorSelector,
   remainingSelector,
 };

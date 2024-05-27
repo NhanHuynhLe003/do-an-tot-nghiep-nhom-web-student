@@ -1,16 +1,36 @@
-import React, { useState, useRef, useEffect } from "react";
-import styles from "./IWrapperResizeRotate.module.css";
-import { FaArrowRotateRight } from "react-icons/fa6";
 import { Box } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import { FaArrowRotateRight } from "react-icons/fa6";
 
-const IWrapperResizeRotate = ({ children }) => {
-  const [rotate, setRotate] = useState(0);
-  const [size, setSize] = useState({ width: 200, height: 30 });
+import { useDispatch, useSelector } from "react-redux";
+import { sizeEditorSelector } from "../../redux/selector";
+import CvSlice from "../../redux/slices/CvSlice";
+import styles from "./IWrapperResizeRotate.module.css";
+import { sizeEditorDefault } from "../../constants";
 
-  const paddingWrapperContainer = useRef(8);
-  const borderWrapperContainer = useRef(2);
+const IWrapperResizeRotate = ({ children, typeChildren = "editor" }) => {
+  const dispatch = useDispatch();
   const elementRef = useRef(null);
   const childrenContainerRef = useRef(null);
+
+  const [rotate, setRotate] = useState(0);
+
+  const [size, setSize] = useState(
+    typeChildren === "editor"
+      ? sizeEditorDefault
+      : {
+          width: 200,
+          height: 200,
+        }
+  );
+
+  function handleSendSizeToEditor(size) {
+    dispatch(CvSlice.actions.setSizeEditor(size));
+  }
+
+  function handleSetSize(size) {
+    setSize(size);
+  }
 
   // Xử lý sự kiện khi bắt đầu kéo để xoay
   const handleMouseDownRotate = (e) => {
@@ -54,7 +74,6 @@ const IWrapperResizeRotate = ({ children }) => {
      */
     const startX = e.clientX || e.touches[0].clientX;
     const startY = e.clientY || e.touches[0].clientY;
-    console.log("[BEFORE:::]", { startX, startY });
 
     /**
       startWidth = size.width lưu lại chiều rộng ban đầu của phần tử.
@@ -69,7 +88,8 @@ const IWrapperResizeRotate = ({ children }) => {
       const endY = e.clientY || e.touches[0].clientY;
       const newWidth = startWidth + (endX - startX);
       const newHeight = startHeight + (endY - startY);
-      setSize({ width: newWidth, height: newHeight });
+      handleSetSize({ width: newWidth, height: newHeight });
+      handleSendSizeToEditor({ width: newWidth, height: newHeight });
     };
 
     const handleMouseUpResize = () => {
@@ -89,17 +109,19 @@ const IWrapperResizeRotate = ({ children }) => {
     <div
       className={styles.wrapper}
       style={{
-        border: `${borderWrapperContainer.current}px dashed var(--color-primary1)`,
-        padding: paddingWrapperContainer.current,
+        border: `2px dashed var(--color-primary1)`,
+        // padding: paddingWrapperContainer.current,
         transform: `rotate(${rotate}deg)`, // (*) Xoay item
+        width: "fit-content",
+        height: "fit-content",
         // position: "absolute", //(*) Cho các vị trí không liên quan đến nhau dù resize cũng ko ảnh hưởng
       }}
     >
       <div
         ref={elementRef}
         style={{
-          width: size.width,
-          height: size.height,
+          width: "fit-content",
+          height: "fit-content",
         }}
         className={styles["resizable-box"]}
       >
@@ -108,22 +130,9 @@ const IWrapperResizeRotate = ({ children }) => {
           component={"div"}
           className={"childrenContainer"}
           sx={{
-            width: "100%",
-            height: "100%",
-
-            "& *": {
-              width: "100%",
-              height: "100%",
-            },
-            "& textarea": {
-              padding: 0,
-              width: "100%",
-              height: "100%",
-              border: "none",
-              outline: "none",
-              resize: "none",
-              backgroundColor: "transparent",
-            },
+            // Có thể trong tương lai sẽ thêm class để chỉ editor mới fit-cotent
+            width: "fit-content",
+            height: "fit-content",
           }}
         >
           {/* Co the dung React.clone de clone ra 1 children moi */}

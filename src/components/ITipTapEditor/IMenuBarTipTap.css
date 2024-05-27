@@ -6,8 +6,9 @@
     width: 100%;
 }
 
+/* Khoảng cách giữa các dòng */
 .ITipTapEditor___CustomEditorWrapper .tiptap>*+* {
-    margin-top: 0.75em;
+    margin-top: 0.25em;
 }
 
 .ITipTapEditor___CustomEditorWrapper .tiptap ul,
@@ -22,6 +23,7 @@
 .ITipTapEditor___CustomEditorWrapper .tiptap h5,
 .ITipTapEditor___CustomEditorWrapper .tiptap h6 {
     line-height: 1.1;
+    margin-bottom: 0.35em;
 }
 
 .ITipTapEditor___CustomEditorWrapper .tiptap code {
@@ -63,9 +65,11 @@
 .ITipTapEditor___buttonTool {
     border: none;
     background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     border-radius: 4px;
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 1rem;
+    margin-right: 0.5rem;
+    height: 100%;
     cursor: pointer;
     transition: 100ms ease-in-out;
     font-size: 18px;
@@ -79,7 +83,7 @@
 
 .ITipTapEditor___ColorPicker {
     padding: 0.25rem;
-    width: 2.5rem;
+    /* width: 2.5rem; */
     height: 2rem;
 }
 

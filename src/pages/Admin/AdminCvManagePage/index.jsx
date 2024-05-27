@@ -3,6 +3,7 @@ import { Box, Stack } from "@mui/material";
 import React from "react";
 import IDraggableFree from "../../../components/IDraggable/IDraggableFree";
 import IWrapperResizeRotate from "../../../components/IWrapperResizeRotate";
+import ITipTapEditor from "../../../components/ITipTapEditor";
 
 export default function AdminCvManagePage() {
   // Đừng style cứng các item được wrap, các dữ liệu này sau này do mình tạo ra khi nhấn nút them
@@ -12,37 +13,13 @@ export default function AdminCvManagePage() {
       component: (
         <span>
           <IWrapperResizeRotate>
-            <textarea placeholder="Nhập nội dung vào đây"></textarea>
+            <ITipTapEditor id={"001"}></ITipTapEditor>
           </IWrapperResizeRotate>
         </span>
       ),
       coordinate: {
         x: 30,
         y: 30,
-      },
-    },
-    {
-      id: 2,
-      component: (
-        <IWrapperResizeRotate>
-          <textarea placeholder="Nhập nội dung hoặc giữ để kéo thả"></textarea>
-        </IWrapperResizeRotate>
-      ),
-      coordinate: {
-        x: 40,
-        y: 40,
-      },
-    },
-    {
-      id: 3,
-      component: (
-        <IWrapperResizeRotate>
-          <textarea placeholder="Nhập nội dung vào đây"></textarea>
-        </IWrapperResizeRotate>
-      ),
-      coordinate: {
-        x: 50,
-        y: 50,
       },
     },
   ];

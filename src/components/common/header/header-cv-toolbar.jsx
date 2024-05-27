@@ -1,6 +1,6 @@
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import {
   cvEditorContentSelector,
@@ -16,6 +16,24 @@ import AccountInfo from "./components/account-info";
 import style from "./header-book.module.css";
 
 export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
+  const menuToolBarRef = useRef(null);
+  const [isHoverToolBar, setIsHoverToolBar] = React.useState(false);
+
+  function handleMouseEnter(e) {
+    // const buttonInsideToolBar = menuToolBarRef.current.querySelectorAll(
+    //   ".ITipTapEditor___buttonTool"
+    // );
+    // buttonInsideToolBar.forEach((toolBtn) => {
+    //   toolBtn.addEventListener("click", (e) => {
+    //     console.log("CLICKED");
+
+    //     setIsHoverToolBar(true);
+    //   });
+    // });
+
+    setIsHoverToolBar(true);
+  }
+
   //Lấy ra giá trị editor từ componet ITipTapEditor truyền lên
   const editorSelector = useSelector(cvEditorContentSelector);
   //Lấy ID và set cho menu khi change status
@@ -27,7 +45,6 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
 
   useEffect(() => {
     //Xử lý khi data change từ editor thì thanh công cụ cũng phải re-render
-    // console.log("Component Changed");
     // return () => console.log("Component-Unmount");
   }, [
     editorSelector,
@@ -53,20 +70,39 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
         position={"relative"}
         className={style.headerContainer}
       >
-        {editorSelector && (
-          <IMenuBarTipTap
-            id={idEditorSelector}
-            editor={editorSelector}
-            tools={[
-              ToolTipTaps.COLOR,
-              ToolTipTaps.BOLD,
-              ToolTipTaps.ITALIC,
-              ToolTipTaps.HEADING1,
-              ToolTipTaps.HEADING2,
-              ToolTipTaps.CODE_BLOCK,
-            ]}
-          />
-        )}
+        <Box
+          sx={{
+            minHeight: "1.5rem",
+            minWidth: "10%",
+          }}
+        >
+          {/* Chỉ cần đang hover toolbar hoặc đang focus 1 trong 2 điều kiên đúng là tool
+          bar vẫn sẽ hiện */}
+          {editorSelector /*&& (idEditorSelector !== -1 || isHoverToolBar)*/ && (
+            <Box
+              ref={menuToolBarRef}
+              sx={{
+                width: "fit-content",
+                height: "fit-content",
+              }}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={() => setIsHoverToolBar(false)}
+            >
+              <IMenuBarTipTap
+                id={idEditorSelector}
+                editor={editorSelector}
+                tools={[
+                  ToolTipTaps.COLOR,
+                  ToolTipTaps.BOLD,
+                  ToolTipTaps.ITALIC,
+                  ToolTipTaps.HEADING1,
+                  ToolTipTaps.HEADING2,
+                  ToolTipTaps.CODE_BLOCK,
+                ]}
+              />
+            </Box>
+          )}
+        </Box>
         <IMenuListFloat
           ListButtonContent={<AccountInfo></AccountInfo>}
         ></IMenuListFloat>
