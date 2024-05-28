@@ -1,15 +1,16 @@
 import { Box } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { FaArrowRotateRight } from "react-icons/fa6";
 
-import { useDispatch, useSelector } from "react-redux";
-import { sizeEditorSelector } from "../../redux/selector";
-import CvSlice from "../../redux/slices/CvSlice";
-import styles from "./IWrapperResizeRotate.module.css";
 import { sizeEditorDefault } from "../../constants";
+import styles from "./IWrapperResizeRotate.module.css";
 
-const IWrapperResizeRotate = ({ children, typeChildren = "editor" }) => {
-  const dispatch = useDispatch();
+const IWrapperResizeRotate = ({
+  childContent = "Nhập nội dung vào đây",
+  typeChildren = "editor",
+  ChildComponent = React.Fragment,
+  id, //ID wrapper sẽ truyền vào component child luôn, bắt buộc phải có
+}) => {
   const elementRef = useRef(null);
   const childrenContainerRef = useRef(null);
 
@@ -23,10 +24,6 @@ const IWrapperResizeRotate = ({ children, typeChildren = "editor" }) => {
           height: 200,
         }
   );
-
-  function handleSendSizeToEditor(size) {
-    dispatch(CvSlice.actions.setSizeEditor(size));
-  }
 
   function handleSetSize(size) {
     setSize(size);
@@ -89,7 +86,6 @@ const IWrapperResizeRotate = ({ children, typeChildren = "editor" }) => {
       const newWidth = startWidth + (endX - startX);
       const newHeight = startHeight + (endY - startY);
       handleSetSize({ width: newWidth, height: newHeight });
-      handleSendSizeToEditor({ width: newWidth, height: newHeight });
     };
 
     const handleMouseUpResize = () => {
@@ -135,8 +131,12 @@ const IWrapperResizeRotate = ({ children, typeChildren = "editor" }) => {
             height: "fit-content",
           }}
         >
-          {/* Co the dung React.clone de clone ra 1 children moi */}
-          {children}
+          <ChildComponent
+            key={id}
+            id={id}
+            size={size}
+            content={childContent}
+          ></ChildComponent>
         </Box>
         {/* Điều khiển xoay */}
         <div

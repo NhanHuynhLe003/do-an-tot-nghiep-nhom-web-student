@@ -6,10 +6,10 @@ export default createSlice({
   name: "cvs",
   initialState: {
     editorContent: "",
-    id: -1,
+    id: -1, //id của editor đang được chọn
     textEditor: "",
     coordPointer: {}, //Tọa độ con trỏ trong Editor
-    sizeEditor: sizeEditorDefault,
+    sizeEditor: sizeEditorDefault, //Kích thước của editor,
   },
   reducers: {
     // Truyền editorContent từ header xuống tiptapeditor

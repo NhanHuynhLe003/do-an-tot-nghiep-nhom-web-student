@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import styles from "./IDraggableFree.module.css";
+import React from "react";
 // import {
 //   draggable,
 //   draggableHorizontal,
@@ -26,7 +27,50 @@ const Axis = {
  * @param {object} buttonStyle - Các kiểu dáng CSS bổ sung cho button kéo được.
  * @param {object} props - Các thuộc tính khác được truyền tới button kéo được.
  */
-export default function IDraggableItem({
+const IDraggableItem = React.forwardRef((props, ref) => {
+  //REF không thể truyền dưới dạng props, nên cần phải bằng cách forwardRef từ cha xuống con
+  const {
+    axis,
+    dragOverlay,
+    dragging,
+    handle,
+    label,
+    listeners,
+    transform,
+    style,
+    childElement,
+    ...attributes
+  } = props;
+
+  return (
+    <div
+      ref={ref}
+      {...listeners}
+      {...attributes}
+      //Các class ứng với trạng thái đgl kéo, đgl kéo, có handle
+      className={clsx(styles.DraggableItem, {
+        [styles.dragOverlay]: !!dragOverlay,
+        [styles.dragging]: !!dragging,
+        [styles.handle]: !!handle,
+      })}
+      // Quan trọng, nó dùng để transform mục kéo được
+      style={{
+        ...style,
+        "--translate-x": `${transform?.x ?? 0}px`,
+        "--translate-y": `${transform?.y ?? 0}px`,
+      }}
+    >
+      {/* Listener quăng vào đây thì chỉ có button mới có các hành động */}
+      <button className={style.buttonDragger}>{childElement}</button>
+    </div>
+  );
+});
+
+export default IDraggableItem;
+
+/**
+ * 
+ {
   ref,
   axis,
   dragOverlay,
@@ -42,25 +86,5 @@ export default function IDraggableItem({
     </span>
   ),
   ...props
-}) {
-  return (
-    <div
-      //Các class ứng với trạng thái đgl kéo, đgl kéo, có handle
-      className={clsx(styles.DraggableItem, {
-        [styles.dragOverlay]: !!dragOverlay,
-        [styles.dragging]: !!dragging,
-        [styles.handle]: !!handle,
-      })}
-      style={{
-        ...style,
-        "--translate-x": `${transform?.x ?? 0}px`,
-        "--translate-y": `${transform?.y ?? 0}px`,
-      }}
-    >
-      {/* Listener quăng vào đây thì chỉ có button mới có các hành động */}
-      <button className={style.buttonDragger} {...listeners}>
-        {childElement}
-      </button>
-    </div>
-  );
 }
+ */

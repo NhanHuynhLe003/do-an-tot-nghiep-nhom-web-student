@@ -10,6 +10,17 @@
     /*(*)Cho nó bao nội dung bên trong*/
     width: fit-content;
 
+
+    /* >div:nth-child(2) {
+        position: absolute;
+        
+        bottom: 0;
+
+        height: 2px;
+        background-color: var(--color-primary1);
+    }
+     */
+
     /* CSS cho button bên trong item */
     >button {
         display: flex;
@@ -93,7 +104,7 @@
 
         >button {
             /*Ko scale sẽ khá giật*/
-            --scale: 1.05;
+            --scale: 1.0001;
             /* --box-shadow: -1px 0 15px 0 rgba(34, 33, 81, 0.01),
                 0px 15px 15px 0 rgba(34, 33, 81, 0.25);
 
@@ -115,6 +126,8 @@
         }
     }
 }
+
+
 
 @keyframes pulse {
     from {

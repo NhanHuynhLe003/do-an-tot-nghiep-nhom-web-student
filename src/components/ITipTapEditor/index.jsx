@@ -11,6 +11,7 @@ import "./ITipTapEditor.css";
 import { useDispatch, useSelector } from "react-redux";
 import CvSlice from "../../redux/slices/CvSlice";
 import { sizeEditorSelector } from "../../redux/selector";
+import { sizeEditorDefault } from "../../constants";
 
 // define your extension array
 const extensions = [
@@ -38,6 +39,7 @@ export default function ITipTapEditor({
     ToolTipTaps.UNDO,
     ToolTipTaps.REDO,
   ],
+  size = { ...sizeEditorDefault },
 }) {
   //Truyen data len thanh toolbar tren header
   const dispatch = useDispatch();
@@ -111,8 +113,8 @@ export default function ITipTapEditor({
       sx={{
         // Điều chỉnh kích thước cho component editor bên trong
         "& .ITipTapEditor___EditorContentWrapper .ProseMirror": {
-          width: selectorSizeEditor.width,
-          height: selectorSizeEditor.height,
+          width: size.width,
+          height: size.height,
         },
       }}
     >

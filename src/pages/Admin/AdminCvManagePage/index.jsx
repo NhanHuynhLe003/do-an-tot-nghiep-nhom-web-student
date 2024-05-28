@@ -1,25 +1,60 @@
-import { restrictToWindowEdges } from "@dnd-kit/modifiers";
-import { Box, Stack } from "@mui/material";
-import React from "react";
+import { Stack } from "@mui/material";
+import React, { useRef } from "react";
 import IDraggableFree from "../../../components/IDraggable/IDraggableFree";
-import IWrapperResizeRotate from "../../../components/IWrapperResizeRotate";
 import ITipTapEditor from "../../../components/ITipTapEditor";
+import IWrapperResizeRotate from "../../../components/IWrapperResizeRotate";
+import { sizeEditorDefault } from "../../../constants";
 
 export default function AdminCvManagePage() {
   // Đừng style cứng các item được wrap, các dữ liệu này sau này do mình tạo ra khi nhấn nút them
+  const initCoordinate = useRef(10);
   const listDataBoardItem = [
     {
       id: 1,
       component: (
         <span>
-          <IWrapperResizeRotate>
-            <ITipTapEditor id={"001"}></ITipTapEditor>
-          </IWrapperResizeRotate>
+          <IWrapperResizeRotate
+            id={"001"}
+            typeChildren="editor"
+            ChildComponent={ITipTapEditor} //Khôn truyền dạng này <ITipTapEditor></ITipTapEditor> vì props chỉ chấp nhận class hoặc function
+          ></IWrapperResizeRotate>
         </span>
       ),
       coordinate: {
-        x: 30,
-        y: 30,
+        x: initCoordinate.current,
+        y: initCoordinate.current,
+        x2: initCoordinate.current + sizeEditorDefault.width,
+        y2: initCoordinate.current,
+        x3: initCoordinate.current + sizeEditorDefault.width,
+        y3: initCoordinate.current + sizeEditorDefault.height,
+        x4: initCoordinate.current,
+        y4: initCoordinate.current + sizeEditorDefault.height,
+        x5: initCoordinate.current + sizeEditorDefault.width / 2,
+        y5: initCoordinate.current + sizeEditorDefault.height / 2,
+      },
+    },
+    {
+      id: 2,
+      component: (
+        <span>
+          <IWrapperResizeRotate
+            id={"002"}
+            typeChildren="editor"
+            ChildComponent={ITipTapEditor} //Khôn truyền dạng này <ITipTapEditor></ITipTapEditor> vì props chỉ chấp nhận class hoặc function
+          ></IWrapperResizeRotate>
+        </span>
+      ),
+      coordinate: {
+        x: 1 + initCoordinate.current,
+        y: 1 + initCoordinate.current,
+        x2: 1 + initCoordinate.current + sizeEditorDefault.width,
+        y2: 1 + initCoordinate.current,
+        x3: 1 + initCoordinate.current + sizeEditorDefault.width,
+        y3: 1 + initCoordinate.current + sizeEditorDefault.height,
+        x4: 1 + initCoordinate.current,
+        y4: 1 + initCoordinate.current + sizeEditorDefault.height,
+        x5: 1 + initCoordinate.current + sizeEditorDefault.width / 2,
+        y5: 1 + initCoordinate.current + sizeEditorDefault.height / 2,
       },
     },
   ];
