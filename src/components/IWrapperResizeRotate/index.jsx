@@ -173,8 +173,8 @@ const IWrapperResizeRotate = ({
           onTouchStart={handleMouseDownResize}
           sx={{
             position: "absolute",
-            width: "1rem",
-            height: "1rem",
+            width: "0.75rem",
+            height: "0.75rem",
             rotate: "90deg",
             background: "var(--color-primary1)",
             borderRadius: "50%",
@@ -188,8 +188,8 @@ const IWrapperResizeRotate = ({
             "&:hover": {
               bottom: "-0.75rem",
               right: "-0.75rem",
-              width: "1.5rem",
-              height: "1.5rem",
+              width: "1.25rem",
+              height: "1.25rem",
             },
           }}
         ></Box>

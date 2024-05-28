@@ -1,11 +1,8 @@
 import clsx from "clsx";
 import styles from "./IDraggableFree.module.css";
+
 import React from "react";
-// import {
-//   draggable,
-//   draggableHorizontal,
-//   draggableVertical,
-// } from "./IconsDraggable";
+
 const Axis = {
   ALL: "AXIS_ALL",
   VERTICAL: "AXIS_VERTICAL",
@@ -30,6 +27,8 @@ const Axis = {
 const IDraggableItem = React.forwardRef((props, ref) => {
   //REF không thể truyền dưới dạng props, nên cần phải bằng cách forwardRef từ cha xuống con
   const {
+    id,
+    sizeLines, // Kích thước của các đường kẻ có dạng {id:1, lines:[]}
     axis,
     dragOverlay,
     dragging,
@@ -41,14 +40,27 @@ const IDraggableItem = React.forwardRef((props, ref) => {
     childElement,
     ...attributes
   } = props;
+  // console.log("SIZE LINES::", sizeLines);
+  const [isShowLines, setIsShowLines] = React.useState(false);
+  function handleHoverItem() {
+    setIsShowLines(true);
+  }
+  function handleLeaveItem() {
+    setIsShowLines(false);
+  }
 
   return (
     <div
+      onMouseEnter={handleHoverItem}
+      onTouchMove={handleHoverItem}
+      onTouchStart={handleHoverItem}
+      onMouseLeave={handleLeaveItem}
+      onTouchEnd={handleLeaveItem}
       ref={ref}
       {...listeners}
       {...attributes}
       //Các class ứng với trạng thái đgl kéo, đgl kéo, có handle
-      className={clsx(styles.DraggableItem, {
+      className={clsx(styles.DraggableItem, styles.IDraggableItemContainer, {
         [styles.dragOverlay]: !!dragOverlay,
         [styles.dragging]: !!dragging,
         [styles.handle]: !!handle,
@@ -60,8 +72,118 @@ const IDraggableItem = React.forwardRef((props, ref) => {
         "--translate-y": `${transform?.y ?? 0}px`,
       }}
     >
-      {/* Listener quăng vào đây thì chỉ có button mới có các hành động */}
-      <button className={style.buttonDragger}>{childElement}</button>
+      <button className={style.buttonDragger}>
+        {childElement}
+        <div
+          style={{
+            // Kiểm tra xem id của item đang kéo có trùng với id của item hiện tại không, tránh trường hợp kéo trùng lặp
+            height:
+              sizeLines.idItemDragging === id ? sizeLines.lines[0]?.top : 0,
+          }}
+          className={clsx(styles.line, styles.line1, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            height:
+              sizeLines.idItemDragging === id ? sizeLines.lines[1]?.top : 0,
+          }}
+          className={clsx(styles.line, styles.line2, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            width:
+              sizeLines.idItemDragging === id ? sizeLines.lines[1]?.right : 0,
+          }}
+          className={clsx(styles.line, styles.line3, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            width:
+              sizeLines.idItemDragging === id ? sizeLines.lines[2]?.right : 0,
+          }}
+          className={clsx(styles.line, styles.line4, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            height:
+              sizeLines.idItemDragging === id ? sizeLines.lines[2]?.bottom : 0,
+          }}
+          className={clsx(styles.line, styles.line5, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            height:
+              sizeLines.idItemDragging === id ? sizeLines.lines[3]?.bottom : 0,
+          }}
+          className={clsx(styles.line, styles.line6, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            width:
+              sizeLines.idItemDragging === id ? sizeLines.lines[3]?.left : 0,
+          }}
+          className={clsx(styles.line, styles.line7, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            width:
+              sizeLines.idItemDragging === id ? sizeLines.lines[0]?.left : 0,
+          }}
+          className={clsx(styles.line, styles.line8, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            height:
+              sizeLines.idItemDragging === id ? sizeLines.lines[4]?.top : 0,
+          }}
+          className={clsx(styles.line, styles.line9, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            width:
+              sizeLines.idItemDragging === id ? sizeLines.lines[4]?.right : 0,
+          }}
+          className={clsx(styles.line, styles.line10, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            height:
+              sizeLines.idItemDragging === id ? sizeLines.lines[4]?.bottom : 0,
+          }}
+          className={clsx(styles.line, styles.line11, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+        <div
+          style={{
+            width:
+              sizeLines.idItemDragging === id ? sizeLines.lines[4]?.left : 0,
+          }}
+          className={clsx(styles.line, styles.line12, {
+            [styles.showLines]: isShowLines,
+          })}
+        ></div>
+      </button>
     </div>
   );
 });

@@ -7,9 +7,9 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import React, { useEffect, useRef, useState } from "react";
-import IDraggableItem from "./DraggableItem";
+import React, { useRef, useState } from "react";
 import { calculateDistanceByCoordinate } from "../../utils";
+import IDraggableItem from "./DraggableItem";
 
 export default function IDraggableFree({
   activationConstraint, // Dùng để thiết lập thời gian delay khi kéo, khoảng cách kéo, hoặc cả 2
@@ -23,16 +23,17 @@ export default function IDraggableFree({
 }) {
   const [listDataItem, setListDataItem] = useState(listChildData);
 
-  useEffect(() => {
-    console.log("List Data Item::: ", listDataItem);
-  }, [listDataItem]);
+  //Lưu trữ data lines truyền xuống component con để vẽ đường thẳng
+  const [sizeLines, setSizeLines] = useState({
+    idItemDragging: -1,
+    lines: [],
+  });
 
   // (*)Kỹ thuật setRefs Tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
   const listChildRefs = useRef(listDataItem.map(() => React.createRef()));
 
-  function handleDragMove(event) {
-    // console.log("Đang kéo::: ", event);
-    /**
+  /**
+    * @description Hàm xử lý sự kiện khi kéo item, có tích hợp hỗ trợ kéo thả
      CT tinh khoảng cách dựa trên tọa độ: sqrt((x2-x1)^2 + (y2-y1)^2)
      
       *    Trục Y
@@ -46,7 +47,7 @@ export default function IDraggableFree({
       *  0 +-----------------> Trục X
       *    |   (1)     (2)
       *
-      * Trường hợp 1: Item 1 và Item 2 trùng nhau theo trục Y, X khác.     
+      * Trường hợp 1: Item 1 và Item 2 trùng nhau theo trục Y, cách nhau 1 khoảng X.     
       
       *    Trục Y
       *    ^
@@ -62,7 +63,7 @@ export default function IDraggableFree({
       *    |  ****  
       *    |   (2)
       *
-      * Trường hợp 2: Item 1 và Item 2 trùng nhau theo trục X, Y khác.
+      * Trường hợp 2: Item 1 và Item 2 trùng nhau theo trục X, cách nhau 1 khoảng Y.
   ======================================================================
      *                top                 top
      *                |                   |
@@ -81,12 +82,17 @@ export default function IDraggableFree({
      *                |                   |
      *              botton               botton
      
-
+    Các bước thực hiện:
      1. Lấy ra tọa độ của item đang kéo từ active.data.current
      2. forEach qua item có id khác với item
-     3. check tọa độ item hiện tại có nằm trong(trùng) tọa độ(x,y) của item khác không
-     4. 
+     3. check tọa độ item hiện tại có nằm trong(trùng) tọa độ(x,y) của item khác không theo khoảng
+     4. Nếu có thì tính khoảng cách, trùng X thì tính k/c Y, trùng Y thì tính k/c X
+     5. so sánh khoảng cách, lấy khoảng cách nhỏ nhất để gán vào mảng lines
+     6. Truyền mảng lines xuống component con để vẽ đường thẳng
      */
+  function handleDragMove(event) {
+    //(*)Sai số cho phép khi so sánh tọa độ
+    const TOLERANCE = 0.5;
 
     const { active, delta } = event;
     const idDragging = active.id;
@@ -111,9 +117,6 @@ export default function IDraggableFree({
 
     // console.log(newCoordinateDragging);
 
-    //(*)Sai số cho phép khi so sánh tọa độ
-    const tolerance = 1;
-
     //(*Important) Mảng Lines lưu trữ các đường thẳng nối tọa độ của các item, nó sẽ được truyền xuống item con
     const lines = [
       { left: 0, top: 0 },
@@ -122,6 +125,9 @@ export default function IDraggableFree({
       { bottom: 0, left: 0 },
       { top: 0, right: 0, bottom: 0, left: 0 },
     ];
+
+    //Tạo biến kiểm tra lines có change không
+    let isChangeLine = false;
 
     listDataItem.forEach((dataItem) => {
       if (idDragging !== dataItem.id) {
@@ -147,9 +153,11 @@ export default function IDraggableFree({
         draggingCoordinates.forEach(
           //Duyệt qua tất cả các tọa độ của item đang kéo
           ({ x: draggingX, y: draggingY }, dragIndex) => {
-            //Duyệt qua tọa độ item đang được so sánh
+            //Duyệt qua tọa độ item trong listItem đang được so sánh, nhớ là khác với item đang kéo, đã check bên trên r
             coordinates.forEach(({ x, y }, index) => {
-              if (draggingX >= x - tolerance && draggingX <= x + tolerance) {
+              if (draggingX >= x - TOLERANCE && draggingX <= x + TOLERANCE) {
+                //Check thấy vị trí đg kéo trùng theo X
+                isChangeLine = true;
                 // Khoảng cách giữa 2 tọa độ trên trục Y
                 const distanceY = calculateDistanceByCoordinate({
                   x1: draggingX,
@@ -163,18 +171,23 @@ export default function IDraggableFree({
                   x trùng lặp thì kq  chỉ có thể là top hoặc bot 
                   => dragY-y > 0 là top(đẩy theo hướng top), và ngược lại <0 là bot
                  */
-                const direction = draggingY - y > 0 ? "top" : "bot";
+                const direction = draggingY - y > 0 ? "top" : "bottom";
+
                 if (
                   lines[dragIndex][direction] === 0 ||
                   lines[dragIndex][direction] > distanceY
                 ) {
+                  //DragIndex lần lượt chạy theo thứ tự top, right, bottom, left, center, tương ứng: 0,1,2,3,4
                   //Chỉ lấy khoảng cách có độ dài nhỏ nhất vì tọa đồ trùng nhau rất nhiều, nếu ko sẽ vẽ luôn nét đứt lên viền của item
                   lines[dragIndex][direction] = distanceY;
                 }
               }
 
               //Kiểm tra y của item đang kéo có thuộc khoảng tọa độ trùng nhau của item khác không
-              if (draggingY >= y - tolerance && draggingY <= y + tolerance) {
+              if (draggingY >= y - TOLERANCE && draggingY <= y + TOLERANCE) {
+                //Check thấy vị trí đg kéo trùng theo Y
+                isChangeLine = true;
+
                 const distanceX = calculateDistanceByCoordinate({
                   x1: draggingX,
                   y1: draggingY,
@@ -200,14 +213,17 @@ export default function IDraggableFree({
             });
           }
         );
+        //Nếu có sự thay đổi về lines thì cập nhật lại biến changeLine
+        setSizeLines((prev) => ({
+          ...prev,
+          idItemDragging: idDragging,
+          lines,
+        }));
       }
     });
-
-    console.log("LINES:::", lines);
   }
   function handleDragStart(event) {
-    // console.log("Bắt đầu kéo::: ", event);
-    console.log(listDataItem);
+    console.log("Bắt đầu kéo::: ", event);
   }
 
   function handleDragEnd(event) {
@@ -278,6 +294,7 @@ export default function IDraggableFree({
         listDataItem.map((childData, index) => {
           return (
             <IDraggbleItemWrapper
+              sizeLines={sizeLines}
               childId={childData.id}
               dataIndex={index}
               dataItem={{ ...childData, dataIndex: index }}
@@ -315,6 +332,7 @@ export default function IDraggableFree({
  *
  **/
 export const IDraggbleItemWrapper = ({
+  sizeLines, //Mảng chứa các đường thẳng nối giữa các item
   dataItem, //Truyền dataItem vào để xác định data hiện tại của component khi kéo thả
   dataIndex,
   childId, //childId la duy nhat, dung de xac dinh component khi keo tha, nếu ko sẽ kéo thả trùng lặp
@@ -343,6 +361,7 @@ export const IDraggbleItemWrapper = ({
   return (
     <IDraggableItem
       id={childId}
+      sizeLines={sizeLines}
       ref={(node) => {
         //Ref nhận vào 1 agr là node, ta setNodeRef cho item kéo thả bên trong, còn lại ta sẽ lưu lại HTMLDOM trong componentRef
         componentRef.current = node; //Gán giá trị Dom vào ref component

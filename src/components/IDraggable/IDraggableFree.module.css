@@ -1,3 +1,8 @@
+:root {
+    --size-line: 0px;
+    --type-dash-border: 1px dashed rgba(0, 0, 0, 0.5);
+}
+
 .DraggableItem {
     position: absolute;
     /* (*IMPORTANT!) Nếu position:relative thì các thẻ sẽ có mối quan hệ với nhau
@@ -23,6 +28,8 @@
 
     /* CSS cho button bên trong item */
     >button {
+        position: relative;
+
         display: flex;
         align-items: center;
         justify-content: center;
@@ -126,6 +133,121 @@
         }
     }
 }
+
+.IDraggableItemContainer .lineContainer {
+    position: relative;
+
+}
+
+.IDraggableItemContainer .line {
+    position: absolute;
+    display: none;
+}
+
+.IDraggableItemContainer .line1 {
+    bottom: calc(100%);
+    left: 0;
+    width: 1px;
+    border-right: var(--type-dash-border);
+    height: var(--size-line);
+
+}
+
+.IDraggableItemContainer .line2 {
+    bottom: calc(100%);
+    right: 0;
+    width: 1px;
+    border-right: var(--type-dash-border);
+    height: var(--size-line);
+}
+
+.IDraggableItemContainer .line3 {
+    top: 0;
+    left: 100%;
+    width: var(--size-line);
+    border-bottom: var(--type-dash-border);
+    height: 1px;
+}
+
+.IDraggableItemContainer .line4 {
+    bottom: 0;
+    left: 100%;
+    width: var(--size-line);
+    border-bottom: var(--type-dash-border);
+    height: 1px;
+}
+
+.IDraggableItemContainer .line5 {
+    top: 100%;
+    right: 0;
+    width: 1px;
+    border-right: var(--type-dash-border);
+    height: var(--size-line);
+}
+
+.IDraggableItemContainer .line6 {
+    top: 100%;
+    left: 0;
+    width: 1px;
+    border-right: var(--type-dash-border);
+    height: var(--size-line);
+}
+
+.IDraggableItemContainer .line7 {
+    bottom: 0;
+    right: 100%;
+    width: var(--size-line);
+    border-bottom: var(--type-dash-border);
+    height: 1px;
+}
+
+.IDraggableItemContainer .line8 {
+    top: 0;
+    right: 100%;
+    width: var(--size-line);
+    border-bottom: var(--type-dash-border);
+    height: 1px;
+}
+
+.IDraggableItemContainer .line9 {
+    bottom: 100%;
+    right: 50%;
+    width: 1px;
+    border-right: var(--type-dash-border);
+    height: var(--size-line);
+    /* transform: translateX(-50%); */
+}
+
+.IDraggableItemContainer .line10 {
+    top: 50%;
+    left: 50%;
+    width: var(--size-line);
+    border-bottom: var(--type-dash-border);
+    height: 1px;
+}
+
+.IDraggableItemContainer .line11 {
+    top: 100%;
+    right: 50%;
+    width: 1px;
+    border-right: var(--type-dash-border);
+    height: var(--size-line);
+    /* transform: translateX(-50%); */
+}
+
+.IDraggableItemContainer .line12 {
+    top: 50%;
+    right: 50%;
+    width: var(--size-line);
+    border-bottom: var(--type-dash-border);
+    height: 1px;
+}
+
+/* Chỉ khi hover vào mới hiện line lên */
+.IDraggableItemContainer .showLines {
+    display: block;
+}
+
 
 
 

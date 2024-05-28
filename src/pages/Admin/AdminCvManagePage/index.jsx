@@ -12,13 +12,11 @@ export default function AdminCvManagePage() {
     {
       id: 1,
       component: (
-        <span>
-          <IWrapperResizeRotate
-            id={"001"}
-            typeChildren="editor"
-            ChildComponent={ITipTapEditor} //Khôn truyền dạng này <ITipTapEditor></ITipTapEditor> vì props chỉ chấp nhận class hoặc function
-          ></IWrapperResizeRotate>
-        </span>
+        <IWrapperResizeRotate
+          id={"001"}
+          typeChildren="editor"
+          ChildComponent={ITipTapEditor} //Khôn truyền dạng này <ITipTapEditor></ITipTapEditor> vì props chỉ chấp nhận class hoặc function
+        ></IWrapperResizeRotate>
       ),
       coordinate: {
         x: initCoordinate.current,
@@ -36,25 +34,68 @@ export default function AdminCvManagePage() {
     {
       id: 2,
       component: (
-        <span>
-          <IWrapperResizeRotate
-            id={"002"}
-            typeChildren="editor"
-            ChildComponent={ITipTapEditor} //Khôn truyền dạng này <ITipTapEditor></ITipTapEditor> vì props chỉ chấp nhận class hoặc function
-          ></IWrapperResizeRotate>
-        </span>
+        <IWrapperResizeRotate
+          id={"002"}
+          typeChildren="editor"
+          ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
+        ></IWrapperResizeRotate>
       ),
       coordinate: {
-        x: 1 + initCoordinate.current,
-        y: 1 + initCoordinate.current,
-        x2: 1 + initCoordinate.current + sizeEditorDefault.width,
-        y2: 1 + initCoordinate.current,
-        x3: 1 + initCoordinate.current + sizeEditorDefault.width,
-        y3: 1 + initCoordinate.current + sizeEditorDefault.height,
-        x4: 1 + initCoordinate.current,
-        y4: 1 + initCoordinate.current + sizeEditorDefault.height,
-        x5: 1 + initCoordinate.current + sizeEditorDefault.width / 2,
-        y5: 1 + initCoordinate.current + sizeEditorDefault.height / 2,
+        x: 5 + initCoordinate.current,
+        y: 5 + initCoordinate.current,
+        x2: 5 + initCoordinate.current + sizeEditorDefault.width,
+        y2: 5 + initCoordinate.current,
+        x3: 5 + initCoordinate.current + sizeEditorDefault.width,
+        y3: 5 + initCoordinate.current + sizeEditorDefault.height,
+        x4: 5 + initCoordinate.current,
+        y4: 5 + initCoordinate.current + sizeEditorDefault.height,
+        x5: 5 + initCoordinate.current + sizeEditorDefault.width / 2,
+        y5: 5 + initCoordinate.current + sizeEditorDefault.height / 2,
+      },
+    },
+    {
+      id: 3,
+      component: (
+        <IWrapperResizeRotate
+          id={"003"}
+          typeChildren="editor"
+          ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
+        ></IWrapperResizeRotate>
+      ),
+      coordinate: {
+        x: 10 + initCoordinate.current,
+        y: 10 + initCoordinate.current,
+        x2: 10 + initCoordinate.current + sizeEditorDefault.width,
+        y2: 10 + initCoordinate.current,
+        x3: 10 + initCoordinate.current + sizeEditorDefault.width,
+        y3: 10 + initCoordinate.current + sizeEditorDefault.height,
+        x4: 10 + initCoordinate.current,
+        y4: 10 + initCoordinate.current + sizeEditorDefault.height,
+        x5: 10 + initCoordinate.current + sizeEditorDefault.width / 2,
+        y5: 10 + initCoordinate.current + sizeEditorDefault.height / 2,
+      },
+    },
+
+    {
+      id: 4,
+      component: (
+        <IWrapperResizeRotate
+          id={"004"}
+          typeChildren="editor"
+          ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
+        ></IWrapperResizeRotate>
+      ),
+      coordinate: {
+        x: 20 + initCoordinate.current,
+        y: 20 + initCoordinate.current,
+        x2: 20 + initCoordinate.current + sizeEditorDefault.width,
+        y2: 20 + initCoordinate.current,
+        x3: 20 + initCoordinate.current + sizeEditorDefault.width,
+        y3: 20 + initCoordinate.current + sizeEditorDefault.height,
+        x4: 20 + initCoordinate.current,
+        y4: 20 + initCoordinate.current + sizeEditorDefault.height,
+        x5: 20 + initCoordinate.current + sizeEditorDefault.width / 2,
+        y5: 20 + initCoordinate.current + sizeEditorDefault.height / 2,
       },
     },
   ];
