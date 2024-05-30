@@ -24,9 +24,11 @@ const Axis = {
  * @param {object} buttonStyle - Các kiểu dáng CSS bổ sung cho button kéo được.
  * @param {object} props - Các thuộc tính khác được truyền tới button kéo được.
  */
+//REF không thể truyền dưới dạng props, nên cần phải bằng cách forwardRef từ cha xuống con
 const IDraggableItem = React.forwardRef((props, ref) => {
-  //REF không thể truyền dưới dạng props, nên cần phải bằng cách forwardRef từ cha xuống con
   const {
+    coordinate,
+    rotate = 0,
     id,
     sizeLines, // Kích thước của các đường kẻ có dạng {id:1, lines:[]}
     axis,
@@ -40,8 +42,9 @@ const IDraggableItem = React.forwardRef((props, ref) => {
     childElement,
     ...attributes
   } = props;
-  // console.log("SIZE LINES::", sizeLines);
+
   const [isShowLines, setIsShowLines] = React.useState(false);
+
   function handleHoverItem() {
     setIsShowLines(true);
   }
@@ -50,6 +53,7 @@ const IDraggableItem = React.forwardRef((props, ref) => {
   }
 
   return (
+    // (IDEA) Khả năng cao vài bữa sẽ truyền trực tiếp cái IWrapperRotate vào thay cái thẻ div ở lớp 1 này luôn, truyền mấy cái line vào dưới dạng children là được rôi
     <div
       onMouseEnter={handleHoverItem}
       onTouchMove={handleHoverItem}
@@ -68,8 +72,9 @@ const IDraggableItem = React.forwardRef((props, ref) => {
       // Quan trọng, nó dùng để transform mục kéo được
       style={{
         ...style,
-        "--translate-x": `${transform?.x ?? 0}px`,
-        "--translate-y": `${transform?.y ?? 0}px`,
+        "--translate-x": `${transform?.x || 0}px`,
+        "--translate-y": `${transform?.y || 0}px`,
+        // transform: `translate(-50%, -50%)`, //(*) Dùng để cố định khi Rotate Wrapper bên trong nó chỉ xoay quay trục của nó
       }}
     >
       <button className={style.buttonDragger}>
@@ -188,25 +193,4 @@ const IDraggableItem = React.forwardRef((props, ref) => {
   );
 });
 
-export default IDraggableItem;
-
-/**
- * 
- {
-  ref,
-  axis,
-  dragOverlay,
-  dragging,
-  handle,
-  label,
-  listeners,
-  transform,
-  style,
-  childElement = (
-    <span>
-      <input></input>
-    </span>
-  ),
-  ...props
-}
- */
+export default React.memo(IDraggableItem);

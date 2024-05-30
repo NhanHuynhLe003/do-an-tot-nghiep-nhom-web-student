@@ -10,6 +10,11 @@ export default createSlice({
     textEditor: "",
     coordPointer: {}, //Tọa độ con trỏ trong Editor
     sizeEditor: sizeEditorDefault, //Kích thước của editor,
+    itemDraggableSizeAndDeg: {
+      id: -1,
+      size: sizeEditorDefault,
+      deg: 0,
+    }, // Kích thước và góc quay của item draggable
   },
   reducers: {
     // Truyền editorContent từ header xuống tiptapeditor
@@ -27,6 +32,9 @@ export default createSlice({
     },
     setSizeEditor: (state, action) => {
       state.sizeEditor = action.payload;
+    },
+    setSizeAndDegItemDraggable: (state, action) => {
+      state.itemDraggableSizeAndDeg = action.payload;
     },
   },
 });

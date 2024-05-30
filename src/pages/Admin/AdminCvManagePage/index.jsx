@@ -7,10 +7,11 @@ import { sizeEditorDefault } from "../../../constants";
 
 export default function AdminCvManagePage() {
   // Đừng style cứng các item được wrap, các dữ liệu này sau này do mình tạo ra khi nhấn nút them
-  const initCoordinate = useRef(10);
+  const initCoordinate = useRef(200);
   const listDataBoardItem = [
     {
-      id: 1,
+      id: "001",
+      // Nguyên nhân bug là do ITipTapEditor là hàm còn <IWrapperResizeRotate> là component
       component: (
         <IWrapperResizeRotate
           id={"001"}
@@ -30,9 +31,10 @@ export default function AdminCvManagePage() {
         x5: initCoordinate.current + sizeEditorDefault.width / 2,
         y5: initCoordinate.current + sizeEditorDefault.height / 2,
       },
+      sizeItem: sizeEditorDefault,
     },
     {
-      id: 2,
+      id: "002",
       component: (
         <IWrapperResizeRotate
           id={"002"}
@@ -41,63 +43,64 @@ export default function AdminCvManagePage() {
         ></IWrapperResizeRotate>
       ),
       coordinate: {
-        x: 5 + initCoordinate.current,
-        y: 5 + initCoordinate.current,
-        x2: 5 + initCoordinate.current + sizeEditorDefault.width,
-        y2: 5 + initCoordinate.current,
-        x3: 5 + initCoordinate.current + sizeEditorDefault.width,
-        y3: 5 + initCoordinate.current + sizeEditorDefault.height,
-        x4: 5 + initCoordinate.current,
-        y4: 5 + initCoordinate.current + sizeEditorDefault.height,
-        x5: 5 + initCoordinate.current + sizeEditorDefault.width / 2,
-        y5: 5 + initCoordinate.current + sizeEditorDefault.height / 2,
+        x: initCoordinate.current,
+        y: initCoordinate.current,
+        x2: initCoordinate.current + sizeEditorDefault.width,
+        y2: initCoordinate.current,
+        x3: initCoordinate.current + sizeEditorDefault.width,
+        y3: initCoordinate.current + sizeEditorDefault.height,
+        x4: initCoordinate.current,
+        y4: initCoordinate.current + sizeEditorDefault.height,
+        x5: initCoordinate.current + sizeEditorDefault.width / 2,
+        y5: initCoordinate.current + sizeEditorDefault.height / 2,
       },
+      sizeItem: sizeEditorDefault,
     },
-    {
-      id: 3,
-      component: (
-        <IWrapperResizeRotate
-          id={"003"}
-          typeChildren="editor"
-          ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
-        ></IWrapperResizeRotate>
-      ),
-      coordinate: {
-        x: 10 + initCoordinate.current,
-        y: 10 + initCoordinate.current,
-        x2: 10 + initCoordinate.current + sizeEditorDefault.width,
-        y2: 10 + initCoordinate.current,
-        x3: 10 + initCoordinate.current + sizeEditorDefault.width,
-        y3: 10 + initCoordinate.current + sizeEditorDefault.height,
-        x4: 10 + initCoordinate.current,
-        y4: 10 + initCoordinate.current + sizeEditorDefault.height,
-        x5: 10 + initCoordinate.current + sizeEditorDefault.width / 2,
-        y5: 10 + initCoordinate.current + sizeEditorDefault.height / 2,
-      },
-    },
+    // {
+    //   id: "003",
+    //   component: (
+    //     <IWrapperResizeRotate
+    //       id={"003"}
+    //       typeChildren="editor"
+    //       ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
+    //     ></IWrapperResizeRotate>
+    //   ),
+    //   coordinate: {
+    //     x: 10 + initCoordinate.current,
+    //     y: 10 + initCoordinate.current,
+    //     x2: 10 + initCoordinate.current + sizeEditorDefault.width,
+    //     y2: 10 + initCoordinate.current,
+    //     x3: 10 + initCoordinate.current + sizeEditorDefault.width,
+    //     y3: 10 + initCoordinate.current + sizeEditorDefault.height,
+    //     x4: 10 + initCoordinate.current,
+    //     y4: 10 + initCoordinate.current + sizeEditorDefault.height,
+    //     x5: 10 + initCoordinate.current + sizeEditorDefault.width / 2,
+    //     y5: 10 + initCoordinate.current + sizeEditorDefault.height / 2,
+    //   },
+    // },
 
-    {
-      id: 4,
-      component: (
-        <IWrapperResizeRotate
-          id={"004"}
-          typeChildren="editor"
-          ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
-        ></IWrapperResizeRotate>
-      ),
-      coordinate: {
-        x: 20 + initCoordinate.current,
-        y: 20 + initCoordinate.current,
-        x2: 20 + initCoordinate.current + sizeEditorDefault.width,
-        y2: 20 + initCoordinate.current,
-        x3: 20 + initCoordinate.current + sizeEditorDefault.width,
-        y3: 20 + initCoordinate.current + sizeEditorDefault.height,
-        x4: 20 + initCoordinate.current,
-        y4: 20 + initCoordinate.current + sizeEditorDefault.height,
-        x5: 20 + initCoordinate.current + sizeEditorDefault.width / 2,
-        y5: 20 + initCoordinate.current + sizeEditorDefault.height / 2,
-      },
-    },
+    // {
+    //   id: "004",
+    //   component: (
+    //     <IWrapperResizeRotate
+    //       id={"004"}
+    //       typeChildren="editor"
+    //       ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
+    //     ></IWrapperResizeRotate>
+    //   ),
+    //   coordinate: {
+    //     x: 20 + initCoordinate.current,
+    //     y: 20 + initCoordinate.current,
+    //     x2: 20 + initCoordinate.current + sizeEditorDefault.width,
+    //     y2: 20 + initCoordinate.current,
+    //     x3: 20 + initCoordinate.current + sizeEditorDefault.width,
+    //     y3: 20 + initCoordinate.current + sizeEditorDefault.height,
+    //     x4: 20 + initCoordinate.current,
+    //     y4: 20 + initCoordinate.current + sizeEditorDefault.height,
+    //     x5: 20 + initCoordinate.current + sizeEditorDefault.width / 2,
+    //     y5: 20 + initCoordinate.current + sizeEditorDefault.height / 2,
+    //   },
+    // },
   ];
 
   return (

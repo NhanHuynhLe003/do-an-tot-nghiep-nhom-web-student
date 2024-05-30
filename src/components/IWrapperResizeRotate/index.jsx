@@ -1,16 +1,24 @@
 import { Box } from "@mui/material";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaArrowRotateRight } from "react-icons/fa6";
 
 import { sizeEditorDefault } from "../../constants";
 import styles from "./IWrapperResizeRotate.module.css";
+import { useDispatch } from "react-redux";
+import CvSlice from "../../redux/slices/CvSlice";
 
-const IWrapperResizeRotate = ({
-  childContent = "Nhập nội dung vào đây",
-  typeChildren = "editor",
-  ChildComponent = React.Fragment,
-  id, //ID wrapper sẽ truyền vào component child luôn, bắt buộc phải có
-}) => {
+const IWrapperResizeRotate = React.forwardRef((props, ref) => {
+  useEffect(() => {
+    console.log("Child ReRender");
+  });
+  const {
+    id = -1,
+    childContent = "Nhập nội dung vào đây",
+    typeChildren = "editor",
+    ChildComponent = React.Fragment,
+    ...restProps
+  } = props;
+  const dispatch = useDispatch();
   const elementRef = useRef(null);
   const childrenContainerRef = useRef(null);
 
@@ -24,9 +32,26 @@ const IWrapperResizeRotate = ({
           height: 200,
         }
   );
+  function handleRotate(deg) {
+    setRotate(deg);
+    dispatch(
+      CvSlice.actions.setSizeAndDegItemDraggable({
+        id: id,
+        size: size,
+        deg: deg,
+      })
+    );
+  }
 
   function handleSetSize(size) {
     setSize(size);
+    dispatch(
+      CvSlice.actions.setSizeAndDegItemDraggable({
+        id: id,
+        deg: rotate,
+        size: size,
+      })
+    );
   }
 
   // Xử lý sự kiện khi bắt đầu kéo để xoay
@@ -46,7 +71,7 @@ const IWrapperResizeRotate = ({
       const dx = (e.clientX || e.touches[0].clientX) - centerX;
       const dy = (e.clientY || e.touches[0].clientY) - centerY;
       const angle = 90 + Math.atan2(dy, dx) * (180 / Math.PI);
-      setRotate(angle);
+      handleRotate(angle);
     };
 
     const handleMouseUpRotate = () => {
@@ -103,11 +128,12 @@ const IWrapperResizeRotate = ({
 
   return (
     <div
-      className={styles.wrapper}
+      className={`IWrapperResizeRotate-${id}`}
       style={{
         border: `2px dashed var(--color-primary1)`,
         // padding: paddingWrapperContainer.current,
         transform: `rotate(${rotate}deg)`, // (*) Xoay item
+        transformOrigin: "center",
         width: "fit-content",
         height: "fit-content",
         // position: "absolute", //(*) Cho các vị trí không liên quan đến nhau dù resize cũng ko ảnh hưởng
@@ -132,10 +158,10 @@ const IWrapperResizeRotate = ({
           }}
         >
           <ChildComponent
-            key={id}
-            id={id}
+            ref={ref}
             size={size}
             content={childContent}
+            {...props}
           ></ChildComponent>
         </Box>
         {/* Điều khiển xoay */}
@@ -196,6 +222,6 @@ const IWrapperResizeRotate = ({
       </div>
     </div>
   );
-};
-
-export default IWrapperResizeRotate;
+});
+//Ngăn tình trạng component con re-render sau khi component cha re-render
+export default React.memo(IWrapperResizeRotate);

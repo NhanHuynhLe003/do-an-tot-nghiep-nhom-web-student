@@ -7,8 +7,11 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import React, { useRef, useState } from "react";
-import { calculateDistanceByCoordinate } from "../../utils";
+import _ from "lodash";
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { sizeAndDegItemDraggableSelector } from "../../redux/selector";
+import { calculateDistanceByCoordinate, debounce } from "../../utils";
 import IDraggableItem from "./DraggableItem";
 
 export default function IDraggableFree({
@@ -29,72 +32,248 @@ export default function IDraggableFree({
     lines: [],
   });
 
-  // (*)Kỹ thuật setRefs Tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
+  // (*)Kỹ thuật setRefs Tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM do ta truyền vào <Item> chứ nếu truyền hàm ko cần, nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
   const listChildRefs = useRef(listDataItem.map(() => React.createRef()));
 
+  const sizeAndRotateItemSelector = useSelector(
+    sizeAndDegItemDraggableSelector
+  );
+
+  // Xử lý thay đổi độ quay của item
+  useEffect(() => {
+    handleRotate();
+  }, [sizeAndRotateItemSelector]);
+
   /**
-    * @description Hàm xử lý sự kiện khi kéo item, có tích hợp hỗ trợ kéo thả
-     CT tinh khoảng cách dựa trên tọa độ: sqrt((x2-x1)^2 + (y2-y1)^2)
-     
-      *    Trục Y
-      *    ^
-      *  6 |   
-      *  5 |  
-      *  4 |  
-      *  3 |  
-      *  2 |  ****    ****  
-      *  1 |  ****    ****  
-      *  0 +-----------------> Trục X
-      *    |   (1)     (2)
-      *
-      * Trường hợp 1: Item 1 và Item 2 trùng nhau theo trục Y, cách nhau 1 khoảng X.     
-      
-      *    Trục Y
-      *    ^
-      *  6 |   
-      *  5 |  
-      *  4 |  
-      *  3 |   (1) 
-      *  2 |  ****  
-      *  1 |  ****  
-      *  0 +--****------------------------> Trục X
-      *    |     
-      *    |  ****  
-      *    |  ****  
-      *    |   (2)
-      *
-      * Trường hợp 2: Item 1 và Item 2 trùng nhau theo trục X, cách nhau 1 khoảng Y.
-  ======================================================================
-     *                top                 top
-     *                |                   |
-     *                |                   |
-     *                |         (w)       |
-     *     left-----(x, y) ----------- (x2, y2)--------right
-     *                |                   |
-     *                |                   |
-     *            (h) |       (x5,y5)     |
-     *                |                   |
-     *                |                   |
-     *                |                   |
-     *    right----(x4, y4) ----------- (x3, y3)-------right
-     *                |                   |
-     *                |                   |
-     *                |                   |
-     *              botton               botton
-     
-    Các bước thực hiện:
-     1. Lấy ra tọa độ của item đang kéo từ active.data.current
-     2. forEach qua item có id khác với item
-     3. check tọa độ item hiện tại có nằm trong(trùng) tọa độ(x,y) của item khác không theo khoảng
-     4. Nếu có thì tính khoảng cách, trùng X thì tính k/c Y, trùng Y thì tính k/c X
-     5. so sánh khoảng cách, lấy khoảng cách nhỏ nhất để gán vào mảng lines
-     6. Truyền mảng lines xuống component con để vẽ đường thẳng
-     */
+   * @description Hàm xử lý sự kiện khi xoay item
+   * Ý tưởng: Khi thẻ wrapperRotateResize bên trong rotate thì browser tự động thay đổi width+height sao cho phù hợp
+   * , trùng hợp là kích thước width,height của browser lại chứa vừa đủ kích thước của thẻ Wrapper, nên ta sẽ set kích thước này
+   * cho thẻ cha bên ngoài
+   */
+  function handleRotate() {
+    const idActiveRotate = sizeAndRotateItemSelector.id;
+    listChildRefs.current.forEach((childRef) => {
+      const currentActiveChild = childRef.current.querySelector(
+        `.IWrapperResizeRotate-${idActiveRotate}`
+      );
+
+      const rectChildActive = currentActiveChild?.getBoundingClientRect();
+      if (rectChildActive) {
+        setListDataItem((listDataItem) => {
+          return listDataItem.map((data) => {
+            if (data.id === idActiveRotate) {
+              return {
+                ...data,
+                sizeItem: {
+                  width: rectChildActive.width,
+                  height: rectChildActive.height,
+                },
+              };
+            }
+            return data;
+          });
+        });
+      }
+    });
+  }
+
+  /**
+   * @description Hàm xử lý sự kiện khi kéo item, có tích hợp hỗ trợ kéo thả
+   * @param {Number} idActiveItem - Id của item đang kéo
+   * @param {Number} TOLERANCE - Sai số cho phép khi so sánh tọa độ
+   * @param {Object} boardCoordinateItemsActive - Tọa độ của item đang kéo
+   * @returns {void} Không có giá trị trả về
+   * CT tinh khoảng cách dựa trên tọa độ: sqrt((x2-x1)^2 + (y2-y1)^2)
+   *    Trục Y
+   *       ^
+   *     6 |
+   *     5 |
+   *     4 |
+   *     3 |
+   *     2 |  ****    ****
+   *     1 |  ****    ****
+   *     0 +-----------------> Trục X
+   *       |   (1)     (2)
+   *
+   * -Trường hợp 1: Item 1 và Item 2 trùng nhau theo trục Y, cách nhau 1 khoảng X.
+   *
+   *       Trục Y
+   *       ^
+   *     6 |
+   *     5 |
+   *     4 |
+   *     3 |   (1)
+   *     2 |  ****
+   *     1 |  ****
+   *     0 +--****------------------------> Trục X
+   *       |
+   *       |  ****
+   *       |  ****
+   *       |   (2)
+   *
+   * -Trường hợp 2: Item 1 và Item 2 trùng nhau theo trục X, cách nhau 1 khoảng Y.
+   *=====================================================================
+   * Hình minh họa cho việc tính các góc của item
+   *                top                 top
+   *                |                   |
+   *                |                   |
+   *                |         (w)       |
+   *     left-----(x, y) ----------- (x2, y2)--------right
+   *                |                   |
+   *                |                   |
+   *            (h) |       (x5,y5)     |
+   *                |                   |
+   *                |                   |
+   *                |                   |
+   *    right----(x4, y4) ----------- (x3, y3)-------right
+   *                |                   |
+   *                |                   |
+   *                |                   |
+   *              botton               botton
+   *
+   *Các bước thực hiện:
+   *   1. Lấy ra tọa độ của item đang kéo từ active.data.current
+   *   2. forEach qua item có id khác với item
+   *  3. check tọa độ item hiện tại có nằm trong(trùng) tọa độ(x,y) của item khác không theo khoảng
+   *  4. Nếu có thì tính khoảng cách, trùng X thì tính k/c Y, trùng Y thì tính k/c X
+   *  5. so sánh khoảng cách, lấy khoảng cách nhỏ nhất để gán vào mảng lines
+   *  6. Truyền mảng lines xuống component con để vẽ đường thẳng
+   **/
+  async function measureDistanceBetweenItems(
+    idActiveItem,
+    TOLERANCE = 0.75,
+    boardCoordinateItemsActive,
+    event
+  ) {
+    //(*Important) Mảng Lines lưu trữ các đường thẳng nối tọa độ của các item, nó sẽ được truyền xuống item con
+    const lines = [
+      { left: 0, top: 0 },
+      { top: 0, right: 0 },
+      { right: 0, bottom: 0 },
+      { bottom: 0, left: 0 },
+      { top: 0, right: 0, bottom: 0, left: 0 },
+    ];
+
+    let isAutoFitLine = false;
+
+    listDataItem.forEach((dataItem) => {
+      if (idActiveItem !== dataItem.id) {
+        // Gộp Tọa độ của các dataItem trong list đang so sánh (khác với item đang kéo)
+        const coordinates = [
+          { x: dataItem.coordinate.x, y: dataItem.coordinate.y }, // index 0 là x, y
+          { x: dataItem.coordinate.x2, y: dataItem.coordinate.y2 }, // index 1 là x2, y2
+          { x: dataItem.coordinate.x3, y: dataItem.coordinate.y3 }, // index 2 là x3, y3
+          { x: dataItem.coordinate.x4, y: dataItem.coordinate.y4 }, // index 3 là x4, y4
+          { x: dataItem.coordinate.x5, y: dataItem.coordinate.y5 }, // index 4 là x5, y5
+        ];
+
+        // Gộp các tọa độ của item đang active
+        const draggingCoordinates = [
+          { x: boardCoordinateItemsActive.x, y: boardCoordinateItemsActive.y },
+          {
+            x: boardCoordinateItemsActive.x2,
+            y: boardCoordinateItemsActive.y2,
+          },
+          {
+            x: boardCoordinateItemsActive.x3,
+            y: boardCoordinateItemsActive.y3,
+          },
+          {
+            x: boardCoordinateItemsActive.x4,
+            y: boardCoordinateItemsActive.y4,
+          },
+          {
+            x: boardCoordinateItemsActive.x5,
+            y: boardCoordinateItemsActive.y5,
+          },
+        ];
+
+        // Check xem vị trí item trong danh sách để kiểm tra vị trí
+        draggingCoordinates.forEach(
+          //Duyệt qua tất cả các tọa độ của item đang kéo
+          ({ x: activeX, y: activeY }, activeIndex) => {
+            //Duyệt qua tọa độ item trong listItem
+            coordinates.forEach(({ x, y }, index) => {
+              //X,Y là tọa độ của item trong bảng đang so sánh
+
+              if (activeX >= x - TOLERANCE && activeX <= x + TOLERANCE) {
+                isAutoFitLine = true;
+                //Check thấy vị trí đg kéo trùng theo X
+
+                // Khoảng cách giữa 2 tọa độ trên trục Y
+                const distanceY = calculateDistanceByCoordinate({
+                  x1: activeX,
+                  y1: activeY,
+                  x2: x,
+                  y2: y,
+                });
+
+                /**
+                  (*)Quy luật tìm hướng đường thẳng:
+                  x trùng lặp thì kq  chỉ có thể là top hoặc bot 
+                  => dragY-y > 0 là top(đẩy theo hướng top), và ngược lại <0 là bot
+                 */
+                const direction = activeY - y > 0 ? "top" : "bottom";
+
+                if (
+                  lines[activeIndex][direction] === 0 ||
+                  lines[activeIndex][direction] < distanceY
+                ) {
+                  //activeIndex lần lượt chạy theo thứ tự top, right, bottom, left, center, tương ứng: 0,1,2,3,4
+                  //Lấy khoảng cách lớn nhất vì nó sẽ bao được toàn bộ các ITEM thẳng hàng trên trục Y
+                  lines[activeIndex][direction] = distanceY;
+                }
+              }
+
+              //Kiểm tra y của item đang kéo có thuộc khoảng tọa độ trùng nhau của item khác không
+              if (activeY >= y - TOLERANCE && activeY <= y + TOLERANCE) {
+                isAutoFitLine = true;
+                //Check thấy vị trí đg kéo trùng theo Y
+
+                const distanceX = calculateDistanceByCoordinate({
+                  x1: activeX,
+                  y1: activeY,
+                  x2: x,
+                  y2: y,
+                });
+
+                /**
+                 (*) Quy luật tìm hướng khi X trùng nhau:
+                 y trùng lặp chỉ có thể là left hoặc right
+                 => dragX-x >0 là left, ngược lại là right   
+                 */
+                const direction = activeX - x > 0 ? "left" : "right";
+
+                if (
+                  lines[activeIndex][direction] === 0 ||
+                  lines[activeIndex][direction] < distanceX
+                ) {
+                  //Lấy khoảng cách lớn nhất vì nó sẽ bao được toàn bộ các ITEM thẳng hàng trên trục X
+                  lines[activeIndex][direction] = distanceX;
+                }
+              }
+            });
+          }
+        );
+      }
+    });
+
+    //Chỉ khi kéo va chạm với item khác thì mới cập nhật lại mảng lines
+    if (_.isEqual(sizeLines.lines, lines) === false) {
+      setSizeLines((prev) => ({
+        ...prev,
+        idItemDragging: idActiveItem,
+        lines,
+      }));
+    }
+  }
+
   function handleDragMove(event) {
     //(*)Sai số cho phép khi so sánh tọa độ
     const TOLERANCE = 0.5;
 
     const { active, delta } = event;
+
     const idDragging = active.id;
     const dataComponentDragging = active.data.current;
     // console.log(dataComponentDragging);
@@ -115,120 +294,49 @@ export default function IDraggableFree({
       y5: dataComponentDragging?.coordinate.y + delta.y + height / 2,
     };
 
-    // console.log(newCoordinateDragging);
-
-    //(*Important) Mảng Lines lưu trữ các đường thẳng nối tọa độ của các item, nó sẽ được truyền xuống item con
-    const lines = [
-      { left: 0, top: 0 },
-      { top: 0, right: 0 },
-      { right: 0, bottom: 0 },
-      { bottom: 0, left: 0 },
-      { top: 0, right: 0, bottom: 0, left: 0 },
-    ];
-
-    //Tạo biến kiểm tra lines có change không
-    let isChangeLine = false;
-
-    listDataItem.forEach((dataItem) => {
-      if (idDragging !== dataItem.id) {
-        // Gộp Tọa độ của các dataItem trong list đang so sánh (khác với item đang kéo)
-        const coordinates = [
-          { x: dataItem.coordinate.x, y: dataItem.coordinate.y }, // index 0 là x, y
-          { x: dataItem.coordinate.x2, y: dataItem.coordinate.y2 }, // index 1 là x2, y2
-          { x: dataItem.coordinate.x3, y: dataItem.coordinate.y3 }, // index 2 là x3, y3
-          { x: dataItem.coordinate.x4, y: dataItem.coordinate.y4 }, // index 3 là x4, y4
-          { x: dataItem.coordinate.x5, y: dataItem.coordinate.y5 }, // index 4 là x5, y5
-        ];
-
-        // Gộp các tọa độ của item đang kéo
-        const draggingCoordinates = [
-          { x: newCoordinateDragging.x, y: newCoordinateDragging.y },
-          { x: newCoordinateDragging.x2, y: newCoordinateDragging.y2 },
-          { x: newCoordinateDragging.x3, y: newCoordinateDragging.y3 },
-          { x: newCoordinateDragging.x4, y: newCoordinateDragging.y4 },
-          { x: newCoordinateDragging.x5, y: newCoordinateDragging.y5 },
-        ];
-
-        // Check xem vị trí item trong danh sách để kiểm tra vị trí
-        draggingCoordinates.forEach(
-          //Duyệt qua tất cả các tọa độ của item đang kéo
-          ({ x: draggingX, y: draggingY }, dragIndex) => {
-            //Duyệt qua tọa độ item trong listItem đang được so sánh, nhớ là khác với item đang kéo, đã check bên trên r
-            coordinates.forEach(({ x, y }, index) => {
-              if (draggingX >= x - TOLERANCE && draggingX <= x + TOLERANCE) {
-                //Check thấy vị trí đg kéo trùng theo X
-                isChangeLine = true;
-                // Khoảng cách giữa 2 tọa độ trên trục Y
-                const distanceY = calculateDistanceByCoordinate({
-                  x1: draggingX,
-                  y1: draggingY,
-                  x2: x,
-                  y2: y,
-                });
-
-                /**
-                  (*)Quy luật tìm hướng đường thẳng:
-                  x trùng lặp thì kq  chỉ có thể là top hoặc bot 
-                  => dragY-y > 0 là top(đẩy theo hướng top), và ngược lại <0 là bot
-                 */
-                const direction = draggingY - y > 0 ? "top" : "bottom";
-
-                if (
-                  lines[dragIndex][direction] === 0 ||
-                  lines[dragIndex][direction] > distanceY
-                ) {
-                  //DragIndex lần lượt chạy theo thứ tự top, right, bottom, left, center, tương ứng: 0,1,2,3,4
-                  //Chỉ lấy khoảng cách có độ dài nhỏ nhất vì tọa đồ trùng nhau rất nhiều, nếu ko sẽ vẽ luôn nét đứt lên viền của item
-                  lines[dragIndex][direction] = distanceY;
-                }
-              }
-
-              //Kiểm tra y của item đang kéo có thuộc khoảng tọa độ trùng nhau của item khác không
-              if (draggingY >= y - TOLERANCE && draggingY <= y + TOLERANCE) {
-                //Check thấy vị trí đg kéo trùng theo Y
-                isChangeLine = true;
-
-                const distanceX = calculateDistanceByCoordinate({
-                  x1: draggingX,
-                  y1: draggingY,
-                  x2: x,
-                  y2: y,
-                });
-
-                /**
-                 (*) Quy luật tìm hướng khi X trùng nhau:
-                 y trùng lặp chỉ có thể là left hoặc right
-                 => dragX-x >0 là left, ngược lại là right   
-                 */
-                const direction = draggingX - x > 0 ? "left" : "right";
-
-                if (
-                  lines[dragIndex][direction] === 0 ||
-                  lines[dragIndex][direction] > distanceX
-                ) {
-                  //Chỉ lấy khoảng cách có độ dài nhỏ nhất vì tọa đồ trùng nhau rất nhiều, nếu ko sẽ vẽ luôn nét đứt lên viền của item
-                  lines[dragIndex][direction] = distanceX;
-                }
-              }
-            });
-          }
-        );
-        //Nếu có sự thay đổi về lines thì cập nhật lại biến changeLine
-        setSizeLines((prev) => ({
-          ...prev,
-          idItemDragging: idDragging,
-          lines,
-        }));
-      }
-    });
+    measureDistanceBetweenItems(
+      idDragging,
+      TOLERANCE,
+      newCoordinateDragging,
+      event
+    );
   }
   function handleDragStart(event) {
-    console.log("Bắt đầu kéo::: ", event);
+    //(*)Sai số cho phép khi so sánh tọa độ
+    const TOLERANCE = 0.5;
+
+    const { active } = event;
+
+    const idActive = active.id;
+    const dataComponentActive = active.data.current;
+
+    console.log("StartDragData:::", dataComponentActive);
+    const currentComponentDom = dataComponentActive.componentRef.current;
+
+    // Lấy ra kích thước item hiện tại để tính tọa độ
+    const { width, height } = currentComponentDom.getBoundingClientRect();
+    const newCoordinateActive = {
+      x: dataComponentActive?.coordinate.x,
+      y: dataComponentActive?.coordinate.y,
+      x2: dataComponentActive?.coordinate.x + width,
+      y2: dataComponentActive?.coordinate.y,
+      x3: dataComponentActive?.coordinate.x + width,
+      y3: dataComponentActive?.coordinate.y + height,
+      x4: dataComponentActive?.coordinate.x,
+      y4: dataComponentActive?.coordinate.y + height,
+      x5: dataComponentActive?.coordinate.x + width / 2,
+      y5: dataComponentActive?.coordinate.y + height / 2,
+    };
+
+    measureDistanceBetweenItems(
+      idActive,
+      TOLERANCE,
+      newCoordinateActive,
+      event
+    );
   }
 
-  function handleDragEnd(event) {
-    const { active, delta } = event;
-
+  function handleDragEnd({ active, delta }) {
     const dataComponentDragging = active.data.current;
     const currentComponentDom = dataComponentDragging.componentRef.current;
 
@@ -294,6 +402,7 @@ export default function IDraggableFree({
         listDataItem.map((childData, index) => {
           return (
             <IDraggbleItemWrapper
+              sizeItem={childData.sizeItem}
               sizeLines={sizeLines}
               childId={childData.id}
               dataIndex={index}
@@ -302,8 +411,8 @@ export default function IDraggableFree({
               axis={axis}
               label={label}
               handle={handle}
-              top={childData.coordinate.y}
               left={childData.coordinate.x}
+              top={childData.coordinate.y}
               style={style}
               buttonStyle={buttonStyle}
               childElement={childData.component}
@@ -332,6 +441,7 @@ export default function IDraggableFree({
  *
  **/
 export const IDraggbleItemWrapper = ({
+  sizeItem,
   sizeLines, //Mảng chứa các đường thẳng nối giữa các item
   dataItem, //Truyền dataItem vào để xác định data hiện tại của component khi kéo thả
   dataIndex,
@@ -357,7 +467,7 @@ export const IDraggbleItemWrapper = ({
         componentRef, //Sau khi gán xong Ref component con sẽ lưu trữ vào trong data dưới dạng domElement
       }, //Gán data vào trong component khi kéo thả
     });
-
+  console.log("sizeItem:::", sizeItem);
   return (
     <IDraggableItem
       id={childId}
@@ -371,7 +481,15 @@ export const IDraggbleItemWrapper = ({
       handle={handle}
       label={label}
       listeners={listeners}
-      style={{ ...style, top, left }}
+      style={{
+        ...style,
+        top,
+        left,
+        // Set chiều rộng và cao của item khi rotate cho vừa với nội dung
+        width: sizeItem?.width,
+        height: sizeItem?.height,
+        // transform: `translate(-50%, -50%)`,
+      }}
       buttonStyle={buttonStyle}
       transform={transform}
       axis={axis}

@@ -10,7 +10,8 @@ const cvIdSelector = (state) => state.cvs.id;
 const cvTextSelector = (state) => state.cvs.textEditor;
 const positionPointerSelector = (state) => state.cvs.coordPointer;
 const sizeEditorSelector = (state) => state.cvs.sizeEditor;
-
+const sizeAndDegItemDraggableSelector = (state) =>
+  state.cvs.itemDraggableSizeAndDeg;
 //Combine với các selector khác(nếu có)
 const remainingSelector = createSelector(
   cvEditorContentSelector,
@@ -19,6 +20,7 @@ const remainingSelector = createSelector(
 
 export {
   cvTextSelector,
+  sizeAndDegItemDraggableSelector,
   cvEditorContentSelector,
   cvIdSelector,
   positionPointerSelector,
