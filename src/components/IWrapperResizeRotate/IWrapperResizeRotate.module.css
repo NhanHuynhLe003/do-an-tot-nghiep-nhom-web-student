@@ -1,6 +1,13 @@
+.rotateControl {
+    transition: 200ms ease-in-out;
+
+}
+
 .rotateControl:hover {
-    opacity: 0.6;
-    cursor: grabbing;
+    opacity: 0.8;
+    /* box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); */
+    cursor: pointer !important;
+
 }
 
 .childrenContainer {}

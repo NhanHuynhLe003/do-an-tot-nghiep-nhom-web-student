@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { FaArrowRotateRight } from "react-icons/fa6";
-
-import { sizeEditorDefault } from "../../constants";
+import doubleArrow from "../../assets/icons/double-arrow.png";
+import { sizeEditorDefault, RANGE_AUTO_FIT_ROTATE } from "../../constants";
 import styles from "./IWrapperResizeRotate.module.css";
 import { useDispatch } from "react-redux";
 import CvSlice from "../../redux/slices/CvSlice";
@@ -22,6 +22,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   const elementRef = useRef(null);
   const childrenContainerRef = useRef(null);
 
+  const [isHoverRotate, setIsHoverRoate] = useState(false);
   const [rotate, setRotate] = useState(0);
 
   const [size, setSize] = useState(
@@ -32,6 +33,14 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
           height: 200,
         }
   );
+
+  // Hàm lấy góc xoay gần góc đặc biệt nhất
+  function getNearestSnapAngle(angle) {
+    const snapAngles = [0, 45, 90, 135, 180, 225, 270, 315];
+    return snapAngles.reduce((prev, curr) =>
+      Math.abs(curr - angle) < Math.abs(prev - angle) ? curr : prev
+    );
+  }
   function handleRotate(deg) {
     setRotate(deg);
     dispatch(
@@ -57,6 +66,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   // Xử lý sự kiện khi bắt đầu kéo để xoay
   const handleMouseDownRotate = (e) => {
     e.preventDefault();
+    setIsHoverRoate(true);
     const rect = elementRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
@@ -70,11 +80,19 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
 
       const dx = (e.clientX || e.touches[0].clientX) - centerX;
       const dy = (e.clientY || e.touches[0].clientY) - centerY;
-      const angle = 90 + Math.atan2(dy, dx) * (180 / Math.PI);
+      let angle = 90 + Math.atan2(dy, dx) * (180 / Math.PI);
+
+      // Làm tròn góc xoay gần góc đặc biệt nhất
+      const nearestSnapAngle = getNearestSnapAngle(angle);
+      if (Math.abs(nearestSnapAngle - angle) < RANGE_AUTO_FIT_ROTATE) {
+        // Tự động fit vào góc nếu nằm trong khoảng cách nhất định (ở đây là 5 độ)
+        angle = nearestSnapAngle;
+      }
       handleRotate(angle);
     };
 
     const handleMouseUpRotate = () => {
+      setIsHoverRoate(false);
       window.removeEventListener("mousemove", handleMouseMoveRotate);
       window.removeEventListener("mouseup", handleMouseUpRotate);
       window.removeEventListener("touchmove", handleMouseMoveRotate);
@@ -133,7 +151,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
         border: `2px dashed var(--color-primary1)`,
         // padding: paddingWrapperContainer.current,
         transform: `rotate(${rotate}deg)`, // (*) Xoay item
-        transformOrigin: "center",
+        // transformOrigin: "center",
         width: "fit-content",
         height: "fit-content",
         // position: "absolute", //(*) Cho các vị trí không liên quan đến nhau dù resize cũng ko ảnh hưởng
@@ -178,17 +196,27 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
             justifyContent: "center",
             width: "1.5rem",
             height: "1.5rem",
-            cursor: "pointer",
+            cursor: "pointer !important",
             top: "-2rem",
             left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: "var(--color-white1)",
+            transform: "translate(-50%, -50%) rotate(135deg)",
+            backgroundColor: isHoverRotate
+              ? "transparent !important"
+              : "var(--color-white1)",
             borderRadius: "50%",
-            cursor: "e-resize",
-            border: "1px solid #ccc",
+            boxShadow: isHoverRotate ? "none" : "0 0 0 1px rgba(0,0,0,0.1)",
           }}
         >
-          <FaArrowRotateRight />
+          {isHoverRotate ? (
+            <img
+              src={doubleArrow}
+              alt="icon-arrow"
+              width={"90%"}
+              height={"auto"}
+            />
+          ) : (
+            <FaArrowRotateRight />
+          )}
         </div>
 
         {/* Điều khiển thay đổi kích thước ở góc dưới bên phải */}

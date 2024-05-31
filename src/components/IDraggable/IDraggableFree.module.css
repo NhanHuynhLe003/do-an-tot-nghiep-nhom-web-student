@@ -219,7 +219,7 @@
 }
 
 .IDraggableItemContainer .line9 {
-    bottom: 100%;
+    bottom: 50%;
     right: 50%;
     width: 1px;
     border-right: var(--type-dash-border);
@@ -236,7 +236,7 @@
 }
 
 .IDraggableItemContainer .line11 {
-    top: 100%;
+    top: 50%;
     right: 50%;
     width: 1px;
     border-right: var(--type-dash-border);

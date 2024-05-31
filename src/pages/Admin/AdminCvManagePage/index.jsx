@@ -5,6 +5,7 @@ import ITipTapEditor from "../../../components/ITipTapEditor";
 import IWrapperResizeRotate from "../../../components/IWrapperResizeRotate";
 import { sizeEditorDefault } from "../../../constants";
 
+const TRANSLATE_NUM = 0.5;
 export default function AdminCvManagePage() {
   // Đừng style cứng các item được wrap, các dữ liệu này sau này do mình tạo ra khi nhấn nút them
   const initCoordinate = useRef(200);
@@ -20,16 +21,34 @@ export default function AdminCvManagePage() {
         ></IWrapperResizeRotate>
       ),
       coordinate: {
-        x: initCoordinate.current,
-        y: initCoordinate.current,
-        x2: initCoordinate.current + sizeEditorDefault.width,
-        y2: initCoordinate.current,
-        x3: initCoordinate.current + sizeEditorDefault.width,
-        y3: initCoordinate.current + sizeEditorDefault.height,
-        x4: initCoordinate.current,
-        y4: initCoordinate.current + sizeEditorDefault.height,
-        x5: initCoordinate.current + sizeEditorDefault.width / 2,
-        y5: initCoordinate.current + sizeEditorDefault.height / 2,
+        x: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.width,
+        y: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.height,
+        x2:
+          initCoordinate.current +
+          sizeEditorDefault.width -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y2: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.height,
+        x3:
+          initCoordinate.current +
+          sizeEditorDefault.width -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y3:
+          initCoordinate.current +
+          sizeEditorDefault.height -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+        x4: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.width,
+        y4:
+          initCoordinate.current +
+          sizeEditorDefault.height -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+        x5:
+          initCoordinate.current +
+          sizeEditorDefault.width / 2 -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y5:
+          initCoordinate.current +
+          sizeEditorDefault.height / 2 -
+          TRANSLATE_NUM * sizeEditorDefault.height,
       },
       sizeItem: sizeEditorDefault,
     },
@@ -43,64 +62,120 @@ export default function AdminCvManagePage() {
         ></IWrapperResizeRotate>
       ),
       coordinate: {
-        x: initCoordinate.current,
-        y: initCoordinate.current,
-        x2: initCoordinate.current + sizeEditorDefault.width,
-        y2: initCoordinate.current,
-        x3: initCoordinate.current + sizeEditorDefault.width,
-        y3: initCoordinate.current + sizeEditorDefault.height,
-        x4: initCoordinate.current,
-        y4: initCoordinate.current + sizeEditorDefault.height,
-        x5: initCoordinate.current + sizeEditorDefault.width / 2,
-        y5: initCoordinate.current + sizeEditorDefault.height / 2,
+        x: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.width,
+        y: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.height,
+        x2:
+          initCoordinate.current +
+          sizeEditorDefault.width -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y2: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.height,
+        x3:
+          initCoordinate.current +
+          sizeEditorDefault.width -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y3:
+          initCoordinate.current +
+          sizeEditorDefault.height -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+        x4: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.width,
+        y4:
+          initCoordinate.current +
+          sizeEditorDefault.height -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+        x5:
+          initCoordinate.current +
+          sizeEditorDefault.width / 2 -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y5:
+          initCoordinate.current +
+          sizeEditorDefault.height / 2 -
+          TRANSLATE_NUM * sizeEditorDefault.height,
       },
       sizeItem: sizeEditorDefault,
     },
-    // {
-    //   id: "003",
-    //   component: (
-    //     <IWrapperResizeRotate
-    //       id={"003"}
-    //       typeChildren="editor"
-    //       ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
-    //     ></IWrapperResizeRotate>
-    //   ),
-    //   coordinate: {
-    //     x: 10 + initCoordinate.current,
-    //     y: 10 + initCoordinate.current,
-    //     x2: 10 + initCoordinate.current + sizeEditorDefault.width,
-    //     y2: 10 + initCoordinate.current,
-    //     x3: 10 + initCoordinate.current + sizeEditorDefault.width,
-    //     y3: 10 + initCoordinate.current + sizeEditorDefault.height,
-    //     x4: 10 + initCoordinate.current,
-    //     y4: 10 + initCoordinate.current + sizeEditorDefault.height,
-    //     x5: 10 + initCoordinate.current + sizeEditorDefault.width / 2,
-    //     y5: 10 + initCoordinate.current + sizeEditorDefault.height / 2,
-    //   },
-    // },
+    {
+      id: "003",
+      component: (
+        <IWrapperResizeRotate
+          id={"003"}
+          typeChildren="editor"
+          ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
+        ></IWrapperResizeRotate>
+      ),
+      coordinate: {
+        x: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.width,
+        y: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.height,
+        x2:
+          initCoordinate.current +
+          sizeEditorDefault.width -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y2: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.height,
+        x3:
+          initCoordinate.current +
+          sizeEditorDefault.width -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y3:
+          initCoordinate.current +
+          sizeEditorDefault.height -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+        x4: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.width,
+        y4:
+          initCoordinate.current +
+          sizeEditorDefault.height -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+        x5:
+          initCoordinate.current +
+          sizeEditorDefault.width / 2 -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y5:
+          initCoordinate.current +
+          sizeEditorDefault.height / 2 -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+      },
+      sizeItem: sizeEditorDefault,
+    },
 
-    // {
-    //   id: "004",
-    //   component: (
-    //     <IWrapperResizeRotate
-    //       id={"004"}
-    //       typeChildren="editor"
-    //       ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
-    //     ></IWrapperResizeRotate>
-    //   ),
-    //   coordinate: {
-    //     x: 20 + initCoordinate.current,
-    //     y: 20 + initCoordinate.current,
-    //     x2: 20 + initCoordinate.current + sizeEditorDefault.width,
-    //     y2: 20 + initCoordinate.current,
-    //     x3: 20 + initCoordinate.current + sizeEditorDefault.width,
-    //     y3: 20 + initCoordinate.current + sizeEditorDefault.height,
-    //     x4: 20 + initCoordinate.current,
-    //     y4: 20 + initCoordinate.current + sizeEditorDefault.height,
-    //     x5: 20 + initCoordinate.current + sizeEditorDefault.width / 2,
-    //     y5: 20 + initCoordinate.current + sizeEditorDefault.height / 2,
-    //   },
-    // },
+    {
+      id: "004",
+      component: (
+        <IWrapperResizeRotate
+          id={"004"}
+          typeChildren="editor"
+          ChildComponent={ITipTapEditor} //Không truyền dạng này <ITipTapEditor></ITipTapEditor> vì đã có sẵn pattern bên dưới
+        ></IWrapperResizeRotate>
+      ),
+      coordinate: {
+        x: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.width,
+        y: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.height,
+        x2:
+          initCoordinate.current +
+          sizeEditorDefault.width -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y2: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.height,
+        x3:
+          initCoordinate.current +
+          sizeEditorDefault.width -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y3:
+          initCoordinate.current +
+          sizeEditorDefault.height -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+        x4: initCoordinate.current - TRANSLATE_NUM * sizeEditorDefault.width,
+        y4:
+          initCoordinate.current +
+          sizeEditorDefault.height -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+        x5:
+          initCoordinate.current +
+          sizeEditorDefault.width / 2 -
+          TRANSLATE_NUM * sizeEditorDefault.width,
+        y5:
+          initCoordinate.current +
+          sizeEditorDefault.height / 2 -
+          TRANSLATE_NUM * sizeEditorDefault.height,
+      },
+      sizeItem: sizeEditorDefault,
+    },
   ];
 
   return (

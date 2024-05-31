@@ -7,12 +7,15 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import _ from "lodash";
+import _, { set } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { sizeAndDegItemDraggableSelector } from "../../redux/selector";
 import { calculateDistanceByCoordinate, debounce } from "../../utils";
 import IDraggableItem from "./DraggableItem";
+
+//Translate tọa độ => Khi rotate cho nó quay xung quanh tâm
+const TRANSLATE_RATE = 50;
 
 export default function IDraggableFree({
   activationConstraint, // Dùng để thiết lập thời gian delay khi kéo, khoảng cách kéo, hoặc cả 2
@@ -24,6 +27,9 @@ export default function IDraggableFree({
   buttonStyle, // Dùng để thiết lập style cho button
   listChildData = [], // chứa các element con trong bảng kéo thả
 }) {
+  const sizeAndRotateItemSelector = useSelector(
+    sizeAndDegItemDraggableSelector
+  );
   const [listDataItem, setListDataItem] = useState(listChildData);
 
   //Lưu trữ data lines truyền xuống component con để vẽ đường thẳng
@@ -32,12 +38,8 @@ export default function IDraggableFree({
     lines: [],
   });
 
-  // (*)Kỹ thuật setRefs Tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM do ta truyền vào <Item> chứ nếu truyền hàm ko cần, nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
+  // (*)Kỹ thuật setRefs tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM do ta truyền vào <Item> chứ nếu truyền hàm component:Item ko cần, nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
   const listChildRefs = useRef(listDataItem.map(() => React.createRef()));
-
-  const sizeAndRotateItemSelector = useSelector(
-    sizeAndDegItemDraggableSelector
-  );
 
   // Xử lý thay đổi độ quay của item
   useEffect(() => {
@@ -52,6 +54,7 @@ export default function IDraggableFree({
    */
   function handleRotate() {
     const idActiveRotate = sizeAndRotateItemSelector.id;
+    const TRANSLATE_NUM = TRANSLATE_RATE / 100;
     listChildRefs.current.forEach((childRef) => {
       const currentActiveChild = childRef.current.querySelector(
         `.IWrapperResizeRotate-${idActiveRotate}`
@@ -62,13 +65,56 @@ export default function IDraggableFree({
         setListDataItem((listDataItem) => {
           return listDataItem.map((data) => {
             if (data.id === idActiveRotate) {
-              return {
+              // Cập nhật lại kích thước của item
+              const updatedData = {
                 ...data,
                 sizeItem: {
                   width: rectChildActive.width,
                   height: rectChildActive.height,
                 },
               };
+
+              // Đo khoảng cách giữa các item sau khi xoay
+              measureDistanceBetweenItems(idActiveRotate, 0.75, {
+                x:
+                  updatedData.coordinate.x -
+                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                y:
+                  updatedData.coordinate.y -
+                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                x2:
+                  updatedData.coordinate.x +
+                  updatedData.sizeItem.width -
+                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                y2:
+                  updatedData.coordinate.y -
+                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                x3:
+                  updatedData.coordinate.x +
+                  updatedData.sizeItem.width -
+                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                y3:
+                  updatedData.coordinate.y +
+                  updatedData.sizeItem.height -
+                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                x4:
+                  updatedData.coordinate.x -
+                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                y4:
+                  updatedData.coordinate.y +
+                  updatedData.sizeItem.height -
+                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                x5:
+                  updatedData.coordinate.x +
+                  updatedData.sizeItem.width / 2 -
+                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                y5:
+                  updatedData.coordinate.y +
+                  updatedData.sizeItem.height / 2 -
+                  TRANSLATE_NUM * updatedData.sizeItem.height,
+              });
+
+              return updatedData;
             }
             return data;
           });
@@ -139,6 +185,8 @@ export default function IDraggableFree({
    *  5. so sánh khoảng cách, lấy khoảng cách nhỏ nhất để gán vào mảng lines
    *  6. Truyền mảng lines xuống component con để vẽ đường thẳng
    **/
+
+  //V2 sẽ update lấy tọa độ các điểm bên trong item, so sánh 2 điểm trong item xem k/c nào lớn hơn thì lấy
   async function measureDistanceBetweenItems(
     idActiveItem,
     TOLERANCE = 0.75,
@@ -157,14 +205,34 @@ export default function IDraggableFree({
     let isAutoFitLine = false;
 
     listDataItem.forEach((dataItem) => {
+      // ID đang kéo phải khác với id của item đang so sánh
       if (idActiveItem !== dataItem.id) {
+        const sizeItem = dataItem.sizeItem;
+        //(*!Important)Độ lệch khi translate, khi dịch 50% chẳng hạn thì phải dời về vị trí cũ của nó để so sánh
+        const deviationHeight = (TRANSLATE_RATE * sizeItem.height) / 100;
+        const deviationWidth = (TRANSLATE_RATE * sizeItem.width) / 100;
         // Gộp Tọa độ của các dataItem trong list đang so sánh (khác với item đang kéo)
         const coordinates = [
-          { x: dataItem.coordinate.x, y: dataItem.coordinate.y }, // index 0 là x, y
-          { x: dataItem.coordinate.x2, y: dataItem.coordinate.y2 }, // index 1 là x2, y2
-          { x: dataItem.coordinate.x3, y: dataItem.coordinate.y3 }, // index 2 là x3, y3
-          { x: dataItem.coordinate.x4, y: dataItem.coordinate.y4 }, // index 3 là x4, y4
-          { x: dataItem.coordinate.x5, y: dataItem.coordinate.y5 }, // index 4 là x5, y5
+          {
+            x: dataItem.coordinate.x - deviationWidth,
+            y: dataItem.coordinate.y - deviationHeight,
+          }, // index 0 là x, y
+          {
+            x: dataItem.coordinate.x2 - deviationWidth,
+            y: dataItem.coordinate.y2 - deviationHeight,
+          }, // index 1 là x2, y2
+          {
+            x: dataItem.coordinate.x3 - deviationWidth,
+            y: dataItem.coordinate.y3 - deviationHeight,
+          }, // index 2 là x3, y3
+          {
+            x: dataItem.coordinate.x4 - deviationWidth,
+            y: dataItem.coordinate.y4 - deviationHeight,
+          }, // index 3 là x4, y4
+          {
+            x: dataItem.coordinate.x5 - deviationWidth,
+            y: dataItem.coordinate.y5 - deviationHeight,
+          }, // index 4 là x5, y5
         ];
 
         // Gộp các tọa độ của item đang active
@@ -189,6 +257,7 @@ export default function IDraggableFree({
         ];
 
         // Check xem vị trí item trong danh sách để kiểm tra vị trí
+
         draggingCoordinates.forEach(
           //Duyệt qua tất cả các tọa độ của item đang kéo
           ({ x: activeX, y: activeY }, activeIndex) => {
@@ -220,16 +289,16 @@ export default function IDraggableFree({
                   lines[activeIndex][direction] < distanceY
                 ) {
                   //activeIndex lần lượt chạy theo thứ tự top, right, bottom, left, center, tương ứng: 0,1,2,3,4
-                  //Lấy khoảng cách lớn nhất vì nó sẽ bao được toàn bộ các ITEM thẳng hàng trên trục Y
+                  //Lấy khoảng cách lớn nhất giữa 2 item
                   lines[activeIndex][direction] = distanceY;
                 }
               }
 
               //Kiểm tra y của item đang kéo có thuộc khoảng tọa độ trùng nhau của item khác không
               if (activeY >= y - TOLERANCE && activeY <= y + TOLERANCE) {
+                //TRÙNG Y KHÁC X
                 isAutoFitLine = true;
                 //Check thấy vị trí đg kéo trùng theo Y
-
                 const distanceX = calculateDistanceByCoordinate({
                   x1: activeX,
                   y1: activeY,
@@ -248,7 +317,7 @@ export default function IDraggableFree({
                   lines[activeIndex][direction] === 0 ||
                   lines[activeIndex][direction] < distanceX
                 ) {
-                  //Lấy khoảng cách lớn nhất vì nó sẽ bao được toàn bộ các ITEM thẳng hàng trên trục X
+                  //Lấy khoảng cách theo X lớn nhất giữa 2 item
                   lines[activeIndex][direction] = distanceX;
                 }
               }
@@ -271,27 +340,55 @@ export default function IDraggableFree({
   function handleDragMove(event) {
     //(*)Sai số cho phép khi so sánh tọa độ
     const TOLERANCE = 0.5;
+    const TRANSLATE_NUM = TRANSLATE_RATE / 100;
 
     const { active, delta } = event;
 
     const idDragging = active.id;
     const dataComponentDragging = active.data.current;
-    // console.log(dataComponentDragging);
+
     const currentComponentDom = dataComponentDragging.componentRef.current;
 
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
+
     const newCoordinateDragging = {
-      x: dataComponentDragging?.coordinate.x + delta.x,
-      y: dataComponentDragging?.coordinate.y + delta.y,
-      x2: dataComponentDragging?.coordinate.x + delta.x + width,
-      y2: dataComponentDragging?.coordinate.y + delta.y,
-      x3: dataComponentDragging?.coordinate.x + delta.x + width,
-      y3: dataComponentDragging?.coordinate.y + delta.y + height,
-      x4: dataComponentDragging?.coordinate.x + delta.x,
-      y4: dataComponentDragging?.coordinate.y + delta.y + height,
-      x5: dataComponentDragging?.coordinate.x + delta.x + width / 2,
-      y5: dataComponentDragging?.coordinate.y + delta.y + height / 2,
+      //Do nó sẽ dịch 50% nên phải trừ đi 50% để nó dịch về vị trí cũ tiện so sánh, còn DragEnd vẫn giữ nguyên vì nó là gốc
+      x: dataComponentDragging.coordinate.x + delta.x - TRANSLATE_NUM * width,
+
+      y: dataComponentDragging.coordinate.y + delta.y - TRANSLATE_NUM * height,
+      x2:
+        dataComponentDragging.coordinate.x +
+        delta.x +
+        width -
+        TRANSLATE_NUM * width,
+      y2: dataComponentDragging.coordinate.y + delta.y - TRANSLATE_NUM * height,
+      x3:
+        dataComponentDragging.coordinate.x +
+        delta.x +
+        width -
+        TRANSLATE_NUM * width,
+      y3:
+        dataComponentDragging.coordinate.y +
+        delta.y +
+        height -
+        TRANSLATE_NUM * height,
+      x4: dataComponentDragging.coordinate.x + delta.x - TRANSLATE_NUM * width,
+      y4:
+        dataComponentDragging.coordinate.y +
+        delta.y +
+        height -
+        TRANSLATE_NUM * height,
+      x5:
+        dataComponentDragging.coordinate.x +
+        delta.x +
+        width / 2 -
+        TRANSLATE_NUM * width,
+      y5:
+        dataComponentDragging.coordinate.y +
+        delta.y +
+        height / 2 -
+        TRANSLATE_NUM * height,
     };
 
     measureDistanceBetweenItems(
@@ -305,27 +402,30 @@ export default function IDraggableFree({
     //(*)Sai số cho phép khi so sánh tọa độ
     const TOLERANCE = 0.5;
 
+    //(*) Độ dịch tọa độ translate là 50% kích thước item
+    const TRANSLATE_NUM = TRANSLATE_RATE / 100;
+
     const { active } = event;
 
     const idActive = active.id;
     const dataComponentActive = active.data.current;
 
-    console.log("StartDragData:::", dataComponentActive);
     const currentComponentDom = dataComponentActive.componentRef.current;
 
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
     const newCoordinateActive = {
-      x: dataComponentActive?.coordinate.x,
-      y: dataComponentActive?.coordinate.y,
-      x2: dataComponentActive?.coordinate.x + width,
-      y2: dataComponentActive?.coordinate.y,
-      x3: dataComponentActive?.coordinate.x + width,
-      y3: dataComponentActive?.coordinate.y + height,
-      x4: dataComponentActive?.coordinate.x,
-      y4: dataComponentActive?.coordinate.y + height,
-      x5: dataComponentActive?.coordinate.x + width / 2,
-      y5: dataComponentActive?.coordinate.y + height / 2,
+      x: dataComponentActive.coordinate.x - TRANSLATE_NUM * width,
+      y: dataComponentActive.coordinate.y - TRANSLATE_NUM * height,
+      x2: dataComponentActive.coordinate.x + width - TRANSLATE_NUM * width,
+      y2: dataComponentActive.coordinate.y - TRANSLATE_NUM * height,
+      x3: dataComponentActive.coordinate.x + width - TRANSLATE_NUM * width,
+      y3: dataComponentActive.coordinate.y + height - TRANSLATE_NUM * height,
+      x4: dataComponentActive.coordinate.x - TRANSLATE_NUM * width,
+      y4: dataComponentActive.coordinate.y + height - TRANSLATE_NUM * height,
+      x5: dataComponentActive.coordinate.x + width / 2 - TRANSLATE_NUM * width,
+      y5:
+        dataComponentActive.coordinate.y + height / 2 - TRANSLATE_NUM * height,
     };
 
     measureDistanceBetweenItems(
@@ -342,7 +442,7 @@ export default function IDraggableFree({
 
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
-
+    const TRANSLATE_NUM = TRANSLATE_RATE / 100;
     // Lọc qua các item để cập nhật vị trí
 
     setListDataItem((listDataItem) => {
@@ -467,7 +567,7 @@ export const IDraggbleItemWrapper = ({
         componentRef, //Sau khi gán xong Ref component con sẽ lưu trữ vào trong data dưới dạng domElement
       }, //Gán data vào trong component khi kéo thả
     });
-  console.log("sizeItem:::", sizeItem);
+
   return (
     <IDraggableItem
       id={childId}
@@ -483,12 +583,15 @@ export const IDraggbleItemWrapper = ({
       listeners={listeners}
       style={{
         ...style,
-        top,
-        left,
+
+        top: top,
+        left: left,
         // Set chiều rộng và cao của item khi rotate cho vừa với nội dung
         width: sizeItem?.width,
         height: sizeItem?.height,
-        // transform: `translate(-50%, -50%)`,
+
+        // Set transform để xoay item khi xoay sẽ quay xung quanh tâm
+        transform: `translate3d(-${TRANSLATE_RATE}%,-${TRANSLATE_RATE}%, 0)`,
       }}
       buttonStyle={buttonStyle}
       transform={transform}
