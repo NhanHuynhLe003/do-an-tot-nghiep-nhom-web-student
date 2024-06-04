@@ -74,7 +74,6 @@ const IDraggableItem = React.forwardRef((props, ref) => {
         ...style,
         "--translate-x": `${transform?.x || 0}px`,
         "--translate-y": `${transform?.y || 0}px`,
-        // transform: `translate(-50%, -50%)`, //(*) Dùng để cố định khi Rotate Wrapper bên trong nó chỉ xoay quay trục của nó
       }}
     >
       <button className={style.buttonDragger}>

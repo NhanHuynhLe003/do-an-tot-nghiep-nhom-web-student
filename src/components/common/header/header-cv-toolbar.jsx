@@ -20,17 +20,6 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
   const [isHoverToolBar, setIsHoverToolBar] = React.useState(false);
 
   function handleMouseEnter(e) {
-    // const buttonInsideToolBar = menuToolBarRef.current.querySelectorAll(
-    //   ".ITipTapEditor___buttonTool"
-    // );
-    // buttonInsideToolBar.forEach((toolBtn) => {
-    //   toolBtn.addEventListener("click", (e) => {
-    //     console.log("CLICKED");
-
-    //     setIsHoverToolBar(true);
-    //   });
-    // });
-
     setIsHoverToolBar(true);
   }
 

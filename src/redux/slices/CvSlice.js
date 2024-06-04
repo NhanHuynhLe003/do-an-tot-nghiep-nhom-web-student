@@ -15,6 +15,14 @@ export default createSlice({
       size: sizeEditorDefault,
       deg: 0,
     }, // Kích thước và góc quay của item draggable
+    control: {
+      zoomScale: 1,
+    },
+    isClickOutside: false, //kiểm tra có nhấn ra bên ngoài các item đang kéo không
+    itemsDragSelect: {
+      mode: "single",
+      items: [],
+    }, //Mảng chứa các item được chọn, gồm {id, status}
   },
   reducers: {
     // Truyền editorContent từ header xuống tiptapeditor
@@ -35,6 +43,18 @@ export default createSlice({
     },
     setSizeAndDegItemDraggable: (state, action) => {
       state.itemDraggableSizeAndDeg = action.payload;
+    },
+
+    setZoomScale: (state, action) => {
+      state.control.zoomScale = action.payload;
+    },
+
+    setClickOutsideDragItem: (state, action) => {
+      state.isClickOutside = action.payload;
+    },
+
+    setPropertyItemsDragSelect: (state, action) => {
+      state.itemsDragSelect = action.payload;
     },
   },
 });

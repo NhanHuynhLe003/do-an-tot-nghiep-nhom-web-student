@@ -1,16 +1,18 @@
 import { Box } from "@mui/material";
+import { cloneDeep, set } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { FaArrowRotateRight } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
 import doubleArrow from "../../assets/icons/double-arrow.png";
-import { sizeEditorDefault, RANGE_AUTO_FIT_ROTATE } from "../../constants";
-import styles from "./IWrapperResizeRotate.module.css";
-import { useDispatch } from "react-redux";
+import { RANGE_AUTO_FIT_ROTATE, sizeEditorDefault } from "../../constants";
+import {
+  clickOutsideDragItemSelector,
+  itemsSelectorDragSelect,
+} from "../../redux/selector";
 import CvSlice from "../../redux/slices/CvSlice";
+import styles from "./IWrapperResizeRotate.module.css";
 
 const IWrapperResizeRotate = React.forwardRef((props, ref) => {
-  useEffect(() => {
-    console.log("Child ReRender");
-  });
   const {
     id = -1,
     childContent = "Nhập nội dung vào đây",
@@ -18,9 +20,16 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     ChildComponent = React.Fragment,
     ...restProps
   } = props;
+
+  // Các item đg select
+  const selectedItems = useSelector(itemsSelectorDragSelect);
+  const [modeSelect, setModeSelect] = useState("single");
   const dispatch = useDispatch();
   const elementRef = useRef(null);
   const childrenContainerRef = useRef(null);
+
+  // Lưu các nút đang nhấn
+  const [keyPressed, setKeyPressed] = useState(null);
 
   const [isHoverRotate, setIsHoverRoate] = useState(false);
   const [rotate, setRotate] = useState(0);
@@ -33,6 +42,62 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
           height: 200,
         }
   );
+
+  useEffect(() => {
+    if (keyPressed === "Control") {
+      setModeSelect("multiple");
+    } else {
+      setModeSelect("single");
+    }
+  }, [keyPressed]);
+
+  useEffect(() => {
+    //Xử lý nhấn nút xem có phải đang nhấn ctrl để chọn nhiều item không
+    const handleKeyDown = (event) => {
+      setKeyPressed(event.key);
+    };
+
+    const handleKeyUp = () => {
+      setKeyPressed(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
+  //Hàm xử lý khi click vào item để chọn
+  function handleClickSelectItem(event) {
+    event.stopPropagation(); // Ngăn sự kiện nổi bọt(click lan ra ngoài children), tránh khi nhấn vào thẻ cha chứa nó cũng kích hoạt cái này
+
+    // Nếu click vào item đã chọn rồi thì không nhấn vào board bên ngoài nữa
+    dispatch(CvSlice.actions.setClickOutsideDragItem(false));
+
+    if (modeSelect === "multiple") {
+      //Nếu trong mảng có rồi thì ko thêm nữa
+
+      if (selectedItems.items?.some((item) => item.id === id)) return;
+
+      const newUploadSelect = {
+        ...selectedItems,
+        items: [...selectedItems.items, { id: id }],
+      };
+      console.log("newUploadSelect", newUploadSelect);
+      dispatch(CvSlice.actions.setPropertyItemsDragSelect(newUploadSelect));
+    } else {
+      //Single mode => replace all item in arr
+      dispatch(
+        CvSlice.actions.setPropertyItemsDragSelect({
+          ...selectedItems,
+          items: [{ id: id }],
+        })
+      );
+    }
+  }
 
   // Hàm lấy góc xoay gần góc đặc biệt nhất
   function getNearestSnapAngle(angle) {
@@ -146,9 +211,11 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
 
   return (
     <div
-      className={`IWrapperResizeRotate-${id}`}
+      className={`IWrapperResizeRotate IWrapperResizeRotate-${id}`}
       style={{
-        border: `2px dashed var(--color-primary1)`,
+        border: selectedItems.items?.some((item) => item.id === id) //Check xem có đg select ko
+          ? `2px dashed var(--color-primary1)`
+          : `2px solid var(--color-primary1)`,
         // padding: paddingWrapperContainer.current,
         transform: `rotate(${rotate}deg)`, // (*) Xoay item
         // transformOrigin: "center",
@@ -175,78 +242,90 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
             height: "fit-content",
           }}
         >
-          <ChildComponent
-            ref={ref}
-            size={size}
-            content={childContent}
-            {...props}
-          ></ChildComponent>
+          <div
+            style={{
+              width: "fit-content",
+              height: "fit-content",
+            }}
+            onClick={handleClickSelectItem}
+          >
+            <ChildComponent
+              ref={ref}
+              size={size}
+              content={childContent}
+              {...props}
+            ></ChildComponent>
+          </div>
         </Box>
         {/* Điều khiển xoay */}
-        <div
-          className={styles.rotateControl}
-          onMouseDown={handleMouseDownRotate}
-          onTouchStart={handleMouseDownRotate}
-          // STyle cho nút xoay
-          style={{
-            position: "absolute",
-            //Căn item ra giữa
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "1.5rem",
-            height: "1.5rem",
-            cursor: "pointer !important",
-            top: "-2rem",
-            left: "50%",
-            transform: "translate(-50%, -50%) rotate(135deg)",
-            backgroundColor: isHoverRotate
-              ? "transparent !important"
-              : "var(--color-white1)",
-            borderRadius: "50%",
-            boxShadow: isHoverRotate ? "none" : "0 0 0 1px rgba(0,0,0,0.1)",
-          }}
-        >
-          {isHoverRotate ? (
-            <img
-              src={doubleArrow}
-              alt="icon-arrow"
-              width={"90%"}
-              height={"auto"}
-            />
-          ) : (
-            <FaArrowRotateRight />
-          )}
-        </div>
+        {selectedItems.items?.some((item) => item.id === id) && ( //Check xem có đg select ko
+          <div
+            className={styles.rotateControl}
+            onMouseDown={handleMouseDownRotate}
+            onTouchStart={handleMouseDownRotate}
+            // STyle cho nút xoay
+            style={{
+              position: "absolute",
+              //Căn item ra giữa
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "1.5rem",
+              height: "1.5rem",
+              cursor: "pointer !important",
+              top: "-2rem",
+              left: "50%",
+              transform: "translate(-50%, -50%) rotate(135deg)",
+              backgroundColor: isHoverRotate
+                ? "transparent !important"
+                : "var(--color-white1)",
+              borderRadius: "50%",
+              boxShadow: isHoverRotate ? "none" : "0 0 0 1px rgba(0,0,0,0.1)",
+            }}
+          >
+            {isHoverRotate ? (
+              <img
+                src={doubleArrow}
+                alt="icon-arrow"
+                width={"90%"}
+                height={"auto"}
+              />
+            ) : (
+              <FaArrowRotateRight />
+            )}
+          </div>
+        )}
 
         {/* Điều khiển thay đổi kích thước ở góc dưới bên phải */}
-        <Box
-          component={"div"}
-          // Xử lý sự kiện khi bắt đầu kéo để thay đổi kích thước trên cả máy tính và điện thoại
-          onMouseDown={handleMouseDownResize}
-          onTouchStart={handleMouseDownResize}
-          sx={{
-            position: "absolute",
-            width: "0.75rem",
-            height: "0.75rem",
-            rotate: "90deg",
-            background: "var(--color-primary1)",
-            borderRadius: "50%",
-            cursor: "nwse-resize",
+        {selectedItems.items?.some((item) => item.id === id) && ( //Check xem có đg select ko
+          <Box
+            component={"div"}
+            // Xử lý sự kiện khi bắt đầu kéo để thay đổi kích thước trên cả máy tính và điện thoại
+            onMouseDown={handleMouseDownResize}
+            onTouchStart={handleMouseDownResize}
+            sx={{
+              position: "absolute",
+              width: "0.75rem",
+              height: "0.75rem",
+              rotate: "90deg",
+              background: "var(--color-primary1)",
+              borderRadius: "50%",
+              cursor: "nwse-resize",
 
-            // ăn góc phải dưới
-            bottom: "-0.5rem",
-            right: "-0.5rem",
-            zIndex: "100",
-            transition: "ease 0.3s",
-            "&:hover": {
-              bottom: "-0.75rem",
-              right: "-0.75rem",
-              width: "1.25rem",
-              height: "1.25rem",
-            },
-          }}
-        ></Box>
+              // ăn góc phải dưới
+              bottom: "-0.5rem",
+              right: "-0.5rem",
+              zIndex: "100",
+              transition: "ease 0.3s",
+              "&:hover": {
+                bottom: "-0.75rem",
+                right: "-0.75rem",
+                width: "1.25rem",
+                height: "1.25rem",
+              },
+            }}
+          ></Box>
+        )}
       </div>
     </div>
   );

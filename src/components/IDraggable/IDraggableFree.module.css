@@ -46,18 +46,20 @@
         flex-shrink: 1;
         appearance: none;
         outline: none;
-        border: 0;
+        border: none;
         padding: 0;
         /* background-color: #181a22; */
 
         background-color: transparent;
-        border: 2px dashed #fff;
+
         /* padding: 0.75rem 0.75rem; */
 
 
         /* box-shadow: var(--box-shadow); */
         transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) scale(var(--scale, 1));
         transition: box-shadow 300ms ease;
+
+
     }
 
     >button:hover::before {

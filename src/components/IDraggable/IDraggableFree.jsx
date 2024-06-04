@@ -7,17 +7,25 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import _, { set } from "lodash";
+import _, { cloneDeep } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { sizeAndDegItemDraggableSelector } from "../../redux/selector";
-import { calculateDistanceByCoordinate, debounce } from "../../utils";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  clickOutsideDragItemSelector,
+  itemsSelectorDragSelect,
+  sizeAndDegItemDraggableSelector,
+} from "../../redux/selector";
+import { calculateDistanceByCoordinate } from "../../utils";
 import IDraggableItem from "./DraggableItem";
+import { Box } from "@mui/material";
+import CvSlice from "../../redux/slices/CvSlice";
 
 //Translate tọa độ => Khi rotate cho nó quay xung quanh tâm
 const TRANSLATE_RATE = 50;
 
 export default function IDraggableFree({
+  zoomScale,
+  IdPageActive,
   activationConstraint, // Dùng để thiết lập thời gian delay khi kéo, khoảng cách kéo, hoặc cả 2
   axis, // Dùng để thiết lập hướng kéo
   handle, // Dùng để thiết lập handle kéo
@@ -26,10 +34,31 @@ export default function IDraggableFree({
   style, // Dùng để thiết lập style cho component
   buttonStyle, // Dùng để thiết lập style cho button
   listChildData = [], // chứa các element con trong bảng kéo thả
+
+  startPositionRect,
+  currentPositionRect,
+  isDrawingRectangle,
+  BoardId,
 }) {
+  const dispatch = useDispatch();
+
+  const isClickOutsideItemSelector = useSelector(clickOutsideDragItemSelector);
+
+  const itemsSelectedSelector = useSelector(itemsSelectorDragSelect);
+
+  //Lấy ra size và độ quay của item đang kéo từ store
   const sizeAndRotateItemSelector = useSelector(
     sizeAndDegItemDraggableSelector
   );
+
+  const [keyPressed, setKeyPressed] = useState("");
+
+  const [isRotating, setIsRotating] = useState(false);
+
+  //Xử lý kiểm tra item có đang kéo hay không
+  const [isDragging, setIsDragging] = useState(false);
+
+  //Lưu trữ data của các child data
   const [listDataItem, setListDataItem] = useState(listChildData);
 
   //Lưu trữ data lines truyền xuống component con để vẽ đường thẳng
@@ -38,13 +67,156 @@ export default function IDraggableFree({
     lines: [],
   });
 
+  //Lưu trữ tọa độ góc của Draw Rect Select
+  const [drawRectCoordinate, setDrawRectCoordinate] = useState({
+    x1: 0,
+    y1: 0,
+    x2: 0,
+    y2: 0,
+    x3: 0,
+    y3: 0,
+    x4: 0,
+    y4: 0,
+  });
+
   // (*)Kỹ thuật setRefs tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM do ta truyền vào <Item> chứ nếu truyền hàm component:Item ko cần, nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
   const listChildRefs = useRef(listDataItem.map(() => React.createRef()));
+
+  useEffect(() => {
+    if (keyPressed === "Backspace" || keyPressed === "Delete") {
+      handleDeleteItemsSelected();
+    }
+  }, [keyPressed]);
+
+  // Lắng nghe sự kiện nhấn phím
+  useEffect(() => {
+    //Xử lý nhấn nút xem có phải đang nhấn ctrl để chọn nhiều item không
+    const handleKeyDown = (event) => {
+      setKeyPressed(event.key);
+    };
+
+    const handleKeyUp = () => {
+      setKeyPressed(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
 
   // Xử lý thay đổi độ quay của item
   useEffect(() => {
     handleRotate();
   }, [sizeAndRotateItemSelector]);
+
+  //  xử lý select area
+  useEffect(() => {
+    updatePositionRectangleSelect();
+    selectItemsInRectangle(BoardId, IdPageActive, isClickOutsideItemSelector);
+  }, [startPositionRect, currentPositionRect, isClickOutsideItemSelector]);
+
+  useEffect(() => {
+    //Nếu click ra ngoài ITEM(click vào BOARD) thì reset lại các item đã chọn
+    isClickOutsideItemSelector &&
+      dispatch(
+        CvSlice.actions.setPropertyItemsDragSelect({
+          mode: "single",
+          items: [],
+        })
+      );
+  }, [isClickOutsideItemSelector]);
+
+  /**
+   * @description Hàm xử lý xoá các items đã chọn
+   */
+  function handleDeleteItemsSelected() {
+    const listItemsSelected = cloneDeep(itemsSelectedSelector.items);
+    const newListDataDeleted = listDataItem.filter((dataItem) => {
+      return !listItemsSelected.some((item) => item.id === dataItem.id);
+    });
+    setListDataItem(cloneDeep(newListDataDeleted));
+  }
+
+  // Update vị trí coord của rectangle
+  function updatePositionRectangleSelect() {
+    if (startPositionRect && currentPositionRect) {
+      //Góc trái trên của hình chữ nhật select
+      let angleTopLeft = {
+        x: Math.min(startPositionRect.x, currentPositionRect.x),
+        y: Math.min(startPositionRect.y, currentPositionRect.y),
+      };
+
+      //Góc phải dưới của hình chữ nhật select
+      let angleBotRight = {
+        x: Math.max(startPositionRect.x, currentPositionRect.x),
+        y: Math.max(startPositionRect.y, currentPositionRect.y),
+      };
+
+      setDrawRectCoordinate({
+        x1: angleTopLeft.x,
+        y1: angleTopLeft.y,
+        x2: angleBotRight.x,
+        y2: angleTopLeft.y,
+        x3: angleBotRight.x,
+        y3: angleBotRight.y,
+        x4: angleTopLeft.x,
+        y4: angleBotRight.y,
+      });
+    }
+  }
+
+  /**
+   * @description Hàm dùng để thêm các item nằm trong khu vực của rectangle select vào
+   */
+  function selectItemsInRectangle(boardId, idActiveBoard, isClickOutside) {
+    if (isDragging) return; // Nếu đang kéo thì không chọn được
+    if (boardId !== idActiveBoard) return; // Nếu không phải board đang active thì không chọn được
+
+    //Diện tích select Rectangle phải > 100
+    if (
+      (drawRectCoordinate.x2 - drawRectCoordinate.x1) *
+        (drawRectCoordinate.y3 - drawRectCoordinate.y1) <
+      100
+    ) {
+      return;
+    }
+
+    let selectItemIds = [];
+    const TRANSLATE_NUM = TRANSLATE_RATE / 100;
+    listDataItem.forEach((dataItem) => {
+      const { x, y, x3, y3 } = dataItem.coordinate;
+
+      //Kiểm tra 2 hình chữ nhật có giao nhau không
+      if (
+        // Rectangle nằm phía bên trái item
+        drawRectCoordinate.x3 < x - TRANSLATE_NUM * dataItem.sizeItem.width ||
+        // Rectangle nằm bên phải item
+        drawRectCoordinate.x1 > x3 - TRANSLATE_NUM * dataItem.sizeItem.width ||
+        // Rectangle nằm phía trên item
+        drawRectCoordinate.y3 < y - TRANSLATE_NUM * dataItem.sizeItem.height ||
+        // Rectangle nằm phía dưới item
+        drawRectCoordinate.y1 > y3 - TRANSLATE_NUM * dataItem.sizeItem.height
+      ) {
+        //Các hình chữ nhật không giao nhau
+        return;
+      }
+
+      //Sau khi kiểm tra thấy thỏa mãn
+      selectItemIds.push({ id: dataItem.id });
+    });
+
+    //Update kho chứa items Drag chung
+    dispatch(
+      CvSlice.actions.setPropertyItemsDragSelect({
+        mode: selectItemIds.length > 1 ? "multiple" : "single",
+        items: [...selectItemIds],
+      })
+    );
+  }
 
   /**
    * @description Hàm xử lý sự kiện khi xoay item
@@ -55,7 +227,9 @@ export default function IDraggableFree({
   function handleRotate() {
     const idActiveRotate = sizeAndRotateItemSelector.id;
     const TRANSLATE_NUM = TRANSLATE_RATE / 100;
+
     listChildRefs.current.forEach((childRef) => {
+      //Lấy ra thẻ wrapperItem bên trong DragItem để tiến hành lấy kích thước
       const currentActiveChild = childRef.current.querySelector(
         `.IWrapperResizeRotate-${idActiveRotate}`
       );
@@ -65,53 +239,59 @@ export default function IDraggableFree({
         setListDataItem((listDataItem) => {
           return listDataItem.map((data) => {
             if (data.id === idActiveRotate) {
-              // Cập nhật lại kích thước của item
+              // Cập nhật lại kích thước của item sau khi rotate chứa vừa đủ wrapper bên trong, đính kèm thêm scale hiện tại
               const updatedData = {
                 ...data,
                 sizeItem: {
-                  width: rectChildActive.width,
-                  height: rectChildActive.height,
+                  width: rectChildActive.width / zoomScale,
+                  height: rectChildActive.height / zoomScale,
                 },
               };
 
-              // Đo khoảng cách giữa các item sau khi xoay
-              measureDistanceBetweenItems(idActiveRotate, 0.75, {
+              // Đo khoảng cách giữa các item sau khi xoay, x = tọa độ tại X gốc - độ dịch * width Item
+              measureDistanceBetweenItems(idActiveRotate, 0.5, {
                 x:
                   updatedData.coordinate.x -
-                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                  (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
                 y:
                   updatedData.coordinate.y -
-                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                  (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
                 x2:
                   updatedData.coordinate.x +
-                  updatedData.sizeItem.width -
-                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                  (updatedData.sizeItem.width -
+                    TRANSLATE_NUM * updatedData.sizeItem.width) /
+                    zoomScale,
                 y2:
                   updatedData.coordinate.y -
-                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                  (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
                 x3:
                   updatedData.coordinate.x +
-                  updatedData.sizeItem.width -
-                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                  (updatedData.sizeItem.width -
+                    TRANSLATE_NUM * updatedData.sizeItem.width) /
+                    zoomScale,
                 y3:
                   updatedData.coordinate.y +
-                  updatedData.sizeItem.height -
-                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                  (updatedData.sizeItem.height -
+                    TRANSLATE_NUM * updatedData.sizeItem.height) /
+                    zoomScale,
                 x4:
                   updatedData.coordinate.x -
-                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                  (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
                 y4:
                   updatedData.coordinate.y +
-                  updatedData.sizeItem.height -
-                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                  (updatedData.sizeItem.height -
+                    TRANSLATE_NUM * updatedData.sizeItem.height) /
+                    zoomScale,
                 x5:
                   updatedData.coordinate.x +
-                  updatedData.sizeItem.width / 2 -
-                  TRANSLATE_NUM * updatedData.sizeItem.width,
+                  (updatedData.sizeItem.width / 2 -
+                    TRANSLATE_NUM * updatedData.sizeItem.width) /
+                    zoomScale,
                 y5:
                   updatedData.coordinate.y +
-                  updatedData.sizeItem.height / 2 -
-                  TRANSLATE_NUM * updatedData.sizeItem.height,
+                  (updatedData.sizeItem.height / 2 -
+                    TRANSLATE_NUM * updatedData.sizeItem.height) /
+                    zoomScale,
               });
 
               return updatedData;
@@ -130,35 +310,7 @@ export default function IDraggableFree({
    * @param {Object} boardCoordinateItemsActive - Tọa độ của item đang kéo
    * @returns {void} Không có giá trị trả về
    * CT tinh khoảng cách dựa trên tọa độ: sqrt((x2-x1)^2 + (y2-y1)^2)
-   *    Trục Y
-   *       ^
-   *     6 |
-   *     5 |
-   *     4 |
-   *     3 |
-   *     2 |  ****    ****
-   *     1 |  ****    ****
-   *     0 +-----------------> Trục X
-   *       |   (1)     (2)
    *
-   * -Trường hợp 1: Item 1 và Item 2 trùng nhau theo trục Y, cách nhau 1 khoảng X.
-   *
-   *       Trục Y
-   *       ^
-   *     6 |
-   *     5 |
-   *     4 |
-   *     3 |   (1)
-   *     2 |  ****
-   *     1 |  ****
-   *     0 +--****------------------------> Trục X
-   *       |
-   *       |  ****
-   *       |  ****
-   *       |   (2)
-   *
-   * -Trường hợp 2: Item 1 và Item 2 trùng nhau theo trục X, cách nhau 1 khoảng Y.
-   *=====================================================================
    * Hình minh họa cho việc tính các góc của item
    *                top                 top
    *                |                   |
@@ -178,8 +330,8 @@ export default function IDraggableFree({
    *              botton               botton
    *
    *Các bước thực hiện:
-   *   1. Lấy ra tọa độ của item đang kéo từ active.data.current
-   *   2. forEach qua item có id khác với item
+   *  1. Lấy ra tọa độ của item đang kéo từ active.data.current
+   *  2. forEach qua item có id khác với item
    *  3. check tọa độ item hiện tại có nằm trong(trùng) tọa độ(x,y) của item khác không theo khoảng
    *  4. Nếu có thì tính khoảng cách, trùng X thì tính k/c Y, trùng Y thì tính k/c X
    *  5. so sánh khoảng cách, lấy khoảng cách nhỏ nhất để gán vào mảng lines
@@ -193,6 +345,8 @@ export default function IDraggableFree({
     boardCoordinateItemsActive,
     event
   ) {
+    // Thật ra là nếu sau khi thấy nó khớp ta có thể dùng map sau đó return về luôn
+
     //(*Important) Mảng Lines lưu trữ các đường thẳng nối tọa độ của các item, nó sẽ được truyền xuống item con
     const lines = [
       { left: 0, top: 0 },
@@ -352,43 +506,49 @@ export default function IDraggableFree({
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
 
+    //Do nó sẽ dịch 50% nên phải trừ đi 50% để nó dịch về vị trí cũ tiện so sánh, đồng thời bên trong hàm measureDistanceBetweenItems cũng sẽ dịch 50% => cùng gốc mới so sánh được
     const newCoordinateDragging = {
-      //Do nó sẽ dịch 50% nên phải trừ đi 50% để nó dịch về vị trí cũ tiện so sánh, còn DragEnd vẫn giữ nguyên vì nó là gốc
-      x: dataComponentDragging.coordinate.x + delta.x - TRANSLATE_NUM * width,
+      x:
+        dataComponentDragging.coordinate.x +
+        delta.x -
+        (TRANSLATE_NUM * width) / zoomScale,
 
-      y: dataComponentDragging.coordinate.y + delta.y - TRANSLATE_NUM * height,
+      y:
+        dataComponentDragging.coordinate.y +
+        delta.y -
+        (TRANSLATE_NUM * height) / zoomScale,
       x2:
         dataComponentDragging.coordinate.x +
         delta.x +
-        width -
-        TRANSLATE_NUM * width,
-      y2: dataComponentDragging.coordinate.y + delta.y - TRANSLATE_NUM * height,
+        (width - TRANSLATE_NUM * width) / zoomScale,
+      y2:
+        dataComponentDragging.coordinate.y +
+        delta.y -
+        (TRANSLATE_NUM * height) / zoomScale,
       x3:
         dataComponentDragging.coordinate.x +
         delta.x +
-        width -
-        TRANSLATE_NUM * width,
+        (width - TRANSLATE_NUM * width) / zoomScale,
       y3:
         dataComponentDragging.coordinate.y +
         delta.y +
-        height -
-        TRANSLATE_NUM * height,
-      x4: dataComponentDragging.coordinate.x + delta.x - TRANSLATE_NUM * width,
+        (height - TRANSLATE_NUM * height) / zoomScale,
+      x4:
+        dataComponentDragging.coordinate.x +
+        delta.x -
+        (TRANSLATE_NUM * width) / zoomScale,
       y4:
         dataComponentDragging.coordinate.y +
         delta.y +
-        height -
-        TRANSLATE_NUM * height,
+        (height - TRANSLATE_NUM * height) / zoomScale,
       x5:
         dataComponentDragging.coordinate.x +
         delta.x +
-        width / 2 -
-        TRANSLATE_NUM * width,
+        (width / 2 - TRANSLATE_NUM * width) / zoomScale,
       y5:
         dataComponentDragging.coordinate.y +
         delta.y +
-        height / 2 -
-        TRANSLATE_NUM * height,
+        (height / 2 - TRANSLATE_NUM * height) / zoomScale,
     };
 
     measureDistanceBetweenItems(
@@ -399,6 +559,8 @@ export default function IDraggableFree({
     );
   }
   function handleDragStart(event) {
+    setIsDragging(true);
+
     //(*)Sai số cho phép khi so sánh tọa độ
     const TOLERANCE = 0.5;
 
@@ -415,17 +577,31 @@ export default function IDraggableFree({
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
     const newCoordinateActive = {
-      x: dataComponentActive.coordinate.x - TRANSLATE_NUM * width,
-      y: dataComponentActive.coordinate.y - TRANSLATE_NUM * height,
-      x2: dataComponentActive.coordinate.x + width - TRANSLATE_NUM * width,
-      y2: dataComponentActive.coordinate.y - TRANSLATE_NUM * height,
-      x3: dataComponentActive.coordinate.x + width - TRANSLATE_NUM * width,
-      y3: dataComponentActive.coordinate.y + height - TRANSLATE_NUM * height,
-      x4: dataComponentActive.coordinate.x - TRANSLATE_NUM * width,
-      y4: dataComponentActive.coordinate.y + height - TRANSLATE_NUM * height,
-      x5: dataComponentActive.coordinate.x + width / 2 - TRANSLATE_NUM * width,
+      x: dataComponentActive.coordinate.x - (TRANSLATE_NUM * width) / zoomScale,
+      y:
+        dataComponentActive.coordinate.y - (TRANSLATE_NUM * height) / zoomScale,
+      x2:
+        dataComponentActive.coordinate.x +
+        (width - TRANSLATE_NUM * width) / zoomScale,
+      y2:
+        dataComponentActive.coordinate.y - (TRANSLATE_NUM * height) / zoomScale,
+      x3:
+        dataComponentActive.coordinate.x +
+        (width - TRANSLATE_NUM * width) / zoomScale,
+      y3:
+        dataComponentActive.coordinate.y +
+        (height - TRANSLATE_NUM * height) / zoomScale,
+      x4:
+        dataComponentActive.coordinate.x - (TRANSLATE_NUM * width) / zoomScale,
+      y4:
+        dataComponentActive.coordinate.y +
+        (height - TRANSLATE_NUM * height) / zoomScale,
+      x5:
+        dataComponentActive.coordinate.x +
+        (width / 2 - TRANSLATE_NUM * width) / zoomScale,
       y5:
-        dataComponentActive.coordinate.y + height / 2 - TRANSLATE_NUM * height,
+        dataComponentActive.coordinate.y +
+        (height / 2 - TRANSLATE_NUM * height) / zoomScale,
     };
 
     measureDistanceBetweenItems(
@@ -437,12 +613,14 @@ export default function IDraggableFree({
   }
 
   function handleDragEnd({ active, delta }) {
+    setIsDragging(false);
+
     const dataComponentDragging = active.data.current;
     const currentComponentDom = dataComponentDragging.componentRef.current;
 
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
-    const TRANSLATE_NUM = TRANSLATE_RATE / 100;
+
     // Lọc qua các item để cập nhật vị trí
 
     setListDataItem((listDataItem) => {
@@ -452,17 +630,19 @@ export default function IDraggableFree({
         if (data.id === active.id) {
           const { x, y } = data.coordinate;
 
+          //(*) Do khi scale thì tỉ lệ width height của item cũng sẽ thay đổi, nên ta phải chia cho zoomScale để nó về tọa độ gốc
+          //Vd: width: 200 => scale 0.8 là còn 160 => 160/0.8 về lại 200
           const newCoordinate = {
             x: x + delta.x,
             y: y + delta.y,
-            x2: x + delta.x + width,
+            x2: x + delta.x + width / zoomScale,
             y2: y + delta.y,
-            x3: x + delta.x + width,
-            y3: y + delta.y + height,
+            x3: x + delta.x + width / zoomScale,
+            y3: y + delta.y + height / zoomScale,
             x4: x + delta.x,
-            y4: y + delta.y + height,
-            x5: x + delta.x + width / 2,
-            y5: y + delta.y + height / 2,
+            y4: y + delta.y + height / zoomScale,
+            x5: x + delta.x + width / 2 / zoomScale,
+            y5: y + delta.y + height / 2 / zoomScale,
           };
 
           return {
@@ -498,6 +678,32 @@ export default function IDraggableFree({
       modifiers={modifiers}
       collisionDetection={rectIntersection}
     >
+      {/* Rectangle Select Box - Chỉ xuất hiện ở page đg select và khi ko kéo hay ko xoay*/}
+      {BoardId === IdPageActive && !isDragging && !isRotating && (
+        <Box
+          sx={{
+            position: "absolute",
+
+            left: Math.min(startPositionRect?.x, currentPositionRect?.x),
+            top: Math.min(startPositionRect?.y, currentPositionRect?.y),
+            width: Math.abs(currentPositionRect?.x - startPositionRect?.x),
+            height: Math.abs(currentPositionRect?.y - startPositionRect?.y),
+            border: "2px dashed var(--color-primary1)",
+            backgroundColor: "rgba(0,0,0,0.3)",
+            display:
+              isDrawingRectangle &&
+              // Có tình trạng select area qua trái hoặc phải điểm start
+              Math.abs(currentPositionRect?.x - startPositionRect?.x) > 1
+                ? "block"
+                : "none",
+            opacity:
+              isDrawingRectangle &&
+              Math.abs(currentPositionRect?.y - startPositionRect?.y) > 1
+                ? 1
+                : 0,
+          }}
+        ></Box>
+      )}
       {listDataItem &&
         listDataItem.map((childData, index) => {
           return (

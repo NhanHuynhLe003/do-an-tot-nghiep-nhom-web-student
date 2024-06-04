@@ -18,8 +18,17 @@ const remainingSelector = createSelector(
   (cvs) => cvs.editorContent
 );
 
+const clickOutsideDragItemSelector = (state) => state.cvs.isClickOutside;
+
+const cvZoomScaleSelector = (state) => state.cvs.control.zoomScale;
+
+const itemsSelectorDragSelect = (state) => state.cvs.itemsDragSelect;
+
 export {
+  itemsSelectorDragSelect,
+  clickOutsideDragItemSelector,
   cvTextSelector,
+  cvZoomScaleSelector,
   sizeAndDegItemDraggableSelector,
   cvEditorContentSelector,
   cvIdSelector,
