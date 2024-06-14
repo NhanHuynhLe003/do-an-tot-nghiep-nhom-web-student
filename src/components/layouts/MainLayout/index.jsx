@@ -1,19 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 
 import { Box, Stack } from "@mui/material";
-import SideBar from "../../common/sidebar";
-import Footer from "../../common/footer";
-import BgImg from "../../../assets/images/main-bg.png";
-import theme from "../../../theme";
-import style from "./mainlayout.module.css";
-import IMiniVariantDrawer from "../../IDrawer/IMiniVariantDrawer";
-import HeaderBook from "../../common/header/header-book";
-import HeaderCvToolBar from "../../common/header/header-cv-toolbar";
-import { useWindowSizeDepParent } from "../../../hooks";
 import clsx from "clsx";
 import { useLocation } from "react-router-dom";
-import CvFooterToolbar from "../../common/footer/CvFooterToolbar";
-import { IMiniVariantDrawerWidth } from "../../../constants";
+import BgImg from "../../../assets/images/main-bg.png";
+import { useWindowSizeDepParent } from "../../../hooks";
+import theme from "../../../theme";
+import HeaderBook from "../../common/header/header-book";
+import SideBar from "../../common/sidebar";
+import style from "./mainlayout.module.css";
 
 export default function MainLayout({ children, typePage = "" }) {
   const sideBarWidth = useRef(248);

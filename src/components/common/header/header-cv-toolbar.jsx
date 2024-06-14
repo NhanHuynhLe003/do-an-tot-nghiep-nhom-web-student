@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import {
   cvEditorContentSelector,
-  cvIdSelector,
+  cvIdEditorSelector,
   cvTextSelector,
   positionPointerSelector,
 } from "../../../redux/selector";
@@ -26,7 +26,7 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
   //Lấy ra giá trị editor từ componet ITipTapEditor truyền lên
   const editorSelector = useSelector(cvEditorContentSelector);
   //Lấy ID và set cho menu khi change status
-  const idEditorSelector = useSelector(cvIdSelector);
+  const idEditorSelector = useSelector(cvIdEditorSelector);
   //Lấy ra nội dung text dạng html
   const cvTextEditorSelector = useSelector(cvTextSelector);
   //Lấy ra vị trí con trỏ
@@ -67,7 +67,7 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
         >
           {/* Chỉ cần đang hover toolbar hoặc đang focus 1 trong 2 điều kiên đúng là tool
           bar vẫn sẽ hiện */}
-          {editorSelector /*&& (idEditorSelector !== -1 || isHoverToolBar)*/ && (
+          {editorSelector && (
             <Box
               ref={menuToolBarRef}
               sx={{
@@ -80,12 +80,14 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
               <IMenuBarTipTap
                 id={idEditorSelector}
                 editor={editorSelector}
+                // Những công cụ sẽ hiện
                 tools={[
                   ToolTipTaps.COLOR,
                   ToolTipTaps.BOLD,
                   ToolTipTaps.ITALIC,
                   ToolTipTaps.HEADING1,
                   ToolTipTaps.HEADING2,
+                  ToolTipTaps.HEADING3,
                   ToolTipTaps.CODE_BLOCK,
                 ]}
               />

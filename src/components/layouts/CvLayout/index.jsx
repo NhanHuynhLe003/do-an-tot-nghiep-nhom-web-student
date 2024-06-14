@@ -3,15 +3,21 @@ import React, { useRef } from "react";
 import { Box, Stack } from "@mui/material";
 import clsx from "clsx";
 import { useLocation } from "react-router-dom";
+import DesignTemplateIcon from "../../../assets/icons/CV/design-ic.png";
+import ElementsIcon from "../../../assets/icons/CV/elements-shape-ic.png";
+import ImageUploadIcon from "../../../assets/icons/CV/image-upload.png";
+import TextIcon from "../../../assets/icons/CV/text-type-ic.png";
 import BgImg from "../../../assets/images/main-bg.png";
 import { useWindowSizeDepParent } from "../../../hooks";
 import theme from "../../../theme";
 import IMiniVariantDrawer from "../../IDrawer/IMiniVariantDrawer";
 import CvFooterToolbar from "../../common/footer/CvFooterToolbar";
-import HeaderBook from "../../common/header/header-book";
 import HeaderCvToolBar from "../../common/header/header-cv-toolbar";
 import SideBar from "../../common/sidebar";
+
 import style from "./mainlayout.module.css";
+import TextCvContainer from "../../ICvComponents/textCvContainer";
+import ShapeElementCvContainer from "../../ICvComponents/shapeElementCvContainer";
 
 export default function CvLayout({ children, typePage = "" }) {
   const sideBarWidth = useRef(248);
@@ -96,6 +102,49 @@ export default function CvLayout({ children, typePage = "" }) {
 
           <Box className={style.drawtoolbarcontainer}>
             <IMiniVariantDrawer
+              direction="right"
+              drawerItems={[
+                {
+                  id: "FEATURE001",
+                  title: "Template",
+                  icon: DesignTemplateIcon,
+                  isActive: false,
+                  componentContent: (
+                    <React.Fragment>Template Content</React.Fragment>
+                  ),
+                },
+                {
+                  id: "FEATURE002",
+                  title: "Elements",
+                  icon: ElementsIcon,
+                  isActive: false,
+                  componentContent: (
+                    <React.Fragment>
+                      <ShapeElementCvContainer></ShapeElementCvContainer>
+                    </React.Fragment>
+                  ),
+                },
+                {
+                  id: "FEATURE003",
+                  title: "Text",
+                  icon: TextIcon,
+                  isActive: true,
+                  componentContent: (
+                    <React.Fragment>
+                      <TextCvContainer></TextCvContainer>
+                    </React.Fragment>
+                  ),
+                },
+                {
+                  id: "FEATURE004",
+                  title: "Image",
+                  icon: ImageUploadIcon,
+                  isActive: false,
+                  componentContent: (
+                    <React.Fragment>Image Content</React.Fragment>
+                  ),
+                },
+              ]}
               handleSetWidthToolBarDrawer={handleSetWidthToolBarDrawer}
             >
               {children}

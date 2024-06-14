@@ -6,6 +6,28 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
+/*Các kiểu chữ import thêm cho CV*/
+@import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Arial&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Verdana&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Georgia&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+New&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lucida+Console&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tahoma&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Impact&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comic+Sans+MS&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Palatino+Linotype&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Garamond&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bookman+Old+Style&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Arial+Black&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Avant+Garde&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Optima&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Futura&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Century+Gothic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lucida+Sans+Unicode&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gill+Sans&display=swap');
+
 @font-face {
     font-family: 'DigitalFont';
     src: url('../assets/fonts/digital-7/digital-7.ttf') format('truetype');
@@ -14,6 +36,8 @@
         use: font-family: 'DigitalFont', sans-serif; 
     */
 }
+
+/*=====================================================================================*/
 
 * {
     /* font-family: "Inter, sans-serif"; */
@@ -24,9 +48,11 @@
 
 :root {
     --color-primary1: #5496FA;
+    /*rgb(84,150,250)*/
     /* var(--color-primary1)*/
     /* Primary theme color */
     --color-primary2: #4D4D4D;
+    /*rgb(77,77,77)*/
     /* --color-primary3: #b14545; */
 
     /* Dark grey color for active page selection */

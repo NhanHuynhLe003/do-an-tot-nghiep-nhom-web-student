@@ -5,7 +5,7 @@
 import { createSelector } from "@reduxjs/toolkit";
 
 const cvEditorContentSelector = (state) => state.cvs.editorContent;
-const cvIdSelector = (state) => state.cvs.id;
+const cvIdEditorSelector = (state) => state.cvs.idEditor;
 // const cvStateChangeSelector = (state) => state.cvs.stateChange;
 const cvTextSelector = (state) => state.cvs.textEditor;
 const positionPointerSelector = (state) => state.cvs.coordPointer;
@@ -24,14 +24,27 @@ const cvZoomScaleSelector = (state) => state.cvs.control.zoomScale;
 
 const itemsSelectorDragSelect = (state) => state.cvs.itemsDragSelect;
 
+const listCvUserSelector = (state) => state.cvs.listCvUser;
+
+const currentBoardInViewSelector = (state) => state.cvs.currentBoardInView;
+
+const stateCvHistorySelector = (state) => state.cvs.history;
+
+const listIdItemResizingOrRotatingSelector = (state) =>
+  state.cvs.listIdItemResizingOrRotating;
+
 export {
+  listIdItemResizingOrRotatingSelector,
+  stateCvHistorySelector,
+  currentBoardInViewSelector,
+  listCvUserSelector,
   itemsSelectorDragSelect,
   clickOutsideDragItemSelector,
   cvTextSelector,
   cvZoomScaleSelector,
   sizeAndDegItemDraggableSelector,
   cvEditorContentSelector,
-  cvIdSelector,
+  cvIdEditorSelector,
   positionPointerSelector,
   sizeEditorSelector,
   remainingSelector,

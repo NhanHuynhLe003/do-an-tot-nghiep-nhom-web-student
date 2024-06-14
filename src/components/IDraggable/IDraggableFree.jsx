@@ -7,23 +7,27 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { Box } from "@mui/material";
 import _, { cloneDeep } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   clickOutsideDragItemSelector,
+  cvIdEditorSelector,
   itemsSelectorDragSelect,
+  listIdItemResizingOrRotatingSelector,
   sizeAndDegItemDraggableSelector,
+  stateCvHistorySelector,
 } from "../../redux/selector";
+import CvSlice from "../../redux/slices/CvSlice";
 import { calculateDistanceByCoordinate } from "../../utils";
 import IDraggableItem from "./DraggableItem";
-import { Box } from "@mui/material";
-import CvSlice from "../../redux/slices/CvSlice";
 
 //Translate tọa độ => Khi rotate cho nó quay xung quanh tâm
 const TRANSLATE_RATE = 50;
 
 export default function IDraggableFree({
+  idCurrentCv = "1234", //Id của CV hiện tại lấy từ url
   zoomScale,
   IdPageActive,
   activationConstraint, // Dùng để thiết lập thời gian delay khi kéo, khoảng cách kéo, hoặc cả 2
@@ -38,18 +42,33 @@ export default function IDraggableFree({
   startPositionRect,
   currentPositionRect,
   isDrawingRectangle,
-  BoardId,
+  boardInformation,
 }) {
+  const { boardId, name, position } = boardInformation;
+
   const dispatch = useDispatch();
 
+  //danh sách các item đang được resize hoặc rotate
+  const listIdItemResizeOrRotateSelector = useSelector(
+    listIdItemResizingOrRotatingSelector
+  );
+
+  //Kiểm tra có click ra ngoài item hay không(click vào board)
   const isClickOutsideItemSelector = useSelector(clickOutsideDragItemSelector);
 
+  //Lấy ra các item đang được chọn từ store
   const itemsSelectedSelector = useSelector(itemsSelectorDragSelect);
+
+  //kiểm tra editor đg focus
+  const idEditorSelector = useSelector(cvIdEditorSelector);
 
   //Lấy ra size và độ quay của item đang kéo từ store
   const sizeAndRotateItemSelector = useSelector(
     sizeAndDegItemDraggableSelector
   );
+
+  //Lấy ra lịch sử lưu item hiện tại
+  const listStateDataItemHistory = useSelector(stateCvHistorySelector);
 
   const [keyPressed, setKeyPressed] = useState("");
 
@@ -80,19 +99,117 @@ export default function IDraggableFree({
   });
 
   // (*)Kỹ thuật setRefs tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM do ta truyền vào <Item> chứ nếu truyền hàm component:Item ko cần, nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
-  const listChildRefs = useRef(listDataItem.map(() => React.createRef()));
+  const [listChildRefs, setListChildRefs] = useState(
+    listDataItem.map(() => React.createRef())
+  );
+
+  //Khi CV User Store có sự thay đổi thì cập nhật lại listDataItem
+  useEffect(() => {
+    const newChildRefs = listChildData.map(() => React.createRef());
+    if (!_.isEqual(newChildRefs, listChildRefs)) {
+      setListChildRefs(newChildRefs);
+    }
+    if (!_.isEqual(listChildData, listDataItem)) {
+      setListDataItem(listChildData);
+    }
+  }, [listChildData]);
+
+  //=====================Update List Data Item, lưu vào store=====================
 
   useEffect(() => {
+    const newObjectUpdate = {
+      cvId: idCurrentCv,
+      boardId: boardId,
+      listDataItem: cloneDeep(listDataItem),
+    };
+
+    let tempListDataItem = cloneDeep(listDataItem);
+    let tempListChildData = cloneDeep(listChildData);
+
+    tempListChildData = tempListChildData.map((item, index) => ({
+      ...item,
+      component: "NONE_COMPARE", //Đồng bộ component với component tránh re-render liên tục
+      sizeItem: "NONE_COMPARE", //Đồng bộ sizeItem với sizeItem tránh re-render liên tục
+    }));
+    tempListDataItem = tempListDataItem.map((item) => ({
+      ...item,
+      component: "NONE_COMPARE", //Đồng bộ component với component tránh re-render liên tục
+      sizeItem: "NONE_COMPARE", //Đồng bộ sizeItem với sizeItem tránh re-render liên tục
+    }));
+
+    let isNotHaveAnyItemRotateOrResize = !Object.values(
+      listIdItemResizeOrRotateSelector
+    ).some((bool) => bool === true);
+
+    //Update lịch sử
+    // const lenHistoryStore = listStateDataItemHistory.present.length;
+
+    const newUpdateStateHistory = {
+      cvId: idCurrentCv || "1234",
+      historyState: cloneDeep(newObjectUpdate),
+      limit: 20,
+    };
+
+    if (
+      // !_.isEqual(
+      //   listStateDataItemHistory.listStateHistory[lenHistoryStore - 1],
+      //   newUpdateStateHistory.historyState
+      // ) && //Điều kiện này giúp tránh lặp lại 2 lần update history và tránh bị lỗi
+      isNotHaveAnyItemRotateOrResize
+    ) {
+      // Có bug resize loop (**************)
+      dispatch(CvSlice.actions.setHistoryState(newUpdateStateHistory));
+    }
+
+    //Kiểm tra xem data có thay đổi không, nếu có thì update vào store
+    if (
+      !_.isEqual(tempListDataItem, tempListChildData) &&
+      boardId === IdPageActive
+    ) {
+      //Lưu vào lịch sử mỗi khi kéo item
+      dispatch(CvSlice.actions.setHistoryState(newUpdateStateHistory));
+
+      //Update data vào store
+      dispatch(CvSlice.actions.setUpdateListDataItemInBoard(newObjectUpdate));
+    }
+  }, [listDataItem, listIdItemResizeOrRotateSelector]);
+
+  //====================Xử lý Lịch Sử==================================
+  useEffect(() => {
+    console.log("[listStateDataItemHistory:::]", listStateDataItemHistory);
+    // const currentIndexHistory = listStateDataItemHistory.current;
+
+    // dispatch(
+    //   CvSlice.actions.setUpdateListDataItemInBoard(
+    //     listStateDataItemHistory.present
+    //   )
+    // );
+  }, [listStateDataItemHistory]);
+  //=====================Xử lý sự kiện  khi nhấn phím =====================
+  useEffect(() => {
+    //Xử lý xoá item khi nhấn phím delete hoặc backspace
     if (keyPressed === "Backspace" || keyPressed === "Delete") {
-      handleDeleteItemsSelected();
+      handleDeleteItemsSelected(boardId, IdPageActive);
     }
   }, [keyPressed]);
 
   // Lắng nghe sự kiện nhấn phím
   useEffect(() => {
-    //Xử lý nhấn nút xem có phải đang nhấn ctrl để chọn nhiều item không
     const handleKeyDown = (event) => {
       setKeyPressed(event.key);
+
+      //Xử lý khi nhấn phím ctrl+z
+      if (event.ctrlKey && event.key === "z") {
+        dispatch(CvSlice.actions.setUndoHistoryState());
+      }
+
+      //Xử lý khi nhấn phím redo: ctrl+shift+z hoặc ctrl+y
+      if (
+        (event.ctrlKey && event.shiftKey && event.key === "Z") ||
+        event.key === "y"
+      ) {
+        dispatch(CvSlice.actions.setRedoHistoryState());
+      }
     };
 
     const handleKeyUp = () => {
@@ -110,13 +227,13 @@ export default function IDraggableFree({
 
   // Xử lý thay đổi độ quay của item
   useEffect(() => {
-    handleRotate();
+    handleRotateResize();
   }, [sizeAndRotateItemSelector]);
 
   //  xử lý select area
   useEffect(() => {
     updatePositionRectangleSelect();
-    selectItemsInRectangle(BoardId, IdPageActive, isClickOutsideItemSelector);
+    selectItemsInRectangle(boardId, IdPageActive, isClickOutsideItemSelector);
   }, [startPositionRect, currentPositionRect, isClickOutsideItemSelector]);
 
   useEffect(() => {
@@ -133,12 +250,23 @@ export default function IDraggableFree({
   /**
    * @description Hàm xử lý xoá các items đã chọn
    */
-  function handleDeleteItemsSelected() {
+  function handleDeleteItemsSelected(boardId, idActiveBoard) {
+    if (boardId !== idActiveBoard) return;
+    //Kiểm tra xemx có item nào hiện tại có đg focus không, nếu ko ktra bấm xóa nó xóa luôn item
+    if (idEditorSelector !== -1) return;
+
     const listItemsSelected = cloneDeep(itemsSelectedSelector.items);
     const newListDataDeleted = listDataItem.filter((dataItem) => {
       return !listItemsSelected.some((item) => item.id === dataItem.id);
     });
-    setListDataItem(cloneDeep(newListDataDeleted));
+    const newObjectDeleted = {
+      cvId: idCurrentCv,
+      boardId: boardId,
+      listDataItem: cloneDeep(newListDataDeleted),
+    };
+
+    //Update trực tiếp vào store tránh lỗi reset lại data
+    dispatch(CvSlice.actions.setUpdateListDataItemInBoard(newObjectDeleted));
   }
 
   // Update vị trí coord của rectangle
@@ -176,7 +304,7 @@ export default function IDraggableFree({
     if (isDragging) return; // Nếu đang kéo thì không chọn được
     if (boardId !== idActiveBoard) return; // Nếu không phải board đang active thì không chọn được
 
-    //Diện tích select Rectangle phải > 100
+    //Diện tích select Rectangle phải > 100 thì mới chọn được item
     if (
       (drawRectCoordinate.x2 - drawRectCoordinate.x1) *
         (drawRectCoordinate.y3 - drawRectCoordinate.y1) <
@@ -224,83 +352,87 @@ export default function IDraggableFree({
    * , trùng hợp là kích thước width,height của browser lại chứa vừa đủ kích thước của thẻ Wrapper, nên ta sẽ set kích thước này
    * cho thẻ cha bên ngoài
    */
-  function handleRotate() {
+  function handleRotateResize() {
     const idActiveRotate = sizeAndRotateItemSelector.id;
     const TRANSLATE_NUM = TRANSLATE_RATE / 100;
 
-    listChildRefs.current.forEach((childRef) => {
-      //Lấy ra thẻ wrapperItem bên trong DragItem để tiến hành lấy kích thước
-      const currentActiveChild = childRef.current.querySelector(
-        `.IWrapperResizeRotate-${idActiveRotate}`
-      );
+    listChildRefs &&
+      listChildRefs.forEach((childRef) => {
+        //Lấy ra thẻ wrapperItem bên trong DragItem để tiến hành lấy kích thước
+        const currentActiveChild = childRef.current?.querySelector(
+          `.IWrapperResizeRotate-${idActiveRotate}`
+        );
 
-      const rectChildActive = currentActiveChild?.getBoundingClientRect();
-      if (rectChildActive) {
-        setListDataItem((listDataItem) => {
-          return listDataItem.map((data) => {
-            if (data.id === idActiveRotate) {
-              // Cập nhật lại kích thước của item sau khi rotate chứa vừa đủ wrapper bên trong, đính kèm thêm scale hiện tại
-              const updatedData = {
-                ...data,
-                sizeItem: {
-                  width: rectChildActive.width / zoomScale,
-                  height: rectChildActive.height / zoomScale,
-                },
-              };
+        //Lấy ra kích thước của wrapper-drag-item sau khi rotate
+        const rectChildActive = currentActiveChild?.getBoundingClientRect();
 
-              // Đo khoảng cách giữa các item sau khi xoay, x = tọa độ tại X gốc - độ dịch * width Item
-              measureDistanceBetweenItems(idActiveRotate, 0.5, {
-                x:
-                  updatedData.coordinate.x -
-                  (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
-                y:
-                  updatedData.coordinate.y -
-                  (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
-                x2:
-                  updatedData.coordinate.x +
-                  (updatedData.sizeItem.width -
-                    TRANSLATE_NUM * updatedData.sizeItem.width) /
-                    zoomScale,
-                y2:
-                  updatedData.coordinate.y -
-                  (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
-                x3:
-                  updatedData.coordinate.x +
-                  (updatedData.sizeItem.width -
-                    TRANSLATE_NUM * updatedData.sizeItem.width) /
-                    zoomScale,
-                y3:
-                  updatedData.coordinate.y +
-                  (updatedData.sizeItem.height -
-                    TRANSLATE_NUM * updatedData.sizeItem.height) /
-                    zoomScale,
-                x4:
-                  updatedData.coordinate.x -
-                  (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
-                y4:
-                  updatedData.coordinate.y +
-                  (updatedData.sizeItem.height -
-                    TRANSLATE_NUM * updatedData.sizeItem.height) /
-                    zoomScale,
-                x5:
-                  updatedData.coordinate.x +
-                  (updatedData.sizeItem.width / 2 -
-                    TRANSLATE_NUM * updatedData.sizeItem.width) /
-                    zoomScale,
-                y5:
-                  updatedData.coordinate.y +
-                  (updatedData.sizeItem.height / 2 -
-                    TRANSLATE_NUM * updatedData.sizeItem.height) /
-                    zoomScale,
-              });
+        if (rectChildActive) {
+          //Cập nhật listItem
+          setListDataItem((preListDataItem) =>
+            preListDataItem.map((data) => {
+              if (data.id === idActiveRotate) {
+                // Cập nhật lại kích thước của item sau khi rotate chứa vừa đủ wrapper bên trong, đính kèm thêm scale hiện tại
+                const updatedData = {
+                  ...data,
+                  sizeItem: {
+                    width: rectChildActive.width / zoomScale,
+                    height: rectChildActive.height / zoomScale,
+                  },
+                };
 
-              return updatedData;
-            }
-            return data;
-          });
-        });
-      }
-    });
+                // Đo khoảng cách giữa các item sau khi xoay, x = tọa độ tại X gốc - độ dịch * width Item
+                measureDistanceBetweenItems(idActiveRotate, 0.5, {
+                  x:
+                    updatedData.coordinate.x -
+                    (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
+                  y:
+                    updatedData.coordinate.y -
+                    (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
+                  x2:
+                    updatedData.coordinate.x +
+                    (updatedData.sizeItem.width -
+                      TRANSLATE_NUM * updatedData.sizeItem.width) /
+                      zoomScale,
+                  y2:
+                    updatedData.coordinate.y -
+                    (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
+                  x3:
+                    updatedData.coordinate.x +
+                    (updatedData.sizeItem.width -
+                      TRANSLATE_NUM * updatedData.sizeItem.width) /
+                      zoomScale,
+                  y3:
+                    updatedData.coordinate.y +
+                    (updatedData.sizeItem.height -
+                      TRANSLATE_NUM * updatedData.sizeItem.height) /
+                      zoomScale,
+                  x4:
+                    updatedData.coordinate.x -
+                    (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
+                  y4:
+                    updatedData.coordinate.y +
+                    (updatedData.sizeItem.height -
+                      TRANSLATE_NUM * updatedData.sizeItem.height) /
+                      zoomScale,
+                  x5:
+                    updatedData.coordinate.x +
+                    (updatedData.sizeItem.width / 2 -
+                      TRANSLATE_NUM * updatedData.sizeItem.width) /
+                      zoomScale,
+                  y5:
+                    updatedData.coordinate.y +
+                    (updatedData.sizeItem.height / 2 -
+                      TRANSLATE_NUM * updatedData.sizeItem.height) /
+                      zoomScale,
+                });
+
+                return updatedData;
+              }
+              return data;
+            })
+          );
+        }
+      });
   }
 
   /**
@@ -679,7 +811,7 @@ export default function IDraggableFree({
       collisionDetection={rectIntersection}
     >
       {/* Rectangle Select Box - Chỉ xuất hiện ở page đg select và khi ko kéo hay ko xoay*/}
-      {BoardId === IdPageActive && !isDragging && !isRotating && (
+      {boardId === IdPageActive && !isDragging && !isRotating && (
         <Box
           sx={{
             position: "absolute",
@@ -708,6 +840,8 @@ export default function IDraggableFree({
         listDataItem.map((childData, index) => {
           return (
             <IDraggbleItemWrapper
+              layer={childData.layer}
+              typeDragItem={childData.type}
               sizeItem={childData.sizeItem}
               sizeLines={sizeLines}
               childId={childData.id}
@@ -722,8 +856,8 @@ export default function IDraggableFree({
               style={style}
               buttonStyle={buttonStyle}
               childElement={childData.component}
-              // Truyền Ref xuống component con để lấy dữ liệu
-              componentRef={listChildRefs.current[index]}
+              // (*)Truyền Ref xuống component con để lấy dữ liệu
+              componentRef={listChildRefs[index]}
             ></IDraggbleItemWrapper>
           );
         })}
@@ -747,6 +881,7 @@ export default function IDraggableFree({
  *
  **/
 export const IDraggbleItemWrapper = ({
+  layer = 1,
   sizeItem,
   sizeLines, //Mảng chứa các đường thẳng nối giữa các item
   dataItem, //Truyền dataItem vào để xác định data hiện tại của component khi kéo thả
@@ -761,6 +896,7 @@ export const IDraggbleItemWrapper = ({
   childElement,
   buttonStyle,
   componentRef,
+  typeDragItem,
 }) => {
   /**
    useDraggable chỉ chạy khi component được kéo
@@ -796,6 +932,7 @@ export const IDraggbleItemWrapper = ({
         width: sizeItem?.width,
         height: sizeItem?.height,
 
+        zIndex: layer,
         // Set transform để xoay item khi xoay sẽ quay xung quanh tâm
         transform: `translate3d(-${TRANSLATE_RATE}%,-${TRANSLATE_RATE}%, 0)`,
       }}

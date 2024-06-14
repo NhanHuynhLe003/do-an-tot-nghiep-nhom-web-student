@@ -6,12 +6,12 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
 import React, { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { sizeEditorDefault } from "../../constants";
+import { sizeEditorSelector } from "../../redux/selector";
+import CvSlice from "../../redux/slices/CvSlice";
 import { ToolTipTaps } from "./IMenuBarTipTap";
 import "./ITipTapEditor.css";
-import { useDispatch, useSelector } from "react-redux";
-import CvSlice from "../../redux/slices/CvSlice";
-import { sizeEditorSelector } from "../../redux/selector";
-import { sizeEditorDefault } from "../../constants";
 
 // define your extension array
 const extensions = [
@@ -39,6 +39,7 @@ export default function ITipTapEditor({
     ToolTipTaps.UNDO,
     ToolTipTaps.REDO,
   ],
+  //Size này được truyền từ IWRAPPER VÀO
   size = { ...sizeEditorDefault },
 }) {
   //Truyen data len thanh toolbar tren header
@@ -56,8 +57,8 @@ export default function ITipTapEditor({
     extensions: extensions, //nếu dùng [StarterKit.configure()] - this is the default extension
     //Lắng nghe khi text thay đổi
     onUpdate: ({ editor }) => {
-      const htmlConvertText = editor.getHTML();
-      // console.log("HTML CONVERT TEXT", htmlConvertText);
+      // const htmlConvertText = editor.getHTML();
+
       dispatch(CvSlice.actions.setTextEditorChange(editor.getHTML()));
     },
     onFocus: ({ editor }) => {
@@ -70,6 +71,7 @@ export default function ITipTapEditor({
       có thể khi ITipTapEditor và IMenuBar kết nối thì useEditor thiết lập 2 component này chung ID,
       nên cả 2 mới connect với nhau được. 
       */
+
       dispatch(CvSlice.actions.setEditorContent(editorTipTap));
       dispatch(CvSlice.actions.setIdEditor(id));
 

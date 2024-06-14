@@ -2,6 +2,7 @@ import clsx from "clsx";
 import styles from "./IDraggableFree.module.css";
 
 import React from "react";
+import { cloneDeep } from "lodash";
 
 const Axis = {
   ALL: "AXIS_ALL",
@@ -76,7 +77,7 @@ const IDraggableItem = React.forwardRef((props, ref) => {
         "--translate-y": `${transform?.y || 0}px`,
       }}
     >
-      <button className={style.buttonDragger}>
+      <button className={styles.buttonDragger}>
         {childElement}
         <div
           style={{

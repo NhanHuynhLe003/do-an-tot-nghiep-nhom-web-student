@@ -16,6 +16,7 @@ import { styled, useTheme } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import * as React from "react";
 import { IMiniVariantDrawerWidth } from "../../constants";
+import { Stack, Typography } from "@mui/material";
 
 const drawerWidth = IMiniVariantDrawerWidth;
 
@@ -71,11 +72,15 @@ const Drawer = styled(MuiDrawer, {
 export default function IMiniVariantDrawer({
   handleSetWidthToolBarDrawer,
   children,
-  listItemDrawer = ["A", "B", "C", "D"],
+  drawerItems,
+
   direction = "right",
 }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+
+  const [listItemDrawer, setListItemDrawer] = React.useState(drawerItems);
+
   const IMiniVariantDrawerRef = React.useRef(null);
 
   // Hàm lấy ra kích thước của toolbar drawer paper hiện tại rồi cập nhật giá trị
@@ -92,12 +97,26 @@ export default function IMiniVariantDrawer({
     return () => clearTimeout(timeoutId);
   }, [open]);
 
-  const handleDrawerOpen = () => {
+  const handleDrawerOpen = (id) => {
+    setListItemDrawer((prev) => {
+      return prev.map((item) => {
+        if (item.id === id) {
+          return { ...item, isActive: true };
+        } else {
+          return { ...item, isActive: false };
+        }
+      });
+    });
     setOpen(true);
   };
 
   const handleDrawerClose = () => {
     setOpen(false);
+    setListItemDrawer((prev) => {
+      return prev.map((item) => {
+        return { ...item, isActive: false };
+      });
+    });
   };
 
   return (
@@ -119,27 +138,6 @@ export default function IMiniVariantDrawer({
     >
       <CssBaseline />
 
-      {/* <Toolbar
-        sx={{
-          order: direction === "right" ? 2 : 1,
-        }}
-      >
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          edge="end"
-          onClick={handleDrawerOpen}
-          sx={{
-            ...(open && { display: "none" }),
-            px: "0.5rem",
-            color: "var(--color-primary1)",
-          }}
-          title="xem chức năng chi tiết"
-        >
-          <MenuIcon />
-        </IconButton>
-      </Toolbar> */}
-
       <Drawer variant="permanent" open={open} anchor={direction}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
@@ -151,32 +149,119 @@ export default function IMiniVariantDrawer({
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
+
+        <Stack
+          className="Stack_Drawer_Container"
+          direction={"row"}
+          flexWrap={"wrap"}
+          justifyContent={"space-between"}
+          alignItems={"flex-start"}
+        >
+          {/* Nội dung content */}
           {listItemDrawer &&
-            listItemDrawer.map((text, index) => (
-              <ListItem key={text} disablePadding sx={{ display: "block" }}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                  }}
-                  onClick={handleDrawerOpen}
-                >
-                  <ListItemIcon
+            listItemDrawer.map((itemDrawer, index) => {
+              if (itemDrawer.isActive)
+                return (
+                  <Box
+                    key={"CONTENT_DRAWER_" + itemDrawer.id}
+                    className="Item_Contents"
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
+                      px: 1,
+                      width: "73%",
+                      display: open ? "flex" : "none",
+                      minHeight: "80vh",
                       justifyContent: "center",
+                      overflowY: "auto",
+                      order: open ? 1 : 10,
+                      mb: 2,
                     }}
                   >
-                    <InboxIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-        </List>
+                    {itemDrawer.componentContent}
+                  </Box>
+                );
+              return <></>;
+            })}
+
+          {/* ListButton */}
+          <List
+            className="List_Item_Button"
+            sx={{
+              width: open ? "25%" : "100%",
+              order: open ? 10 : 1,
+              height: "fit-content",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              justifyContent: "space-around",
+              position: "sticky",
+              top: 0,
+            }}
+          >
+            {listItemDrawer &&
+              listItemDrawer.map((itemDrawer, index) => (
+                <ListItem
+                  key={itemDrawer.id}
+                  disablePadding
+                  sx={{ display: "block" }}
+                >
+                  <Box
+                    sx={{
+                      minHeight: 48,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: open ? "flex-end" : "center",
+                      // px: 2.5,
+                    }}
+                    onClick={() => handleDrawerOpen(itemDrawer.id)}
+                  >
+                    <ListItemButton
+                      sx={{
+                        justifyContent: open ? "flex-end" : "center",
+                        p: "0.75rem 0",
+
+                        px: !open && "2.5rem",
+
+                        maxWidth: "4rem",
+                        height: "auto",
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          opacity: itemDrawer.isActive ? 1 : 0.5,
+                          justifyContent: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          width: "100%",
+                          height: "auto",
+                        }}
+                      >
+                        <img
+                          width={"40rem"}
+                          height={"auto"}
+                          alt={`${itemDrawer.title}-icon`}
+                          src={itemDrawer.icon}
+                        ></img>
+                        <Typography
+                          variant="h3"
+                          sx={{
+                            fontSize: "0.85rem",
+                            mt: 1,
+                            fontWeight: itemDrawer.isActive ? "500" : "400",
+                            color: itemDrawer.isActive
+                              ? "#333"
+                              : "var(--color-gray3)",
+                          }}
+                        >
+                          {itemDrawer.title}
+                        </Typography>
+                      </ListItemIcon>
+                    </ListItemButton>
+                  </Box>
+                </ListItem>
+              ))}
+          </List>
+        </Stack>
       </Drawer>
       <Box
         className="Content_Drawer"

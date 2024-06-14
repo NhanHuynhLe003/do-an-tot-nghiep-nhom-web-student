@@ -1,149 +1,53 @@
 import { Box, Stack } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { FaSpinner } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import IDraggableFree from "../../../../components/IDraggable/IDraggableFree";
+import IEmptyComponent from "../../../../components/IEmptyComponent";
+import IShapeElement from "../../../../components/IShapeElement";
 import ITipTapEditor from "../../../../components/ITipTapEditor";
 import IWrapperResizeRotate from "../../../../components/IWrapperResizeRotate";
-import { sizeEditorDefault } from "../../../../constants";
-import { cvZoomScaleSelector } from "../../../../redux/selector";
+import {
+  cvZoomScaleSelector,
+  listCvUserSelector,
+} from "../../../../redux/selector";
 import CvSlice from "../../../../redux/slices/CvSlice";
-
-const TRANSLATE_NUM = 0.5;
-const initCoordinate = 300;
-const listDataBoardItem = [
-  {
-    id: "001",
-    component: (
-      <IWrapperResizeRotate
-        id={"001"}
-        typeChildren="editor"
-        ChildComponent={ITipTapEditor}
-      ></IWrapperResizeRotate>
-    ),
-    coordinate: {
-      x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-      y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-      x2:
-        initCoordinate +
-        sizeEditorDefault.width -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y2: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-      x3:
-        initCoordinate +
-        sizeEditorDefault.width -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y3:
-        initCoordinate +
-        sizeEditorDefault.height -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-      x4: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-      y4:
-        initCoordinate +
-        sizeEditorDefault.height -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-      x5:
-        initCoordinate +
-        sizeEditorDefault.width / 2 -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y5:
-        initCoordinate +
-        sizeEditorDefault.height / 2 -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-    },
-    sizeItem: sizeEditorDefault,
-  },
-  {
-    id: "002",
-    component: (
-      <IWrapperResizeRotate
-        id={"002"}
-        typeChildren="editor"
-        ChildComponent={ITipTapEditor}
-      ></IWrapperResizeRotate>
-    ),
-    coordinate: {
-      x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-      y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-      x2:
-        initCoordinate +
-        sizeEditorDefault.width -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y2: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-      x3:
-        initCoordinate +
-        sizeEditorDefault.width -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y3:
-        initCoordinate +
-        sizeEditorDefault.height -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-      x4: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-      y4:
-        initCoordinate +
-        sizeEditorDefault.height -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-      x5:
-        initCoordinate +
-        sizeEditorDefault.width / 2 -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y5:
-        initCoordinate +
-        sizeEditorDefault.height / 2 -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-    },
-    sizeItem: sizeEditorDefault,
-  },
-  {
-    id: "003",
-    component: (
-      <IWrapperResizeRotate
-        id={"003"}
-        typeChildren="editor"
-        ChildComponent={ITipTapEditor}
-      ></IWrapperResizeRotate>
-    ),
-    coordinate: {
-      x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-      y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-      x2:
-        initCoordinate +
-        sizeEditorDefault.width -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y2: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-      x3:
-        initCoordinate +
-        sizeEditorDefault.width -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y3:
-        initCoordinate +
-        sizeEditorDefault.height -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-      x4: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-      y4:
-        initCoordinate +
-        sizeEditorDefault.height -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-      x5:
-        initCoordinate +
-        sizeEditorDefault.width / 2 -
-        TRANSLATE_NUM * sizeEditorDefault.width,
-      y5:
-        initCoordinate +
-        sizeEditorDefault.height / 2 -
-        TRANSLATE_NUM * sizeEditorDefault.height,
-    },
-    sizeItem: sizeEditorDefault,
-  },
-];
+import { useParams } from "react-router-dom";
 
 export default function CvAdminPageDetail() {
+  const { id: currentCvPageId } = useParams();
+  const [isExistCvPage, setIsExistCvPage] = useState(false);
+  const listCvUsers = useSelector(listCvUserSelector);
+
+  useLayoutEffect(() => {
+    const isExistCv = listCvUsers.some((cv) => cv.cvId === currentCvPageId);
+    setIsExistCvPage(isExistCv);
+  }, []);
+
+  const [listBoardCv, setListBoardCv] = useState([...listCvUsers[0].boards]);
+  const [listBoardCvConvert, setListBoardCvConvert] = useState([]);
+  const [listBoardRefs, setListBoardRefs] = useState(
+    listBoardCv.map((board) => ({
+      id: board.boardId,
+      name: board.name,
+      type: board.type,
+      layer: board.layer,
+      color: board.color,
+      ChildComponentProps: board.ChildComponentProps
+        ? board.ChildComponentProps
+        : {},
+      position: board.position,
+      boardRef: React.createRef(),
+      cvWrapperRef: React.createRef(),
+    }))
+  );
+
   const [scale, setScale] = useState(1);
   const [CurrentPageActive, setCurrentPageActive] = useState(-1);
 
   const [keyPressed, setKeyPressed] = useState("");
   // Board bao bên ngoài
   const containerBoardRef = useRef(null);
-  const CvWrapperRef = useRef(null);
 
   const [initialTouchDistance, setInitialTouchDistance] = useState(null);
   const [lastTouchPositions, setLastTouchPositions] = useState(null);
@@ -169,6 +73,7 @@ export default function CvAdminPageDetail() {
 
     const boundingRect = event.currentTarget.getBoundingClientRect();
 
+    // Vị trí chuột khi bắt đầu kéo
     const relativeX = (event.clientX - boundingRect.left) / scale;
     const relativeY = (event.clientY - boundingRect.top) / scale;
 
@@ -188,6 +93,7 @@ export default function CvAdminPageDetail() {
 
     const boundingRect = event.currentTarget.getBoundingClientRect();
 
+    //Vị trí chuột mới khi di chuyển
     const relativeX = (event.clientX - boundingRect.left) / scale;
     const relativeY = (event.clientY - boundingRect.top) / scale;
 
@@ -213,6 +119,231 @@ export default function CvAdminPageDetail() {
       container.scrollLeft = (scrollWidth - clientWidth) / 2;
     }
   };
+
+  useEffect(() => {
+    //(*)Chuyển CV sang dạng Hiển thị được trong BOARD
+    const newBoardDataConvert = listBoardCv.map((board, index) => {
+      const newItemDataConvert = board.listDataItem.map((item) => {
+        //Component sẽ được truyền xuống Board
+        let ChildComponent = IEmptyComponent;
+        switch (item.type) {
+          case "editor":
+            ChildComponent = ITipTapEditor;
+            break;
+          case "shape":
+            ChildComponent = IShapeElement;
+            break;
+          default:
+            ChildComponent = IEmptyComponent;
+            break;
+        }
+
+        return {
+          id: item.id,
+          type: item.type,
+          color: item.color, // Màu của item áp dụng cho shape
+          ChildComponentProps: item.ChildComponentProps
+            ? item.ChildComponentProps
+            : {},
+          component: (
+            <IWrapperResizeRotate
+              color={item.color}
+              layer={item.layer} // layer level hiện tại của item
+              id={item.id}
+              typeChildren={item.type}
+              cvId={currentCvPageId}
+              boardId={board.boardId}
+              ChildComponentProps={{
+                ...item?.ChildComponentProps,
+                sizeControl: item.sizeItem,
+                styleValue: {
+                  ...item?.ChildComponentProps,
+
+                  fill: item.color ? item.color : "var(--color-primary1)",
+                },
+              }}
+              ChildComponent={ChildComponent}
+            ></IWrapperResizeRotate>
+          ),
+          coordinate: { ...item.coordinate },
+          sizeItem: item.sizeItem,
+          layer: item.layer,
+        };
+      });
+
+      return {
+        ...board,
+        listDataItem: newItemDataConvert,
+        position: { top: index * 80, left: 0 },
+      };
+    });
+
+    setListBoardCvConvert(newBoardDataConvert);
+  }, [listBoardCv]);
+
+  useEffect(() => {
+    const newListBoard = [...listCvUsers[0].boards];
+
+    //Update BoardRef
+    setListBoardRefs((prev) =>
+      newListBoard.map((board) => {
+        const boardRef = prev.find(
+          (item) => item.boardRef && item.id === board.boardId
+        );
+        if (boardRef) {
+          //Có rồi thì trả về luôn
+          return boardRef;
+        } else {
+          //Chưa có thì tạo mới Ref
+          return {
+            id: board.boardId,
+            name: board.name,
+            type: board.type,
+            ChildComponentProps: board.ChildComponentProps
+              ? board.ChildComponentProps
+              : {},
+            position: board.position,
+            boardRef: React.createRef(),
+            cvWrapperRef: React.createRef(),
+          };
+        }
+      })
+    );
+
+    // console.log("[NEW_LIST_BOARD_CV_UPDATED]", newListBoard);
+    //Update Board
+    setListBoardCv(newListBoard);
+  }, [listCvUsers]);
+
+  //===========Tính Toán vị trí của thanh cuộn Y Để thêm Text vào item==================
+  useEffect(() => {
+    /**
+     *@description Hàm tính toán vị trí để thêm item vào Board
+     */
+    const handleCalculatePositionDragItemAdd = () => {
+      if (!containerBoardRef.current) return;
+
+      const rectContainer = containerBoardRef.current.getBoundingClientRect();
+      const scrollTop = containerBoardRef.current.scrollTop;
+
+      /**
+       *@description Tính toán vị trí của Board
+       */
+      const calculateBoardPosition = (boardRef) => {
+        const boardRect =
+          boardRef.cvWrapperRef.current?.getBoundingClientRect();
+        const topBoard = boardRect?.top + scrollTop;
+        const bottomBoard = topBoard + boardRect?.height;
+        return { topBoard, bottomBoard };
+      };
+
+      const startViewport = scrollTop + rectContainer.top;
+      const endViewport = startViewport + rectContainer.height;
+
+      listBoardRefs.forEach((boardRef, index) => {
+        const { topBoard, bottomBoard } = calculateBoardPosition(boardRef);
+        const nextBoardRef = listBoardRefs[index + 1];
+
+        if (startViewport >= topBoard && endViewport <= bottomBoard) {
+          //CASE 1: View nằm trong Board
+          dispatch(
+            CvSlice.actions.setCurrentBoardInView({
+              id: boardRef.id,
+              name: boardRef.name,
+              position: boardRef.position,
+            })
+          );
+        } else if (startViewport <= bottomBoard && nextBoardRef) {
+          const { topBoard: topNextBoard } =
+            calculateBoardPosition(nextBoardRef);
+
+          if (endViewport <= topNextBoard) {
+            //CASE 2: StartView nằm trong Board, EndView chưa thuộc Board tiếp theo
+
+            dispatch(
+              CvSlice.actions.setCurrentBoardInView({
+                id: boardRef.id,
+                name: boardRef.name,
+                position: boardRef.position,
+              })
+            );
+          } else if (endViewport >= topNextBoard) {
+            //CASE 3 - Giữa 2 Board: StartView nằm trong Board, EndView thuộc Board tiếp theo thì tính khoảng cách Y1,Y2
+            /**
+             * Y
+             * ^
+             * |
+             * |              A1----------------------B1
+             * |              |          Board1       |
+             * |              |                       |
+             * |              |                       |
+             * |--------------|-----------------------|------------------|--->(cạnh trên của Viewport)
+             * |      Y1 ↕    |                       |                  |
+             * |--------------D1----------------------C1---------------------->(bottom của board1)
+             * |                                                         |
+             * |                                                         |
+             * |--------------A2----------------------B2---------------------->(top của board2)
+             * |      Y2 ↕    |                       |         |--------|
+             * |              |                       |         |Viewport|
+             * |--------------|-----------------------|---------|--------|--->(cạnh dưới của Viewport)
+             * |              |           Board2      |
+             * |              |                       |
+             * |              D2----------------------C2
+             * |
+             */
+
+            const distanceY1 = Math.abs(bottomBoard - startViewport);
+            const distanceY2 = Math.abs(endViewport - topNextBoard);
+
+            //Board nào có khoảng cách lớn hơn thì chọn Board đó để fill Text
+            if (distanceY1 > distanceY2) {
+              dispatch(
+                CvSlice.actions.setCurrentBoardInView({
+                  id: boardRef.id,
+                  name: boardRef.name,
+                  position: boardRef.position,
+                })
+              );
+            } else {
+              dispatch(
+                CvSlice.actions.setCurrentBoardInView({
+                  id: nextBoardRef.id,
+                  name: nextBoardRef.name,
+                  position: nextBoardRef.position,
+                })
+              );
+            }
+          }
+        } else if (startViewport > bottomBoard && !nextBoardRef) {
+          //CASE 4: View nằm ngoài tất cả Board => Chọn Board đầu tiên
+
+          dispatch(
+            CvSlice.actions.setCurrentBoardInView({
+              id: listBoardRefs[0].id,
+              name: listBoardRefs[0].name,
+              position: listBoardRefs[0].position,
+            })
+          );
+        }
+      });
+    };
+
+    // Thêm event listener để theo dõi sự kiện scroll
+    const element = containerBoardRef.current;
+    if (element) {
+      element.addEventListener("scroll", handleCalculatePositionDragItemAdd);
+    }
+
+    // Cleanup: Gỡ bỏ event listener khi component unmount
+    return () => {
+      if (element) {
+        element.removeEventListener(
+          "scroll",
+          handleCalculatePositionDragItemAdd
+        );
+      }
+    };
+  }, []);
 
   useEffect(() => {
     //Xử lý nhấn nút xem có phải đang nhấn ctrl để chọn nhiều item không
@@ -255,10 +386,7 @@ export default function CvAdminPageDetail() {
 
   //=======================Xử lý setScale khi zoom==================
   useEffect(() => {
-    const CvWrapper = CvWrapperRef.current;
-
-    const size = CvWrapper?.getBoundingClientRect();
-
+    //Set SCale value lên ngược lên footer
     dispatch(CvSlice.actions.setZoomScale(scale));
     centerScrollX(containerBoardRef.current);
   }, [scale]);
@@ -354,104 +482,88 @@ export default function CvAdminPageDetail() {
         scrollBehavior: "unset",
       }}
     >
-      <Box
-        // Phải dùng Box này chứa để các item bên trong có thể ăn theo flex của board_container_cv
-        className="board_pages_cv"
-        sx={{
-          position: "relative",
-          transform: `scale(${scale})`, //Scale toàn bộ board khi zoom-in, zoom-out => nếu ko có đoạn code này tỉ lệ sẽ bị lệch
-          transformOrigin: "top left",
-        }}
-      >
+      {isExistCvPage ? (
         <Box
-          ref={CvWrapperRef}
-          className={"page_cv_wrapper"}
+          // Phải dùng Box này chứa để các item bên trong có thể ăn theo flex của board_container_cv
+          className="board_pages_cv"
           sx={{
-            position: "absolute",
-            top: "0",
-            left: "0",
+            mt: "3rem",
+            position: "relative",
+            transform: `scale(${scale})`, //Scale toàn bộ board khi zoom-in, zoom-out => nếu ko có đoạn code này tỉ lệ sẽ bị lệch
+            transformOrigin: "top left",
           }}
         >
-          <Stack
-            onMouseEnter={() => handleHoverPage("BOARD_001")}
-            //=======Vẽ hình chữ nhật select=======
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            //====
-            className="page_cv"
-            direction={"column"}
-            width={"800px"}
-            height={"1122px"}
-            bgcolor={"#fff"}
-            boxShadow={"0 0 10px rgba(0,0,0,0.1)"}
-            overflow={"hidden"} //Ẩn nội dung khi vượt quá page
-            position={"relative"}
-            marginRight={`${
-              CvWrapperRef.current?.getBoundingClientRect().left
-            }px`}
-          >
-            <IDraggableFree
-              zoomScale={scale}
-              IdPageActive={CurrentPageActive}
-              BoardId={"BOARD_001"}
-              listChildData={listDataBoardItem}
-              activationConstraint={{
-                delay: 200,
-                tolerance: 5,
-              }}
-              startPositionRect={startPositionRect}
-              currentPositionRect={currentPositionRect}
-              isDrawingRectangle={isDrawingRectangle}
-            ></IDraggableFree>
-          </Stack>
+          {listBoardCvConvert ? (
+            listBoardCvConvert.map((board, index) => {
+              return (
+                <Box
+                  key={"BOARD_" + board.boardId}
+                  ref={(node) => {
+                    listBoardRefs[index].cvWrapperRef.current = node;
+                    return node;
+                  }}
+                  className={"page_cv_wrapper_" + board.boardId}
+                  sx={{
+                    position: "absolute",
+                    top: `${board.position?.top}rem`,
+                    left: `${board.position?.left}rem`,
+                  }}
+                >
+                  <Stack
+                    ref={(node) => {
+                      listBoardRefs[index].boardRef.current = node;
+                      return node;
+                    }}
+                    onMouseEnter={() => handleHoverPage(board.boardId)}
+                    //=======Vẽ hình chữ nhật select=======
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseLeave}
+                    //====
+                    className={"page_cv_" + board.boardId}
+                    direction={"column"}
+                    width={"800px"}
+                    height={"1122px"}
+                    bgcolor={"#fff"}
+                    boxShadow={"0 0 10px rgba(0,0,0,0.1)"}
+                    overflow={"hidden"} //Ẩn nội dung khi vượt quá page
+                    position={"relative"}
+                    marginRight={`${
+                      listBoardRefs[
+                        index
+                      ].cvWrapperRef?.current?.getBoundingClientRect().left
+                    }px`}
+                  >
+                    <IDraggableFree
+                      idCurrentCv={currentCvPageId}
+                      zoomScale={scale}
+                      IdPageActive={CurrentPageActive}
+                      boardInformation={{
+                        boardId: board.boardId,
+                        name: board.name,
+                        position: board.position,
+                      }}
+                      listChildData={board.listDataItem}
+                      activationConstraint={{
+                        delay: 200,
+                        tolerance: 5,
+                      }}
+                      startPositionRect={startPositionRect}
+                      currentPositionRect={currentPositionRect}
+                      isDrawingRectangle={isDrawingRectangle}
+                    ></IDraggableFree>
+                  </Stack>
+                </Box>
+              );
+            })
+          ) : (
+            <FaSpinner></FaSpinner>
+          )}
         </Box>
-
-        <Box
-          onMouseEnter={() => handleHoverPage("BOARD_002")}
-          className={"page_cv_wrapper"}
-          sx={{
-            position: "absolute",
-            top: "80rem",
-            left: "0",
-          }}
-        >
-          <Stack
-            //Vẽ hình chữ nhật select
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            //====
-            className="page_cv"
-            direction={"column"}
-            width={"800px"}
-            height={"1122px"}
-            bgcolor={"#fff"}
-            boxShadow={"0 0 10px rgba(0,0,0,0.1)"}
-            overflow={"hidden"} //Ẩn nội dung khi vượt quá page
-            position={"relative"}
-            // Đẩy margin right của page sang phải để cân bằng thanh scroll ở giữa khi kéo
-            marginRight={`${
-              CvWrapperRef.current?.getBoundingClientRect().left
-            }px`}
-          >
-            <IDraggableFree
-              zoomScale={scale}
-              IdPageActive={CurrentPageActive}
-              BoardId={"BOARD_002"}
-              listChildData={listDataBoardItem}
-              activationConstraint={{
-                delay: 200,
-                tolerance: 5,
-              }}
-              startPositionRect={startPositionRect}
-              currentPositionRect={currentPositionRect}
-              isDrawingRectangle={isDrawingRectangle}
-            ></IDraggableFree>
-          </Stack>
-        </Box>
-      </Box>
+      ) : (
+        <Box>CV Không tồn tại</Box>
+      )}
     </Box>
   );
 }

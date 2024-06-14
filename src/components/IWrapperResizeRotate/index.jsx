@@ -1,32 +1,198 @@
-import { Box } from "@mui/material";
-import { cloneDeep, set } from "lodash";
-import React, { useEffect, useRef, useState } from "react";
+import { Box, Button } from "@mui/material";
+import _ from "lodash";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaArrowRotateRight } from "react-icons/fa6";
+import { HiDotsHorizontal } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import doubleArrow from "../../assets/icons/double-arrow.png";
-import { RANGE_AUTO_FIT_ROTATE, sizeEditorDefault } from "../../constants";
+import {
+  RANGE_AUTO_FIT_ROTATE,
+  sizeEditorDefault,
+  sizeShapeElementDefault,
+} from "../../constants";
 import {
   clickOutsideDragItemSelector,
   itemsSelectorDragSelect,
 } from "../../redux/selector";
 import CvSlice from "../../redux/slices/CvSlice";
+import IMenuListFloat from "../IMenuListFloat";
 import styles from "./IWrapperResizeRotate.module.css";
+import clsx from "clsx";
 
 const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   const {
+    color = "#5496FA",
+    layer,
+    cvId,
+    boardId,
     id = -1,
     childContent = "Nhập nội dung vào đây",
     typeChildren = "editor",
-    ChildComponent = React.Fragment,
+    ChildComponentProps = {},
+    ChildComponent = <Box></Box>,
     ...restProps
   } = props;
 
+  const [newChildComponentProps, setNewChildComponentProps] = useState(
+    _.cloneDeep(ChildComponentProps)
+  );
+
+  // Action hiện tại [Resize, Rotate]
+  const [currentAction, setCurrentAction] = useState({
+    isResizing: false,
+    isRotating: false,
+  });
+
+  // Đg chọn lớp phủ hay ko
+  const [isOverlay, setIsOverlay] = useState(false);
+
+  // Chế độ lựa chọn đơn hay đa select
+  const [modeSelect, setModeSelect] = useState("single");
+
+  // Lựa chọn option của menu advance
+  const [selectMenuOpt, setSelectMenuOpt] = useState(null);
+
+  const [colorValue, setColorValue] = useState(color);
+
   // Các item đg select
   const selectedItems = useSelector(itemsSelectorDragSelect);
-  const [modeSelect, setModeSelect] = useState("single");
+
+  // Kiểm tra có click ra ngoài hay không
+  const isClickOutsideDragItem = useSelector(clickOutsideDragItemSelector);
+
+  useEffect(() => {
+    isClickOutsideDragItem && setIsOverlay(true);
+  }, [isClickOutsideDragItem]);
+
+  useEffect(() => {}, [colorValue]);
+
   const dispatch = useDispatch();
   const elementRef = useRef(null);
   const childrenContainerRef = useRef(null);
+
+  //Hàm xử lý lớp phủ
+  function handleRemoveOverlay(e) {
+    e.stopPropagation();
+    setIsOverlay(false);
+  }
+
+  //Hàm xử lý khi rời khỏi wrapper
+
+  // Hàm xử lý khi thay đổi màu
+  const debouncedUpdateColorChange = useCallback(
+    _.debounce((value) => {
+      handleSetColorValue(value);
+    }, 100),
+    []
+  );
+
+  function handleSetColorValue(value) {
+    //Update Color Input
+    setColorValue(value);
+
+    //Update Color Drag item in redux
+    dispatch(
+      CvSlice.actions.setUpdateColorItemInBoard({
+        cvId,
+        boardId,
+        idItem: id,
+        colorItem: value, //Lưu màu hiện tại vào db
+      })
+    );
+
+    if (typeChildren === "shape") {
+      setNewChildComponentProps((prev) => ({
+        ...prev,
+        styleValue: { ...prev.styleValue, fill: value },
+      }));
+    }
+  }
+
+  function handleSetLayerUp() {
+    dispatch(
+      CvSlice.actions.setUpdateLayerItemInBoard({
+        cvId,
+        boardId,
+        idItem: id,
+        layerItem: layer + 1,
+      })
+    );
+  }
+
+  function handleSetLayerDown() {
+    dispatch(
+      CvSlice.actions.setUpdateLayerItemInBoard({
+        cvId,
+        boardId,
+        idItem: id,
+        layerItem: layer - 1,
+      })
+    );
+  }
+
+  // Danh sách option trong menu
+  const listMenuAdvance = [
+    {
+      id: "OPT001",
+      content: (
+        <Button
+          onClick={handleSetLayerUp}
+          variant="text"
+          sx={{
+            textTransform: "capitalize",
+            color: "#000",
+            fontWeight: 400,
+            padding: 0,
+            boxShadow: "none",
+          }}
+        >
+          Layer Up
+        </Button>
+      ),
+      tag: "layer-up",
+    },
+    {
+      id: "OPT002",
+      content: (
+        <Button
+          onClick={handleSetLayerDown}
+          variant="text"
+          sx={{
+            textTransform: "capitalize",
+            color: "#000",
+            fontWeight: 400,
+            padding: 0,
+            boxShadow: "none",
+          }}
+        >
+          Layer Down
+        </Button>
+      ),
+      tag: "layer-down",
+    },
+    {
+      id: "OPT003",
+      content: "Copy",
+      tag: "copy",
+    },
+    {
+      id: "OPT004",
+      content: "Role",
+      tag: "role",
+    },
+    {
+      id: "OPT005",
+      content: (
+        <input
+          value={colorValue}
+          onInput={(e) => debouncedUpdateColorChange(e.target.value)}
+          type="color"
+        ></input>
+      ),
+      action: "SET_COLOR",
+      tag: "color",
+    },
+  ];
 
   // Lưu các nút đang nhấn
   const [keyPressed, setKeyPressed] = useState(null);
@@ -37,6 +203,8 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   const [size, setSize] = useState(
     typeChildren === "editor"
       ? sizeEditorDefault
+      : typeChildren === "shape"
+      ? sizeShapeElementDefault
       : {
           width: 200,
           height: 200,
@@ -70,6 +238,11 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     };
   }, []);
 
+  // Hàm xử lý khi click vào mở rộng
+  function handleClickAdvanceMenu(item) {
+    setSelectMenuOpt(item);
+  }
+
   //Hàm xử lý khi click vào item để chọn
   function handleClickSelectItem(event) {
     event.stopPropagation(); // Ngăn sự kiện nổi bọt(click lan ra ngoài children), tránh khi nhấn vào thẻ cha chứa nó cũng kích hoạt cái này
@@ -86,7 +259,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
         ...selectedItems,
         items: [...selectedItems.items, { id: id }],
       };
-      console.log("newUploadSelect", newUploadSelect);
+
       dispatch(CvSlice.actions.setPropertyItemsDragSelect(newUploadSelect));
     } else {
       //Single mode => replace all item in arr
@@ -130,6 +303,18 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
 
   // Xử lý sự kiện khi bắt đầu kéo để xoay
   const handleMouseDownRotate = (e) => {
+    console.log("START ROTATE");
+
+    dispatch(
+      CvSlice.actions.setListIdItemResizingOrRotating({
+        isResizeRotate: true,
+        cvId: cvId,
+        boardId: boardId,
+        idItem: id,
+      })
+    );
+    setCurrentAction({ ...currentAction, isRotating: true });
+    e.stopPropagation(); // Ngăn chặn sự kiện mouse down lan ra ngoài
     e.preventDefault();
     setIsHoverRoate(true);
     const rect = elementRef.current.getBoundingClientRect();
@@ -156,7 +341,18 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
       handleRotate(angle);
     };
 
+    //kết thúc kéo xoay
     const handleMouseUpRotate = () => {
+      console.log("STOP ROTATE");
+      dispatch(
+        CvSlice.actions.setListIdItemResizingOrRotating({
+          isResizeRotate: false,
+          cvId: cvId,
+          boardId: boardId,
+          idItem: id,
+        })
+      );
+      setCurrentAction({ ...currentAction, isRotating: false });
       setIsHoverRoate(false);
       window.removeEventListener("mousemove", handleMouseMoveRotate);
       window.removeEventListener("mouseup", handleMouseUpRotate);
@@ -172,6 +368,16 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
 
   // Xử lý sự kiện khi bắt đầu kéo để thay đổi kích thước
   const handleMouseDownResize = (e) => {
+    console.log("START RESIZE");
+    dispatch(
+      CvSlice.actions.setListIdItemResizingOrRotating({
+        isResizeRotate: true,
+        cvId: cvId,
+        boardId: boardId,
+        idItem: id,
+      })
+    );
+    setCurrentAction({ ...currentAction, isResizing: true });
     e.preventDefault();
     /**
       startX = e.clientX || e.touches[0].clientX lưu lại tọa độ X ban đầu của chuột hoặc cảm ứng.
@@ -196,7 +402,18 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
       handleSetSize({ width: newWidth, height: newHeight });
     };
 
+    // Kết thúc kéo thay đổi kích thước
     const handleMouseUpResize = () => {
+      console.log("STOP RESIZE");
+      dispatch(
+        CvSlice.actions.setListIdItemResizingOrRotating({
+          isResizeRotate: false,
+          cvId: cvId,
+          boardId: boardId,
+          idItem: id,
+        })
+      );
+      setCurrentAction({ ...currentAction, isResizing: false });
       window.removeEventListener("mousemove", handleMouseMoveResize);
       window.removeEventListener("mouseup", handleMouseUpResize);
       window.removeEventListener("touchmove", handleMouseMoveResize);
@@ -211,16 +428,28 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
 
   return (
     <div
-      className={`IWrapperResizeRotate IWrapperResizeRotate-${id}`}
+      onClick={(e) => {
+        handleClickSelectItem(e);
+        handleRemoveOverlay(e);
+      }}
+      className={clsx("IWrapperResizeRotate", `IWrapperResizeRotate-${id}`, {
+        //Thêm class khi đang resize hoặc rotate, để xử lý bên IDraggableFreeItem
+        "IWrapperChanging IWrapperResizing": currentAction.isResizing,
+        "IWrapperChanging IWrapperRotating": currentAction.isRotating,
+      })}
       style={{
         border: selectedItems.items?.some((item) => item.id === id) //Check xem có đg select ko
           ? `2px dashed var(--color-primary1)`
-          : `2px solid var(--color-primary1)`,
+          : `none`,
+        boxShadow: selectedItems.items?.some((item) => item.id === id)
+          ? "none"
+          : "0 0 4px rgba(0,0,0,0.1)",
         // padding: paddingWrapperContainer.current,
         transform: `rotate(${rotate}deg)`, // (*) Xoay item
         // transformOrigin: "center",
         width: "fit-content",
         height: "fit-content",
+        boxSizing: "border-box",
         // position: "absolute", //(*) Cho các vị trí không liên quan đến nhau dù resize cũng ko ảnh hưởng
       }}
     >
@@ -243,20 +472,73 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
           }}
         >
           <div
+            className={styles.childComponentWrapper}
             style={{
               width: "fit-content",
               height: "fit-content",
+              position: "relative",
+              zIndex: typeChildren !== "editor" ? -1 : 10,
             }}
-            onClick={handleClickSelectItem}
           >
+            {isOverlay && (
+              <Box
+                className={"OVERLAY_ITEM"}
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 100,
+                  background: "transparent",
+                }}
+              ></Box>
+            )}
             <ChildComponent
               ref={ref}
               size={size}
               content={childContent}
+              {...newChildComponentProps}
               {...props}
             ></ChildComponent>
           </div>
         </Box>
+
+        {/* Nút Mở rộng */}
+        {selectedItems.items?.some((item) => item.id === id) && (
+          <Box
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            className={styles.advanceMenuListFloat}
+            sx={{
+              position: "absolute",
+              zIndex: 1000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "1.5rem",
+              height: "1.5rem",
+              cursor: "pointer !important",
+              top: "-1.5rem",
+              right: "-1.5rem",
+              transform: "translateY(-50%)",
+              backgroundColor: isHoverRotate
+                ? "transparent !important"
+                : "var(--color-white1)",
+              borderRadius: "50%",
+              boxShadow: isHoverRotate ? "none" : "0 0 0 1px rgba(0,0,0,0.1)",
+            }}
+          >
+            <IMenuListFloat
+              fnClickItem={handleClickAdvanceMenu}
+              ListButtonContent={<HiDotsHorizontal></HiDotsHorizontal>}
+              menuListItems={listMenuAdvance}
+              itemSelected={selectMenuOpt}
+              widthMenuList={120}
+            ></IMenuListFloat>
+          </Box>
+        )}
+
         {/* Điều khiển xoay */}
         {selectedItems.items?.some((item) => item.id === id) && ( //Check xem có đg select ko
           <div
@@ -273,7 +555,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
               width: "1.5rem",
               height: "1.5rem",
               cursor: "pointer !important",
-              top: "-2rem",
+              top: "-1.5rem",
               left: "50%",
               transform: "translate(-50%, -50%) rotate(135deg)",
               backgroundColor: isHoverRotate
@@ -315,7 +597,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
               // ăn góc phải dưới
               bottom: "-0.5rem",
               right: "-0.5rem",
-              zIndex: "100",
+              zIndex: "10",
               transition: "ease 0.3s",
               "&:hover": {
                 bottom: "-0.75rem",

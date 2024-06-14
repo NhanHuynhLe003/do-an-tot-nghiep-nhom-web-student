@@ -4,6 +4,7 @@
 }
 
 .DraggableItem {
+    z-index: 100;
     position: absolute;
     /* (*IMPORTANT!) Nếu position:relative thì các thẻ sẽ có mối quan hệ với nhau
     nên khi resize, sẽ làm thay đổi vị trí, nhưng absolute thì mỗi phần tử là vùng riêng biệt*/

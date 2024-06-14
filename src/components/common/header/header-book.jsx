@@ -1,13 +1,12 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, IconButton, InputBase, Paper, Stack } from "@mui/material";
+import clsx from "clsx";
 import React from "react";
+import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
 import theme from "../../../theme";
-import style from "./header-book.module.css";
-import { FaRegClock, FaClock } from "react-icons/fa";
-import { FaRegCalendarAlt } from "react-icons/fa";
 import IMenuListFloat from "../../IMenuListFloat";
 import AccountInfo from "./components/account-info";
-import clsx from "clsx";
+import style from "./header-book.module.css";
 
 export default function HeaderBook({ ref, topPositon = 0 }) {
   const [searchBook, setSearchBook] = React.useState("");
