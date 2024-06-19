@@ -8,6 +8,7 @@ import IMenuListFloat from "../../IMenuListFloat";
 import AccountInfo from "./components/account-info";
 import style from "./header-book.module.css";
 import { useStudentLogout } from "../../../hooks/apis/access";
+import { useNavigate } from "react-router-dom";
 
 const listMenuItemFloat = [
   {
@@ -23,6 +24,7 @@ const listMenuItemFloat = [
 ];
 
 export default function HeaderBook({ ref, topPositon = 0 }) {
+  const navigate = useNavigate();
   const {
     mutate: logout,
     data: logoutResponse,
@@ -36,7 +38,14 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
 
   function handleClickMenuItem(mark) {
     if (mark.tag === "logout") {
+      // Gỡ Token khỏi localStorage đồng thời gọi API logout để xóa token trên server
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("studentData");
       logout();
+
+      // Chuyển hướng về trang login
+      navigate("/login");
     }
   }
   return (

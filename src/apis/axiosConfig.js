@@ -42,7 +42,6 @@ axiosInstance.interceptors.request.use(
       config.headers["x-rtoken-id"] = curRefreshToken;
     }
 
-    console.log("CURRENT USER", currentUser);
     // if (!!currentUser) {
     //   console.log("currentUser", currentUser);
     //   //Nếu có user thì gán vào header
@@ -53,6 +52,8 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     // Xử lý khi gặp lỗi request trước khi được gửi lên server
+    const errorMessage = error.response?.data?.message || error?.message;
+    toast.error(errorMessage);
     return Promise.reject(error);
   }
 );
@@ -61,6 +62,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     // Xử lý dữ liệu trả về từ server khi thành công
+
     return response;
   },
   (error) => {
