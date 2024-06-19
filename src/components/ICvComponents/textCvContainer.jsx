@@ -232,6 +232,7 @@ export default function TextCvContainer() {
     const boardId = currentBoardSelectorInView.id;
     const idDragItem = uuidv4();
     const dataItem = {
+      boardId: boardId,
       id: `${boardId}_${idDragItem}`,
       role: "ALL", //["ONLY_READ", "ONLY_WRITE", "ALL"]
       type: "editor",

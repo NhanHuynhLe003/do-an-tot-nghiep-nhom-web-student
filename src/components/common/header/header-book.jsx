@@ -7,11 +7,37 @@ import theme from "../../../theme";
 import IMenuListFloat from "../../IMenuListFloat";
 import AccountInfo from "./components/account-info";
 import style from "./header-book.module.css";
+import { useStudentLogout } from "../../../hooks/apis/access";
+
+const listMenuItemFloat = [
+  {
+    id: "menu-item-1",
+    content: "Thông tin cá nhân",
+    tag: "profile",
+  },
+  {
+    id: "menu-item-2",
+    content: "Đăng xuất",
+    tag: "logout",
+  },
+];
 
 export default function HeaderBook({ ref, topPositon = 0 }) {
+  const {
+    mutate: logout,
+    data: logoutResponse,
+    isLoading,
+    error,
+  } = useStudentLogout();
   const [searchBook, setSearchBook] = React.useState("");
   function handleSearchBook(value) {
     setSearchBook(value);
+  }
+
+  function handleClickMenuItem(mark) {
+    if (mark.tag === "logout") {
+      logout();
+    }
   }
   return (
     <header
@@ -80,6 +106,8 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
         <Box width={"2%"}></Box>
 
         <IMenuListFloat
+          fnClickItem={handleClickMenuItem}
+          menuListItems={listMenuItemFloat}
           ListButtonContent={<AccountInfo></AccountInfo>}
         ></IMenuListFloat>
       </Stack>

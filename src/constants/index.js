@@ -8,3 +8,8 @@ export const RANGE_AUTO_FIT_ROTATE = 5;
 
 //Size của IMiniVariantDrawer
 export const IMiniVariantDrawerWidth = 300;
+
+//Size của Image
+export const sizeImageDndDefault = { width: 150, height: 150 };
+
+export * from "./ReactQuery/access";

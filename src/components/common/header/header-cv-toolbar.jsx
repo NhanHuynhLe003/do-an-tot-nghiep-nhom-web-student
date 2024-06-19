@@ -85,6 +85,7 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
                   ToolTipTaps.COLOR,
                   ToolTipTaps.BOLD,
                   ToolTipTaps.ITALIC,
+                  ToolTipTaps.STRIKE,
                   ToolTipTaps.HEADING1,
                   ToolTipTaps.HEADING2,
                   ToolTipTaps.HEADING3,

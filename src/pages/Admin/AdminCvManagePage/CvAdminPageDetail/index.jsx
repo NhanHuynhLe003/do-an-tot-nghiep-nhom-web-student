@@ -13,6 +13,7 @@ import {
 } from "../../../../redux/selector";
 import CvSlice from "../../../../redux/slices/CvSlice";
 import { useParams } from "react-router-dom";
+import IDndImage from "../../../../components/IDndImage";
 
 export default function CvAdminPageDetail() {
   const { id: currentCvPageId } = useParams();
@@ -28,6 +29,7 @@ export default function CvAdminPageDetail() {
   const [listBoardCvConvert, setListBoardCvConvert] = useState([]);
   const [listBoardRefs, setListBoardRefs] = useState(
     listBoardCv.map((board) => ({
+      boardId: board.boardId,
       id: board.boardId,
       name: board.name,
       type: board.type,
@@ -133,12 +135,16 @@ export default function CvAdminPageDetail() {
           case "shape":
             ChildComponent = IShapeElement;
             break;
+          case "image":
+            ChildComponent = IDndImage;
+            break;
           default:
             ChildComponent = IEmptyComponent;
             break;
         }
 
         return {
+          boardId: item.boardId,
           id: item.id,
           type: item.type,
           color: item.color, // Màu của item áp dụng cho shape
@@ -393,6 +399,7 @@ export default function CvAdminPageDetail() {
 
   //=================== Hàm xử lý khi hover vào page===============
   const handleHoverPage = (id) => {
+    console.log("HOVERING::::", id);
     setCurrentPageActive(id);
   };
 

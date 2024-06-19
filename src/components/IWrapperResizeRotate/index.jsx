@@ -8,6 +8,7 @@ import doubleArrow from "../../assets/icons/double-arrow.png";
 import {
   RANGE_AUTO_FIT_ROTATE,
   sizeEditorDefault,
+  sizeImageDndDefault,
   sizeShapeElementDefault,
 } from "../../constants";
 import {
@@ -205,6 +206,8 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
       ? sizeEditorDefault
       : typeChildren === "shape"
       ? sizeShapeElementDefault
+      : typeChildren === "image"
+      ? sizeImageDndDefault
       : {
           width: 200,
           height: 200,
@@ -377,6 +380,8 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
         idItem: id,
       })
     );
+
+    //Set trạng thái action hiện tại
     setCurrentAction({ ...currentAction, isResizing: true });
     e.preventDefault();
     /**
@@ -404,7 +409,6 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
 
     // Kết thúc kéo thay đổi kích thước
     const handleMouseUpResize = () => {
-      console.log("STOP RESIZE");
       dispatch(
         CvSlice.actions.setListIdItemResizingOrRotating({
           isResizeRotate: false,
@@ -532,7 +536,9 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
             <IMenuListFloat
               fnClickItem={handleClickAdvanceMenu}
               ListButtonContent={<HiDotsHorizontal></HiDotsHorizontal>}
-              menuListItems={listMenuAdvance}
+              menuListItems={listMenuAdvance.filter((item) =>
+                typeChildren !== "shape" ? item.tag !== "color" : item
+              )}
               itemSelected={selectMenuOpt}
               widthMenuList={120}
             ></IMenuListFloat>

@@ -29,7 +29,7 @@ const TRANSLATE_RATE = 50;
 export default function IDraggableFree({
   idCurrentCv = "1234", //Id của CV hiện tại lấy từ url
   zoomScale,
-  IdPageActive,
+  IdPageActive, //Id của page đang active(Đang được mouseEnter)
   activationConstraint, // Dùng để thiết lập thời gian delay khi kéo, khoảng cách kéo, hoặc cả 2
   axis, // Dùng để thiết lập hướng kéo
   handle, // Dùng để thiết lập handle kéo
@@ -45,6 +45,9 @@ export default function IDraggableFree({
   boardInformation,
 }) {
   const { boardId, name, position } = boardInformation;
+
+  //Cờ dùng update Lịch sử lần đầu tiên khi component được mount
+  const flagUpdateHistoryRefFirstTime = useRef(false);
 
   const dispatch = useDispatch();
 
@@ -66,11 +69,12 @@ export default function IDraggableFree({
   const sizeAndRotateItemSelector = useSelector(
     sizeAndDegItemDraggableSelector
   );
-
   //Lấy ra lịch sử lưu item hiện tại
   const listStateDataItemHistory = useSelector(stateCvHistorySelector);
 
   const [keyPressed, setKeyPressed] = useState("");
+
+  const [listKeyPressed, setListKeyPressed] = useState([]);
 
   const [isRotating, setIsRotating] = useState(false);
 
@@ -106,84 +110,45 @@ export default function IDraggableFree({
   //Khi CV User Store có sự thay đổi thì cập nhật lại listDataItem
   useEffect(() => {
     const newChildRefs = listChildData.map(() => React.createRef());
-    if (!_.isEqual(newChildRefs, listChildRefs)) {
-      setListChildRefs(newChildRefs);
-    }
-    if (!_.isEqual(listChildData, listDataItem)) {
-      setListDataItem(listChildData);
-    }
+
+    setListChildRefs(newChildRefs);
+
+    setListDataItem(listChildData);
   }, [listChildData]);
 
-  //=====================Update List Data Item, lưu vào store=====================
-
   useEffect(() => {
+    //Ngăn chặn việc update lịch sử khi past không còn item nào => Gây ra bug không thể Undo mà phải kéo 2 step mới undo
+    if (!!listStateDataItemHistory.past[0]) return;
     const newObjectUpdate = {
       cvId: idCurrentCv,
       boardId: boardId,
       listDataItem: cloneDeep(listDataItem),
     };
 
-    let tempListDataItem = cloneDeep(listDataItem);
-    let tempListChildData = cloneDeep(listChildData);
-
-    tempListChildData = tempListChildData.map((item, index) => ({
-      ...item,
-      component: "NONE_COMPARE", //Đồng bộ component với component tránh re-render liên tục
-      sizeItem: "NONE_COMPARE", //Đồng bộ sizeItem với sizeItem tránh re-render liên tục
-    }));
-    tempListDataItem = tempListDataItem.map((item) => ({
-      ...item,
-      component: "NONE_COMPARE", //Đồng bộ component với component tránh re-render liên tục
-      sizeItem: "NONE_COMPARE", //Đồng bộ sizeItem với sizeItem tránh re-render liên tục
-    }));
-
-    let isNotHaveAnyItemRotateOrResize = !Object.values(
-      listIdItemResizeOrRotateSelector
-    ).some((bool) => bool === true);
-
-    //Update lịch sử
-    // const lenHistoryStore = listStateDataItemHistory.present.length;
-
+    //Cập nhật lich sử
     const newUpdateStateHistory = {
       cvId: idCurrentCv || "1234",
       historyState: cloneDeep(newObjectUpdate),
       limit: 20,
     };
 
-    if (
-      // !_.isEqual(
-      //   listStateDataItemHistory.listStateHistory[lenHistoryStore - 1],
-      //   newUpdateStateHistory.historyState
-      // ) && //Điều kiện này giúp tránh lặp lại 2 lần update history và tránh bị lỗi
-      isNotHaveAnyItemRotateOrResize
-    ) {
-      // Có bug resize loop (**************)
-      dispatch(CvSlice.actions.setHistoryState(newUpdateStateHistory));
-    }
+    dispatch(CvSlice.actions.setHistoryState(newUpdateStateHistory));
 
-    //Kiểm tra xem data có thay đổi không, nếu có thì update vào store
-    if (
-      !_.isEqual(tempListDataItem, tempListChildData) &&
-      boardId === IdPageActive
-    ) {
-      //Lưu vào lịch sử mỗi khi kéo item
-      dispatch(CvSlice.actions.setHistoryState(newUpdateStateHistory));
-
-      //Update data vào store
-      dispatch(CvSlice.actions.setUpdateListDataItemInBoard(newObjectUpdate));
-    }
-  }, [listDataItem, listIdItemResizeOrRotateSelector]);
+    flagUpdateHistoryRefFirstTime.current = true;
+  }, [listDataItem]);
 
   //====================Xử lý Lịch Sử==================================
   useEffect(() => {
-    console.log("[listStateDataItemHistory:::]", listStateDataItemHistory);
-    // const currentIndexHistory = listStateDataItemHistory.current;
-
-    // dispatch(
-    //   CvSlice.actions.setUpdateListDataItemInBoard(
-    //     listStateDataItemHistory.present
-    //   )
-    // );
+    if (
+      !_.isEqual(listStateDataItemHistory.present?.listDataItem, listDataItem)
+    ) {
+      console.log("[listStateDataItemHistory:::]", listStateDataItemHistory);
+      dispatch(
+        CvSlice.actions.setUpdateListDataItemInBoard(
+          listStateDataItemHistory.present
+        )
+      );
+    }
   }, [listStateDataItemHistory]);
   //=====================Xử lý sự kiện  khi nhấn phím =====================
   useEffect(() => {
@@ -193,27 +158,51 @@ export default function IDraggableFree({
     }
   }, [keyPressed]);
 
+  useEffect(() => {
+    //Xử lý khi nhấn phím ctrl+z, Cẩn thận vì đứng ở window nên nó sẽ chạy tất cả bảng cùng lúc
+    if (
+      listKeyPressed.includes("Control") &&
+      !listKeyPressed.includes("Shift") &&
+      (listKeyPressed.includes("z") || listKeyPressed.includes("Z"))
+    ) {
+      if (boardId === IdPageActive) {
+        console.log("Undo", boardId, IdPageActive);
+        dispatch(CvSlice.actions.setUndoHistoryState());
+      }
+    }
+
+    //Xử lý khi nhấn phím redo: ctrl+shift+z hoặc ctrl+y
+    if (
+      listKeyPressed.includes("Control") &&
+      listKeyPressed.includes("Shift") &&
+      (listKeyPressed.includes("z") || listKeyPressed.includes("Z"))
+    ) {
+      if (boardId === IdPageActive) {
+        console.log("Redo", boardId, IdPageActive);
+        dispatch(CvSlice.actions.setRedoHistoryState());
+      }
+    }
+  }, [listKeyPressed]);
+
+  useEffect(() => {
+    if (IdPageActive === boardId) console.log({ IdPageActive, boardId });
+  }, [IdPageActive]);
+
   // Lắng nghe sự kiện nhấn phím
   useEffect(() => {
     const handleKeyDown = (event) => {
       setKeyPressed(event.key);
 
-      //Xử lý khi nhấn phím ctrl+z
-      if (event.ctrlKey && event.key === "z") {
-        dispatch(CvSlice.actions.setUndoHistoryState());
-      }
-
-      //Xử lý khi nhấn phím redo: ctrl+shift+z hoặc ctrl+y
-      if (
-        (event.ctrlKey && event.shiftKey && event.key === "Z") ||
-        event.key === "y"
-      ) {
-        dispatch(CvSlice.actions.setRedoHistoryState());
-      }
+      setListKeyPressed((prev) =>
+        prev.includes(event.key) ? prev : [...prev, event.key]
+      );
     };
 
-    const handleKeyUp = () => {
+    const handleKeyUp = (event) => {
       setKeyPressed(null);
+
+      //Xóa nút vừa thả ra khỏi list
+      setListKeyPressed((prev) => prev.filter((key) => key !== event.key));
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -247,6 +236,68 @@ export default function IDraggableFree({
       );
   }, [isClickOutsideItemSelector]);
 
+  useEffect(() => {
+    //Không có item nào đang resize hoặc rotate thì mới update History trong store
+    const listIdResizeOrRotate = Object.keys(listIdItemResizeOrRotateSelector);
+    const isIncludesItemResizeOrRotateInBoard = Object.values(
+      listIdItemResizeOrRotateSelector
+    ).some((valueItem) => !!valueItem);
+
+    listIdResizeOrRotate.forEach((idItem) => {
+      //Kiểm tra xem có đúng board hiện tại đg chứa item đang rotate không
+      const isBoardContainRotateResize = listDataItem.some(
+        (dataItem) =>
+          `${idCurrentCv}-${dataItem.boardId}-${dataItem.id}` === idItem
+      );
+      if (isBoardContainRotateResize && !isIncludesItemResizeOrRotateInBoard) {
+        const newObjectUpdate = {
+          cvId: idCurrentCv,
+          boardId: boardId,
+          listDataItem: cloneDeep(listDataItem),
+        };
+
+        //Cập nhật lich sử, Chỉ cập nhật ở board đang chọn
+
+        const newUpdateStateHistory = {
+          cvId: idCurrentCv || "1234",
+          past: [],
+          future: [],
+          historyState: cloneDeep(newObjectUpdate),
+          limit: 20,
+        };
+
+        console.log("[newUpdateStateHistoryResize:::]", newUpdateStateHistory);
+        dispatch(CvSlice.actions.setHistoryState(newUpdateStateHistory));
+      }
+    });
+
+    // listIdItemResizeOrRotateSelector có 2 board nên chạy 2 lần, mà trong 2 lần thì listDataItem mỗi lần là khác nhau, do vậy cần phải checkId của item đang resize hoặc rotate đúng thì mới update ListDataItem vào lich su
+  }, [listIdItemResizeOrRotateSelector]);
+
+  //====================Hàm xử lý updateListDataItem vào Store Redux=========================
+  function handleUpdateListDataItemIntoStore(
+    newListDataItem,
+    typeUpdate = "normal"
+  ) {
+    //Cập nhật lại listDataItem trong Store
+    const newObjectUpdate = {
+      cvId: idCurrentCv,
+      boardId: boardId,
+      listDataItem: cloneDeep(newListDataItem),
+    };
+    dispatch(CvSlice.actions.setUpdateListDataItemInBoard(newObjectUpdate));
+
+    //Nếu đang resize hoặc rotate thì không cần cập nhật lịch sử, khi nào xong mới cập nhật lịch sử sau, cập nhật trong quá trình kéo sẽ có quá nhiều lịch sử sinh ra
+    if (typeUpdate !== "resize_rotate") {
+      //Cập nhật lich sử
+      const newUpdateStateHistory = {
+        cvId: idCurrentCv || "1234",
+        historyState: cloneDeep(newObjectUpdate),
+        limit: 20,
+      };
+      dispatch(CvSlice.actions.setHistoryState(newUpdateStateHistory));
+    }
+  }
   /**
    * @description Hàm xử lý xoá các items đã chọn
    */
@@ -259,14 +310,8 @@ export default function IDraggableFree({
     const newListDataDeleted = listDataItem.filter((dataItem) => {
       return !listItemsSelected.some((item) => item.id === dataItem.id);
     });
-    const newObjectDeleted = {
-      cvId: idCurrentCv,
-      boardId: boardId,
-      listDataItem: cloneDeep(newListDataDeleted),
-    };
 
-    //Update trực tiếp vào store tránh lỗi reset lại data
-    dispatch(CvSlice.actions.setUpdateListDataItemInBoard(newObjectDeleted));
+    handleUpdateListDataItemIntoStore(cloneDeep(newListDataDeleted));
   }
 
   // Update vị trí coord của rectangle
@@ -337,7 +382,7 @@ export default function IDraggableFree({
       selectItemIds.push({ id: dataItem.id });
     });
 
-    //Update kho chứa items Drag chung
+    //Update kho chứa items Drag chung, nếu có nhiều hơn 1 item thì chuyển sang chế độ multiple
     dispatch(
       CvSlice.actions.setPropertyItemsDragSelect({
         mode: selectItemIds.length > 1 ? "multiple" : "single",
@@ -367,70 +412,74 @@ export default function IDraggableFree({
         const rectChildActive = currentActiveChild?.getBoundingClientRect();
 
         if (rectChildActive) {
-          //Cập nhật listItem
-          setListDataItem((preListDataItem) =>
-            preListDataItem.map((data) => {
-              if (data.id === idActiveRotate) {
-                // Cập nhật lại kích thước của item sau khi rotate chứa vừa đủ wrapper bên trong, đính kèm thêm scale hiện tại
-                const updatedData = {
-                  ...data,
-                  sizeItem: {
-                    width: rectChildActive.width / zoomScale,
-                    height: rectChildActive.height / zoomScale,
-                  },
-                };
+          const newListDataItemRotateResize = [...listDataItem].map((data) => {
+            if (data.id === idActiveRotate) {
+              // Cập nhật lại kích thước của item sau khi rotate chứa vừa đủ wrapper bên trong, đính kèm thêm scale hiện tại
+              const updatedData = {
+                ...data,
+                sizeItem: {
+                  width: rectChildActive.width / zoomScale,
+                  height: rectChildActive.height / zoomScale,
+                },
+              };
 
-                // Đo khoảng cách giữa các item sau khi xoay, x = tọa độ tại X gốc - độ dịch * width Item
-                measureDistanceBetweenItems(idActiveRotate, 0.5, {
-                  x:
-                    updatedData.coordinate.x -
-                    (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
-                  y:
-                    updatedData.coordinate.y -
-                    (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
-                  x2:
-                    updatedData.coordinate.x +
-                    (updatedData.sizeItem.width -
-                      TRANSLATE_NUM * updatedData.sizeItem.width) /
-                      zoomScale,
-                  y2:
-                    updatedData.coordinate.y -
-                    (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
-                  x3:
-                    updatedData.coordinate.x +
-                    (updatedData.sizeItem.width -
-                      TRANSLATE_NUM * updatedData.sizeItem.width) /
-                      zoomScale,
-                  y3:
-                    updatedData.coordinate.y +
-                    (updatedData.sizeItem.height -
-                      TRANSLATE_NUM * updatedData.sizeItem.height) /
-                      zoomScale,
-                  x4:
-                    updatedData.coordinate.x -
-                    (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
-                  y4:
-                    updatedData.coordinate.y +
-                    (updatedData.sizeItem.height -
-                      TRANSLATE_NUM * updatedData.sizeItem.height) /
-                      zoomScale,
-                  x5:
-                    updatedData.coordinate.x +
-                    (updatedData.sizeItem.width / 2 -
-                      TRANSLATE_NUM * updatedData.sizeItem.width) /
-                      zoomScale,
-                  y5:
-                    updatedData.coordinate.y +
-                    (updatedData.sizeItem.height / 2 -
-                      TRANSLATE_NUM * updatedData.sizeItem.height) /
-                      zoomScale,
-                });
+              // Đo khoảng cách giữa các item sau khi xoay, x = tọa độ tại X gốc - độ dịch * width Item
+              measureDistanceBetweenItems(idActiveRotate, 0.5, {
+                x:
+                  updatedData.coordinate.x -
+                  (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
+                y:
+                  updatedData.coordinate.y -
+                  (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
+                x2:
+                  updatedData.coordinate.x +
+                  (updatedData.sizeItem.width -
+                    TRANSLATE_NUM * updatedData.sizeItem.width) /
+                    zoomScale,
+                y2:
+                  updatedData.coordinate.y -
+                  (TRANSLATE_NUM * updatedData.sizeItem.height) / zoomScale,
+                x3:
+                  updatedData.coordinate.x +
+                  (updatedData.sizeItem.width -
+                    TRANSLATE_NUM * updatedData.sizeItem.width) /
+                    zoomScale,
+                y3:
+                  updatedData.coordinate.y +
+                  (updatedData.sizeItem.height -
+                    TRANSLATE_NUM * updatedData.sizeItem.height) /
+                    zoomScale,
+                x4:
+                  updatedData.coordinate.x -
+                  (TRANSLATE_NUM * updatedData.sizeItem.width) / zoomScale,
+                y4:
+                  updatedData.coordinate.y +
+                  (updatedData.sizeItem.height -
+                    TRANSLATE_NUM * updatedData.sizeItem.height) /
+                    zoomScale,
+                x5:
+                  updatedData.coordinate.x +
+                  (updatedData.sizeItem.width / 2 -
+                    TRANSLATE_NUM * updatedData.sizeItem.width) /
+                    zoomScale,
+                y5:
+                  updatedData.coordinate.y +
+                  (updatedData.sizeItem.height / 2 -
+                    TRANSLATE_NUM * updatedData.sizeItem.height) /
+                    zoomScale,
+              });
 
-                return updatedData;
-              }
-              return data;
-            })
+              return updatedData;
+            }
+            return data;
+          });
+
+          handleUpdateListDataItemIntoStore(
+            cloneDeep(newListDataItemRotateResize),
+            "resize_rotate"
           );
+
+          setListDataItem(newListDataItemRotateResize);
         }
       });
   }
@@ -755,39 +804,42 @@ export default function IDraggableFree({
 
     // Lọc qua các item để cập nhật vị trí
 
-    setListDataItem((listDataItem) => {
-      // Cập nhật vị trí mới của item được kéo
-      const newDataListItem = listDataItem.map((data) => {
-        //Check xem item đang kéo có phải là active item không, nếu đúng thì cập nhật tọa độ
-        if (data.id === active.id) {
-          const { x, y } = data.coordinate;
+    // Cập nhật vị trí mới của item được kéo
+    const newDataListItemPositionDragEnd = listDataItem.map((data) => {
+      //Check xem item đang kéo có phải là active item không, nếu đúng thì cập nhật tọa độ
+      if (data.id === active.id) {
+        const { x, y } = data.coordinate;
 
-          //(*) Do khi scale thì tỉ lệ width height của item cũng sẽ thay đổi, nên ta phải chia cho zoomScale để nó về tọa độ gốc
-          //Vd: width: 200 => scale 0.8 là còn 160 => 160/0.8 về lại 200
-          const newCoordinate = {
-            x: x + delta.x,
-            y: y + delta.y,
-            x2: x + delta.x + width / zoomScale,
-            y2: y + delta.y,
-            x3: x + delta.x + width / zoomScale,
-            y3: y + delta.y + height / zoomScale,
-            x4: x + delta.x,
-            y4: y + delta.y + height / zoomScale,
-            x5: x + delta.x + width / 2 / zoomScale,
-            y5: y + delta.y + height / 2 / zoomScale,
-          };
+        //(*) Do khi scale thì tỉ lệ width height của item cũng sẽ thay đổi, nên ta phải chia cho zoomScale để nó về tọa độ gốc
+        //Vd: width: 200 => scale 0.8 là còn 160 => 160/0.8 về lại 200
+        const newCoordinate = {
+          x: x + delta.x,
+          y: y + delta.y,
+          x2: x + delta.x + width / zoomScale,
+          y2: y + delta.y,
+          x3: x + delta.x + width / zoomScale,
+          y3: y + delta.y + height / zoomScale,
+          x4: x + delta.x,
+          y4: y + delta.y + height / zoomScale,
+          x5: x + delta.x + width / 2 / zoomScale,
+          y5: y + delta.y + height / 2 / zoomScale,
+        };
 
-          return {
-            ...data,
-            coordinate: { ...newCoordinate },
-          };
-        }
+        return {
+          ...data,
+          coordinate: { ...newCoordinate },
+        };
+      }
 
-        return data;
-      });
-
-      return newDataListItem;
+      return data;
     });
+
+    handleUpdateListDataItemIntoStore(
+      newDataListItemPositionDragEnd,
+      "drag_end"
+    );
+
+    setListDataItem(newDataListItemPositionDragEnd);
   }
 
   const mouseSensor = useSensor(MouseSensor, {

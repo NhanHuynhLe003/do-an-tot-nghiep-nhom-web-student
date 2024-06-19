@@ -46,6 +46,7 @@ const CvSlice = createSlice({
             listDataItem: [
               {
                 id: "B1-I001",
+                boardId: "BOARD-001",
                 role: "ALL", //["ONLY_READ", "ONLY_WRITE", "ALL"]
                 type: "editor",
                 coordinate: {
@@ -93,6 +94,7 @@ const CvSlice = createSlice({
             listDataItem: [
               {
                 id: "B2-I001",
+                boardId: "BOARD-002",
                 role: "ALL", //["ONLY_READ", "ONLY_WRITE","ALL"] => chỉ đọc < có thể sửa nội dung text < sửa kích thước, vị trí, góc quay, mọi thứ
                 type: "editor",
                 coordinate: {

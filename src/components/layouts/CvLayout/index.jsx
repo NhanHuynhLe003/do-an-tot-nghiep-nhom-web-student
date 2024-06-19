@@ -18,6 +18,7 @@ import SideBar from "../../common/sidebar";
 import style from "./mainlayout.module.css";
 import TextCvContainer from "../../ICvComponents/textCvContainer";
 import ShapeElementCvContainer from "../../ICvComponents/shapeElementCvContainer";
+import ImageCvContainer from "../../ICvComponents/ImageCvContainer";
 
 export default function CvLayout({ children, typePage = "" }) {
   const sideBarWidth = useRef(248);
@@ -141,7 +142,9 @@ export default function CvLayout({ children, typePage = "" }) {
                   icon: ImageUploadIcon,
                   isActive: false,
                   componentContent: (
-                    <React.Fragment>Image Content</React.Fragment>
+                    <React.Fragment>
+                      <ImageCvContainer></ImageCvContainer>
+                    </React.Fragment>
                   ),
                 },
               ]}

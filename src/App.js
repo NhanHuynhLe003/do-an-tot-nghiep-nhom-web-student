@@ -1,11 +1,11 @@
 import "../src/styles/app.css";
-import "./styles/swiper-slider.css";
 import EmptyLayout from "./components/layouts/EmptyLayout";
 import { routes } from "./routes";
+import "./styles/swiper-slider.css";
 
-import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
-import { useWindowSize } from "./hooks";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import MobileMainLayout from "./components/layouts/MobileMainLayout";
+import { useWindowSize } from "./hooks";
 //CSS ANIMATE
 import "animate.css";
 

@@ -45,6 +45,7 @@ export default function ShapeElementCvContainer() {
     const boardId = currentBoardSelectorInView.id;
 
     const dataItem = {
+      boardId: boardId,
       id: idItemDrag,
       role: "ALL", //["ONLY_READ", "ONLY_WRITE", "ALL"]
       type: "shape",
