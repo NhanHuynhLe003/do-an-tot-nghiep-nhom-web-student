@@ -21,6 +21,7 @@ import { useStudentLogin } from "../../hooks/apis/access";
 import { useNavigate } from "react-router-dom";
 import theme from "../../theme";
 import css from "./login.module.css";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,12 +47,26 @@ export default function Login() {
 
   useEffect(() => {
     if (responseData) {
-      console.log("RESPONSE DATA", responseData);
       setDataIntoLocalStorage(responseData);
       setDataReceived(responseData);
+
+      toast.success("Bạn đã đăng nhập thành công");
       navigate("/"); // Điều hướng đến trang dashboard
     }
   }, [responseData, navigate]);
+
+  useEffect(() => {
+    // Nếu đã đăng nhập thì chuyển hướng về trang chính
+    const userInfo = JSON.parse(localStorage.getItem("studentData"));
+    if (userInfo) {
+      toast.success("Bạn đã đăng nhập thành công");
+      navigate("/");
+    }
+  });
+
+  const handleLoginGuest = useCallback(() => {
+    navigate("/book");
+  }, []);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => {
@@ -164,7 +179,11 @@ export default function Login() {
                 Đăng Nhập
               </Button>
               <Stack direction="row" justifyContent="right" mt={6}>
-                <Button className={css.ButtonGuestLogin} variant="text">
+                <Button
+                  className={css.ButtonGuestLogin}
+                  variant="text"
+                  onClick={handleLoginGuest}
+                >
                   Tài Khoản Khách
                 </Button>
               </Stack>

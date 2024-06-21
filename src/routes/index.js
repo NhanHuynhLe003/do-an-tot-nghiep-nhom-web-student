@@ -106,28 +106,32 @@ const routes = [
     path: "/ghi-chu",
     component: TrangChinh, // là các page
     layout: MainLayout, //
+    isAuth: true,
   },
   {
     path: "/chi-tiet-ghi-chu",
     component: TrangGhiChuChiTiet, // là các page
     layout: MainLayout, //
+    isAuth: true,
   },
   {
     path: "/on-tap-chi-tiet",
     component: TrangOnTapChiTiet,
     layout: MainLayout,
+    isAuth: true,
   },
   {
     path: "/trang-chart",
     component: TrangChart,
     layout: MainLayout,
+    isAuth: true,
   },
 
   //==================TRANG CHINH===================
   {
     path: "/trang-chinh",
     component: TrangChinh,
-    layout: MainLayout,
+    layout: EmptyLayout,
   },
 ];
 export { routes };

@@ -38,21 +38,24 @@ axiosInstance.interceptors.request.use(
     }
 
     if (curRefreshToken) {
+      // console.log("REFRESH TOKEN", curRefreshToken);
       // ngoại trừ login và signup thì tất cả các request đều cần đính kèm refresh token
       config.headers["x-rtoken-id"] = curRefreshToken;
     }
 
-    // if (!!currentUser) {
-    //   console.log("currentUser", currentUser);
-    //   //Nếu có user thì gán vào header
-    //   config.headers["x-client-id"] = JSON.parse(currentUser)._id;
-    // }
+    console.log("CONFIG HEADER", config.headers);
+
+    if (!!currentUser) {
+      //Nếu có user thì gán vào header
+      config.headers["x-client-id"] = JSON.parse(currentUser)._id;
+    }
 
     return config;
   },
   (error) => {
     // Xử lý khi gặp lỗi request trước khi được gửi lên server
     const errorMessage = error.response?.data?.message || error?.message;
+    console.error(errorMessage);
     toast.error(errorMessage);
     return Promise.reject(error);
   }

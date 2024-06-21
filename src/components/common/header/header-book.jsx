@@ -1,7 +1,14 @@
 import SearchIcon from "@mui/icons-material/Search";
-import { Box, IconButton, InputBase, Paper, Stack } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  InputBase,
+  Paper,
+  Stack,
+} from "@mui/material";
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect } from "react";
 import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
 import theme from "../../../theme";
 import IMenuListFloat from "../../IMenuListFloat";
@@ -25,6 +32,7 @@ const listMenuItemFloat = [
 
 export default function HeaderBook({ ref, topPositon = 0 }) {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const {
     mutate: logout,
     data: logoutResponse,
@@ -32,12 +40,24 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
     error,
   } = useStudentLogout();
   const [searchBook, setSearchBook] = React.useState("");
+
+  useEffect(() => {
+    const userAuth = JSON.parse(localStorage.getItem("studentData"));
+    if (userAuth) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   function handleSearchBook(value) {
     setSearchBook(value);
   }
 
+  function handleClickLoginNow() {
+    navigate("/login");
+  }
+
   function handleClickMenuItem(mark) {
-    if (mark.tag === "logout") {
+    if (mark.tag === "logout" && isLoggedIn) {
       // Gỡ Token khỏi localStorage đồng thời gọi API logout để xóa token trên server
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
@@ -113,12 +133,24 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
         </Stack>
 
         <Box width={"2%"}></Box>
-
-        <IMenuListFloat
-          fnClickItem={handleClickMenuItem}
-          menuListItems={listMenuItemFloat}
-          ListButtonContent={<AccountInfo></AccountInfo>}
-        ></IMenuListFloat>
+        {isLoggedIn ? (
+          <IMenuListFloat
+            fnClickItem={handleClickMenuItem}
+            menuListItems={listMenuItemFloat}
+            ListButtonContent={<AccountInfo></AccountInfo>}
+          ></IMenuListFloat>
+        ) : (
+          <Button
+            sx={{
+              color: theme.colors.primary1,
+              padding: "0.5rem 1rem",
+            }}
+            onClick={handleClickLoginNow}
+            variant="text"
+          >
+            Đăng Nhập Ngay
+          </Button>
+        )}
       </Stack>
     </header>
   );
