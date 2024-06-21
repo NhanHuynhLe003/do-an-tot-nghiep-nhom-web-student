@@ -1,11 +1,15 @@
 .tong{
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    padding: 1rem;
+    
+    margin: auto;
+    background-color: #fff;
+
 }
 .top{
 
  width: 100%;
- height: 60%;
+
  display: flex;
  justify-content: space-between;
 }
@@ -14,7 +18,7 @@
     padding: 10px;
     margin: 10px;
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-    width: 30%;
+    width: 25%;
     height: 500px;
 }
 .chartcot{
@@ -22,17 +26,23 @@
     margin: 10px;
     padding: 10px;
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-    width: 70%;
+    width: 65%;
     height: 500px;
 }
-.bot{
-    width: 100%;
-    height: 30%;
-    justify-content: space-between;
-}
-.chartsin{
+
+
+ .sinchart {
     border-radius: 20px;
     margin: 10px;
     padding: 10px;
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-}
+    width: 90%; /* Thay đổi chiều rộng */
+    height: 400px; /* Thay đổi chiều cao */
+    margin: auto; /* Căn giữa */
+} 
+
+ .sinchart .line {
+    background-color: rgba(255, 99, 132, 0.2); /* Màu nền của đường*/ 
+    border-color: rgba(255, 99, 132, 1); /* Màu viền của đường */
+    border-width: 2px; /* Độ dày của đường */
+} 
