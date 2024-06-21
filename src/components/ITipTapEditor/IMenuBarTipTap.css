@@ -1,0 +1,93 @@
+.ITipTapEditor___CustomEditorWrapper .ITipTapEditor___listToolBarButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 1rem 2rem 0 2rem;
+    width: 100%;
+}
+
+/* Khoảng cách giữa các dòng */
+.ITipTapEditor___CustomEditorWrapper .tiptap>*+* {
+    margin-top: 0.25em;
+}
+
+.ITipTapEditor___CustomEditorWrapper .tiptap ul,
+.ITipTapEditor___CustomEditorWrapper .tiptap ol {
+    padding: 0 1rem;
+}
+
+.ITipTapEditor___CustomEditorWrapper .tiptap h1,
+.ITipTapEditor___CustomEditorWrapper .tiptap h2,
+.ITipTapEditor___CustomEditorWrapper .tiptap h3,
+.ITipTapEditor___CustomEditorWrapper .tiptap h4,
+.ITipTapEditor___CustomEditorWrapper .tiptap h5,
+.ITipTapEditor___CustomEditorWrapper .tiptap h6 {
+    line-height: 1.1;
+    margin-bottom: 0.35em;
+}
+
+.ITipTapEditor___CustomEditorWrapper .tiptap code {
+    background-color: rgba(97, 97, 97, 0.1);
+    color: #616161;
+}
+
+.ITipTapEditor___CustomEditorWrapper .tiptap pre {
+    background: #0d0d0d;
+    color: #fff;
+    font-family: 'JetBrainsMono', monospace;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.ITipTapEditor___CustomEditorWrapper .tiptap pre code {
+    color: inherit;
+    padding: 0;
+    background: none;
+    font-size: 0.8rem;
+}
+
+.ITipTapEditor___CustomEditorWrapper .tiptap img {
+    max-width: 100%;
+    height: auto;
+}
+
+.ITipTapEditor___CustomEditorWrapper .tiptap blockquote {
+    padding-left: 1rem;
+    border-left: 2px solid rgba(13, 13, 13, 0.1);
+}
+
+.ITipTapEditor___CustomEditorWrapper .tiptap hr {
+    border: none;
+    border-top: 2px solid rgba(13, 13, 13, 0.1);
+    margin: 2rem 0;
+}
+
+.ITipTapEditor___buttonTool {
+    border: none;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 0.25rem 1rem;
+    margin-right: 0.5rem;
+    height: 100%;
+    cursor: pointer;
+    transition: 100ms ease-in-out;
+    font-size: 18px;
+}
+
+.ITipTapEditor___buttonTool:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+
+}
+
+.ITipTapEditor___ColorPicker {
+    padding: 0.25rem;
+    /* width: 2.5rem; */
+    height: 2rem;
+}
+
+.ITipTapEditor___buttonTool.is-active:not(.ITipTapEditor___ColorPicker) {
+    background-color: #000;
+    color: #fff;
+}

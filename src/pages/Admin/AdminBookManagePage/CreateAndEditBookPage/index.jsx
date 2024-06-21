@@ -11,6 +11,7 @@ import { listCategory } from "../../../../data/arrays";
 import { format } from "date-fns";
 import { SwitchButton } from "../../../../components/form-support/switch-btn";
 import IBreadcrumbs from "../../../../components/IBreadcrumbs";
+import useAdminCreateBook from "../../../../hooks/apis/books/useAdminCreateBook";
 
 /**
  * @description Trang tạo mới hoặc edit sách
@@ -24,6 +25,13 @@ export default function CreateBookPage({
   mode = "create",
   defaultValueEdit = {},
 }) {
+  const {
+    mutate: createBook, // Hàm này sẽ gọi API createBook, send request lên server
+    data: responseData,
+    isLoading,
+    error,
+  } = useAdminCreateBook();
+
   // ============= Định nghĩa validate form =============
   const validationSchema = yup.object().shape({
     thumbnailUrl: yup
@@ -65,8 +73,8 @@ export default function CreateBookPage({
 
   //===================================== Xử lý form ================================
   const {
-    // getValues, // Lấy giá trị của form
-    // setValue, // Set giá trị cho form theo cú pháp: setValue("name", value)
+    getValues, // Lấy giá trị của form
+    setValue, // Set giá trị cho form theo cú pháp: setValue("name", value)
     control,
     handleSubmit,
     // reset, // Reset form khi gọi hàm reset()
@@ -120,7 +128,21 @@ export default function CreateBookPage({
   const onSubmit = (data) => {
     switch (mode) {
       case "create":
-        console.log("Handle Create submit:", data);
+        console.log("[Handle Create submit:::]", data);
+        createBook({
+          book_name: data.nameBook,
+          book_author: data.nameAuthor,
+          book_thumb: data.thumbnailUrl,
+          book_desc: data.bookDescription,
+
+          book_quantity: data.bookQuantity,
+          book_genre: data.nameCategory, //Tìm kiếm thể loại trước rồi gán objectID vào
+          book_publish_date: data.datePublish.toISOString(),
+
+          book_ratingsAverage: 4.5,
+          book_students_read: 0,
+          book_favourites: 0,
+        });
         break;
       case "update":
         console.log("Handle Update submit:", data);

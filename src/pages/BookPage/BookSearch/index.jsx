@@ -1,25 +1,17 @@
-import React, { useEffect, useState } from "react";
-import style from "./bookSearch.module.css";
-import {
-  Box,
-  Button,
-  Grid,
-  Pagination,
-  Stack,
-  Typography,
-} from "@mui/material";
-import IMenuListFloat from "../../../components/IMenuListFloat";
+import { Button, Grid, Pagination, Stack, Typography } from "@mui/material";
 import clsx from "clsx";
+import React, { useEffect, useState } from "react";
+import CardBook from "../../../components/book/cardBook";
+import ButtonSortType from "../../../components/bookSearch/buttonSortType";
+import IMenuListFloat from "../../../components/IMenuListFloat";
 import {
   listCategoryType,
+  listRatingType,
   listSortType,
   listStatusType,
   recomendBooks,
-  listRatingType,
 } from "../../../data/arrays";
-import ButtonSortType from "../../../components/bookSearch/buttonSortType";
-import CardBook from "../../../components/book/cardBook";
-import { useRoutes, useSearchParams } from "react-router-dom";
+import style from "./bookSearch.module.css";
 
 export default function BookSearchPage() {
   // thêm query trang hiện tại của pagination vào url

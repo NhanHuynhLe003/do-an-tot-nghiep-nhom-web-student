@@ -1,98 +1,196 @@
-import { Box, Button, IconButton, Input, Stack } from "@mui/material";
-import React from "react";
-import SubmitLogin from "../../components/login/submit-login";
-import {
-  Label,
-  Padding,
-  Password,
-  Visibility,
-  VisibilityOff,
-} from "@mui/icons-material";
+// src/pages/Login.js
+import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { InputArea } from "../../components/form-support/input-area";
-import css from "./login.module.css";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+  IconButton,
+  Paper,
+  Stack,
+} from "@mui/material";
 import clsx from "clsx";
+import { InputArea } from "../../components/form-support/input-area";
 import LogoTitleAccess from "../../components/login/logo-title-access";
+import { useStudentLogin } from "../../hooks/apis/access";
+import { useNavigate } from "react-router-dom";
+import theme from "../../theme";
+import css from "./login.module.css";
+import { toast } from "react-toastify";
+
 export default function Login() {
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [dataReceived, setDataReceived] = useState(null);
+  const navigate = useNavigate();
+
+  function setDataIntoLocalStorage(data) {
+    localStorage.setItem(
+      "studentData",
+      JSON.stringify(data?.metadata?.student)
+    );
+    localStorage.setItem("accessToken", data?.metadata?.tokens?.accessToken);
+    localStorage.setItem("refreshToken", data?.metadata?.tokens?.refreshToken);
+  }
+
+  const {
+    mutate: login, // Hàm này sẽ gọi API login, send request lên server
+    data: responseData,
+    isLoading,
+    error,
+  } = useStudentLogin();
+
+  useEffect(() => {
+    if (responseData) {
+      setDataIntoLocalStorage(responseData);
+      setDataReceived(responseData);
+
+      toast.success("Bạn đã đăng nhập thành công");
+      navigate("/"); // Điều hướng đến trang dashboard
+    }
+  }, [responseData, navigate]);
+
+  useEffect(() => {
+    // Nếu đã đăng nhập thì chuyển hướng về trang chính
+    const userInfo = JSON.parse(localStorage.getItem("studentData"));
+    if (userInfo) {
+      toast.success("Bạn đã đăng nhập thành công");
+      navigate("/");
+    }
+  });
+
+  const handleLoginGuest = useCallback(() => {
+    navigate("/book");
+  }, []);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
-
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
 
-  //Tạo schema validation
   const schema = yup.object().shape({
-    email: yup.string().email().required(),
+    email: yup
+      .string()
+      .email("Email không hợp lệ")
+      .required("Email không được để trống"),
     password: yup
       .string()
-      .required()
-      .min(8, "mật khẩu phải có tối thiểu 8 ký tự")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-        "Mật khẩu cần chứa tối thiểu 1 chữ cái in hoa, one lowercase letter, one number, and one special character"
-      ),
+      .required("Mật khẩu không được để trống")
+      .min(8, "Mật khẩu phải có tối thiểu 8 ký tự"),
   });
 
-  const {
-    getValues, // Lấy giá trị của form
-    setValue, // Set giá trị cho form
-    control, // Lấy ra các hàm của form
-    handleSubmit, // Hàm xử lý form
-    reset, // Reset form
-  } = useForm({
+  const { control, handleSubmit } = useForm({
     defaultValues: {
       email: "",
-      Password: "",
+      password: "",
     },
     resolver: yupResolver(schema),
   });
-  return (
-    <form className={css.formContainer}>
-      <Stack className={css.fieldcontainer} direction={"column"}>
-        <LogoTitleAccess />
-        <Box className={clsx(css.fieldInput, css.emailField)}>
-          <label htmlFor="email-login">Email</label>
-          <InputArea
-            sx={{ marginTop: 1 }}
-            size={"small"}
-            name={"email-login"}
-            id={"email-login"}
-            placeHolder={"Nhập email"}
-            control={control}
-          ></InputArea>
-        </Box>
-        <br />
-        <Box className={clsx(css.fieldInput, css.passwordField)}>
-          <label htmlFor="email-login">Password</label>
-          <InputArea
-            InputProps={{
-              endAdornment: (
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              ),
-            }}
-            type={showPassword ? "text" : "password"}
-            sx={{ marginTop: 1 }}
-            size={"small"}
-            name={"password-login"}
-            id={"password-login"}
-            placeHolder={"Nhập email"}
-            control={control}
-          ></InputArea>
-        </Box>
-        <br />
-        <SubmitLogin></SubmitLogin>
+
+  const onSubmit = (data) => {
+    login(data);
+  };
+
+  if (isLoading) {
+    return (
+      <Stack
+        sx={{
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100%",
+        }}
+      >
+        <CircularProgress />
       </Stack>
-    </form>
+    );
+  }
+
+  return (
+    <>
+      {dataReceived ? (
+        <Stack direction="column" justifyContent="center" alignItems="center">
+          <Paper>Xin Chào</Paper>
+        </Stack>
+      ) : (
+        <form className={css.formContainer} onSubmit={handleSubmit(onSubmit)}>
+          <Stack className={css.fieldcontainer} direction="column">
+            <LogoTitleAccess />
+            <Box className={clsx(css.fieldInput, css.emailField)}>
+              <label htmlFor="email-login">Email</label>
+              <InputArea
+                sx={{ marginTop: 1 }}
+                size="small"
+                name="email"
+                id="email-login"
+                placeholder="Nhập email"
+                control={control}
+              />
+            </Box>
+            <br />
+            <Box className={clsx(css.fieldInput, css.passwordField)}>
+              <label htmlFor="password-login">Password</label>
+              <InputArea
+                InputProps={{
+                  endAdornment: (
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  ),
+                }}
+                type={showPassword ? "text" : "password"}
+                sx={{ marginTop: 1 }}
+                size="small"
+                name="password"
+                id="password-login"
+                placeholder="Nhập mật khẩu"
+                control={control}
+              />
+            </Box>
+            <br />
+            <Box className={css.formFieldContainer}>
+              <Stack direction="row" justifyContent="space-between">
+                <FormControlLabel
+                  control={
+                    <Checkbox className={css.rememberCheckbox} defaultChecked />
+                  }
+                  label="Remember me"
+                />
+                <Button className={css.forgotPassword} variant="text">
+                  Quên mật khẩu?
+                </Button>
+              </Stack>
+              <Button
+                type="submit"
+                sx={{ bgcolor: theme.colors.primary1 }}
+                variant="contained"
+                fullWidth
+              >
+                Đăng Nhập
+              </Button>
+              <Stack direction="row" justifyContent="right" mt={6}>
+                <Button
+                  className={css.ButtonGuestLogin}
+                  variant="text"
+                  onClick={handleLoginGuest}
+                >
+                  Tài Khoản Khách
+                </Button>
+              </Stack>
+            </Box>
+          </Stack>
+        </form>
+      )}
+    </>
   );
 }
