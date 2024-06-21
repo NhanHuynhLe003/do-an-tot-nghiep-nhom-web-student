@@ -3,16 +3,20 @@
 }
 
 .documentList {
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-    width: 30%;
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.25);
+    /* chỉnh 3D nhìn cho đẹp xíu */
+    width: 25%;
   
-    padding: 10px;
+    padding: 20px;
     /* Thêm padding để nội dung không sát viền */
     box-sizing: border-box;
     /* Đảm bảo padding và border được tính vào chiều rộng */
     margin: 20px;
     max-height: 75vh;
     overflow-y: auto;
+    background-color: #fff;
+    border-radius: 10px;
+
     
 }
 
@@ -30,6 +34,13 @@
     box-sizing: border-box;
     /* Đảm bảo padding và border được tính vào chiều rộng */
     margin: 10px;
+    transition: all 0.2s linear;
+}
+.notecard:hover {
+    transform: scale(1.1);
+}
+.notecard:hover > .card :not(:hover) {
+    filter : blur(10px)
 }
 
 .titlenote {
@@ -41,11 +52,12 @@
 }
 
 
-.OnTapChiTiet {
-
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+.OnTapChiTiet { 
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.25);
     width: 70%;
-    padding: 10px;
+    padding: 20px;
     /* Thêm padding để nội dung không sát viền */
     margin: 20px;
     box-sizing: border-box;
@@ -108,18 +120,18 @@
     display: flex;
     justify-content: space-around;
     padding: 10px;
-    background-color: #f1f1f1;
+    background-color: #fff;
 }
 
 .Buttonnho {
-    width: 80px;
-    height: 80px;
+    width: 125px;
+    height: 35px;
     background-color: #5496FA;
     color: white;
     font-size: 14px;
     font-weight: bold;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     
@@ -128,7 +140,7 @@
 /* qua dep luon */
 .Buttonnho:hover {
     /* dùng chuyển màu khi đưa trỏ vào nút nhấn*/
-    background-color: #969c96;
+    background-color: #13DDFA;
 }
 .buttonKQ{
     text-align: center;
@@ -136,7 +148,7 @@
     width: 100%;
    
     padding: 10px;
-    background-color: #f1f1f1;
+    background-color: #fff;
     text-align: center;
    
 }
