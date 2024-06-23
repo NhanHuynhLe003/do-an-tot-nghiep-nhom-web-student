@@ -1,17 +1,19 @@
-import { Button, Grid, Stack, Typography } from "@mui/material";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import axios from "axios";
-import React, { useEffect, useId } from "react";
+import { Button, Grid, Stack, Typography } from "@mui/material";
+import { format } from "date-fns";
+import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import * as yup from "yup";
+import axiosInstance from "../../../../apis/axiosConfig";
 import DragAndDropFile from "../../../../components/DragDropFile";
 import { InputArea } from "../../../../components/form-support/input-area";
 import { SelectInputField } from "../../../../components/form-support/select-input-field";
-import { listCategory } from "../../../../data/arrays";
-import { format } from "date-fns";
 import { SwitchButton } from "../../../../components/form-support/switch-btn";
 import IBreadcrumbs from "../../../../components/IBreadcrumbs";
+import { listCategory } from "../../../../data/arrays";
 import useAdminCreateBook from "../../../../hooks/apis/books/useAdminCreateBook";
+import { useGetCategoriesPublished } from "../../../../hooks/apis/category";
 
 /**
  * @description Trang tạo mới hoặc edit sách
@@ -32,12 +34,32 @@ export default function CreateBookPage({
     error,
   } = useAdminCreateBook();
 
+  const [categoriesConvert, setCategoriesConvert] = useState([]); //Chuyển đổi dữ liệu thể loại sách từ server về dạng [{label: "", value: ""}
+  const [isUploadImg, setIsUploadImg] = useState(false); //Kiểm tra xem đã upload ảnh chưa
+
+  const {
+    data: dataCategories,
+    error: errCategories,
+    isLoading: isLoadingCategories,
+  } = useGetCategoriesPublished();
+
+  useEffect(() => {
+    if (dataCategories) {
+      const newDataConvert = dataCategories.data.metadata.map((cate) => ({
+        ...cate,
+        label: cate.name,
+        value: cate._id,
+      }));
+      setCategoriesConvert(newDataConvert);
+    }
+  }, [dataCategories]);
+
   // ============= Định nghĩa validate form =============
   const validationSchema = yup.object().shape({
     thumbnailUrl: yup
       .string()
       .url("Định dạng URL không hợp lệ")
-      .required("Thumbnail sách là bắt buộc")
+      .required("Vui lòng upload ảnh sách trước khi thêm")
       .min(10, "thumbnail sách phải có ít nhất 10 ký tự"),
     bookQuantity: yup
       .number()
@@ -83,7 +105,7 @@ export default function CreateBookPage({
     defaultValues:
       mode === "create"
         ? {
-            thumbnailUrl: "https://placehold.co/96x134", //Ảnh mặc định tạm thời để vầy trước, sau này xử lý db rồi cho nó rỗng
+            thumbnailUrl: "", //Ảnh mặc định tạm thời để vầy trước, sau này xử lý db rồi cho nó rỗng
             bookQuantity: 1,
             nameBook: "",
             nameAuthor: "",
@@ -102,47 +124,91 @@ export default function CreateBookPage({
    * @description Xử lý khi người dùng chọn ảnh và upload
    * @param {*} imgFile
    */
-  async function handleUploadImage(imgFile) {
-    if (!imgFile) console.error("Vui lòng chọn ảnh trước khi upload");
+  const handleUploadImage = async (imgFile) => {
+    if (!imgFile) {
+      console.error("Vui lòng chọn ảnh trước khi upload");
+      return;
+    }
 
     const formData = new FormData();
-    formData.append("fileImg", imgFile);
+    formData.append("uploadFileKey", imgFile);
+
+    // Kiểm tra xem formData có dữ liệu không
+    if (!formData.has("uploadFileKey")) {
+      console.error("Ảnh không được để trống");
+      return;
+    }
 
     try {
-      const response = await axios.post("/api/upload-avatar", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await axiosInstance.post(
+        "/v1/api/upload/d-img?nameStorage=books",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      toast.success("Upload ảnh thành công", {
+        position: "top-center",
       });
 
-      console.log("Upload thành công:", response.data);
+      if (response.data.metadata.url) {
+        //Set giá trị cho form value thumbnailUrl
+        setValue("thumbnailUrl", response.data.metadata.url);
+        setIsUploadImg(true);
+        //lưu ảnh vào local storage để lần sau khi reload trang vẫn hiển thị ảnh
+        localStorage.setItem("thumbnailUrl", response.data.metadata.url);
+      }
     } catch (error) {
-      console.error("Upload thất bại:", error);
+      toast.error("Upload ảnh thất bại", {
+        position: "top-center",
+      });
     }
-  }
+  };
+
+  const handleCreateBook = useCallback((data) => {
+    const thumbnailImgUpload = getValues("thumbnailUrl");
+    console.log(
+      "thumb",
+      isUploadImg,
+      thumbnailImgUpload,
+      thumbnailImgUpload.length
+    );
+
+    createBook({
+      book_name: data.nameBook,
+      book_author: data.nameAuthor,
+      book_thumb: data.thumbnailUrl,
+      book_desc: data.bookDescription,
+
+      book_quantity: data.bookQuantity,
+      book_genre: data.nameCategory, //Tìm kiếm thể loại trước rồi gán objectID vào
+      book_publish_date: data.datePublish.toISOString(),
+
+      book_ratingsAverage: 4.5,
+      book_students_read: 0,
+      book_favourites: 0,
+    });
+    toast.success("Thêm sách thành công");
+
+    return data;
+  }, []);
 
   /**
    * @description Xử lý khi người dùng submit form
    * @param {*} data
    */
   const onSubmit = (data) => {
+    if (!isUploadImg) {
+      toast.warn("Vui lòng upload ảnh sách trước khi thêm", {
+        position: "top-center",
+      });
+      return;
+    }
     switch (mode) {
       case "create":
-        console.log("[Handle Create submit:::]", data);
-        createBook({
-          book_name: data.nameBook,
-          book_author: data.nameAuthor,
-          book_thumb: data.thumbnailUrl,
-          book_desc: data.bookDescription,
-
-          book_quantity: data.bookQuantity,
-          book_genre: data.nameCategory, //Tìm kiếm thể loại trước rồi gán objectID vào
-          book_publish_date: data.datePublish.toISOString(),
-
-          book_ratingsAverage: 4.5,
-          book_students_read: 0,
-          book_favourites: 0,
-        });
+        handleCreateBook(data);
         break;
       case "update":
         console.log("Handle Update submit:", data);
@@ -266,8 +332,10 @@ export default function CreateBookPage({
             Thể loại sách
           </label>
           <SelectInputField
-            defaultValue={listCategory[0].value}
-            options={listCategory}
+            defaultValue={
+              categoriesConvert.length && categoriesConvert[0].value
+            }
+            options={categoriesConvert}
             sx={{ marginTop: 1 }}
             size={"small"}
             name={"nameCategory"}

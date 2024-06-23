@@ -1,12 +1,15 @@
 import SearchIcon from "@mui/icons-material/Search";
 import {
+  Badge,
   Box,
   Button,
   IconButton,
   InputBase,
   Paper,
   Stack,
+  styled,
 } from "@mui/material";
+import { RiShoppingBag4Fill } from "react-icons/ri";
 import clsx from "clsx";
 import React, { useEffect } from "react";
 import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
@@ -16,6 +19,9 @@ import AccountInfo from "./components/account-info";
 import style from "./header-book.module.css";
 import { useStudentLogout } from "../../../hooks/apis/access";
 import { useNavigate } from "react-router-dom";
+import { Notifications } from "@mui/icons-material";
+import IPopOverBtn from "../../IPopOverBtn";
+import CartBookOrder from "./components/cartBookOrder";
 
 const listMenuItemFloat = [
   {
@@ -29,6 +35,14 @@ const listMenuItemFloat = [
     tag: "logout",
   },
 ];
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    border: `1px solid ${theme.palette.background.paper}`,
+    right: -2,
+    top: -2,
+  },
+}));
 
 export default function HeaderBook({ ref, topPositon = 0 }) {
   const navigate = useNavigate();
@@ -82,6 +96,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
         py={1}
         position={"relative"}
         className={style.headerContainer}
+        justifyContent={"space-between"}
       >
         <Paper
           component="form"
@@ -92,12 +107,12 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
             display: "flex",
             alignItems: "center",
             maxHeight: "2.5rem",
-            width: "30%",
+            width: "24%",
           }}
         >
           <InputBase
             sx={{ ml: 1, flex: 1 }}
-            placeholder="Tìm kiếm sách, tác giả"
+            placeholder="Tìm kiếm sách, tác giả...."
             inputProps={{ "aria-label": "search" }}
             onChange={handleSearchBook}
           />
@@ -113,9 +128,8 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
             />
           </IconButton>
         </Paper>
-        <Box width={"10%"}></Box>
 
-        <Stack className={style.timeBox} direction={"row"} gap={"4rem"}>
+        <Stack className={style.timeBox} direction={"row"} gap={"2rem"}>
           <Box className={style.boxHour}>
             <FaRegClock
               color={theme.colors.primary1}
@@ -132,25 +146,70 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
           </Box>
         </Stack>
 
-        <Box width={"2%"}></Box>
-        {isLoggedIn ? (
-          <IMenuListFloat
-            fnClickItem={handleClickMenuItem}
-            menuListItems={listMenuItemFloat}
-            ListButtonContent={<AccountInfo></AccountInfo>}
-          ></IMenuListFloat>
-        ) : (
-          <Button
-            sx={{
-              color: theme.colors.primary1,
-              padding: "0.5rem 1rem",
-            }}
-            onClick={handleClickLoginNow}
-            variant="text"
-          >
-            Đăng Nhập Ngay
-          </Button>
-        )}
+        <Stack direction={"row"} gap={"0.25rem"}>
+          <IPopOverBtn
+            wrapperStyle={{ marginTop: "0.5rem" }}
+            ButtonComponent={
+              <Button
+                sx={{
+                  color: theme.colors.primary2,
+                }}
+              >
+                <StyledBadge badgeContent={4} color="error">
+                  <Notifications
+                    sx={{
+                      fontSize: "1.75rem",
+                      color: "var(--color-primary2)",
+                    }}
+                  ></Notifications>
+                </StyledBadge>
+              </Button>
+            }
+            ComponentPopOver={<Box>Test</Box>}
+          ></IPopOverBtn>
+
+          <IPopOverBtn
+            wrapperStyle={{ marginTop: "0.5rem" }}
+            ButtonComponent={
+              <Button
+                sx={{
+                  color: theme.colors.primary2,
+                }}
+              >
+                <StyledBadge badgeContent={4} color="error">
+                  <RiShoppingBag4Fill
+                    fontSize={"1.75rem"}
+                    color="var(--color-primary2)"
+                  ></RiShoppingBag4Fill>
+                </StyledBadge>
+              </Button>
+            }
+            ComponentPopOver={
+              <Box>
+                <CartBookOrder></CartBookOrder>
+              </Box>
+            }
+          ></IPopOverBtn>
+
+          {isLoggedIn ? (
+            <IMenuListFloat
+              fnClickItem={handleClickMenuItem}
+              menuListItems={listMenuItemFloat}
+              ListButtonContent={<AccountInfo></AccountInfo>}
+            ></IMenuListFloat>
+          ) : (
+            <Button
+              sx={{
+                color: theme.colors.primary1,
+                padding: "0.5rem 1rem",
+              }}
+              onClick={handleClickLoginNow}
+              variant="text"
+            >
+              Đăng Nhập Ngay
+            </Button>
+          )}
+        </Stack>
       </Stack>
     </header>
   );
