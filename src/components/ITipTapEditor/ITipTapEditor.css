@@ -1,0 +1,28 @@
+/* Basic editor styles */
+
+.ITipTapEditor___EditorContentWrapper {
+
+
+    cursor: text;
+    /* height: 100%; ko thể 100% vì khoảng cách cách dòng rất xa*/
+
+}
+
+.ITipTapEditor___EditorContentWrapper>.ProseMirror {
+    /* padding: 0.5rem; */
+
+    /* (*)Cho giống kích thước chuẩn của IWrapperResizeRotate*/
+
+    overflow: hidden;
+
+}
+
+.ITipTapEditor___EditorContentWrapper>.ProseMirror * {
+    height: fit-content;
+}
+
+.ITipTapEditor___EditorContentWrapper>.ProseMirror:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}

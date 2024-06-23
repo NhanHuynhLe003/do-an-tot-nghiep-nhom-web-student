@@ -20,6 +20,8 @@ export default function IMenuListFloat({
     console.log(payload);
   },
   itemSelected = menuListItems[0].content,
+  placement = "bottom-start",
+  widthMenuList,
 }) {
   // dùng để xác định menu có mở hay không
   const [open, setOpen] = React.useState(false);
@@ -42,7 +44,11 @@ export default function IMenuListFloat({
   // Xử lý khi click vào item
   const handleClickItem = (event, mark) => {
     fnClickItem(mark);
-    handleClose(event);
+
+    //Nếu không có các action như "SET_COLOR", "SHOW_MENU_CHILD" thì sẽ đóng menu
+    if (!mark.action) {
+      handleClose(event);
+    }
   };
 
   // Xử lý khi nhấn Tab hoặc Esc
@@ -66,7 +72,7 @@ export default function IMenuListFloat({
   }, [open]);
 
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack className="IMenuListFloat_Container" direction="row" spacing={2}>
       <div>
         <Button
           ref={anchorRef}
@@ -79,11 +85,11 @@ export default function IMenuListFloat({
           {ListButtonContent}
         </Button>
         <Popper
-          style={{ zIndex: 1000 }}
+          style={{ zIndex: 1000, backgroundColor: "#fff" }}
           open={open}
           anchorEl={anchorRef.current}
           role={undefined}
-          placement="bottom-start"
+          placement={placement}
           transition
           disablePortal
         >
@@ -104,7 +110,9 @@ export default function IMenuListFloat({
                     aria-labelledby="composition-button"
                     onKeyDown={handleListKeyDown}
                     sx={{
-                      width: anchorRef.current.offsetWidth, //Độ dài menuList sẽ bằng button Content Show List
+                      width: !widthMenuList
+                        ? anchorRef.current.offsetWidth //Độ dài menuList sẽ bằng button Content Show List
+                        : widthMenuList,
                       maxHeight: "12rem",
                       overflowY: "auto",
                     }}

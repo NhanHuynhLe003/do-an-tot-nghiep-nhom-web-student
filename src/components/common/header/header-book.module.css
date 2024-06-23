@@ -7,11 +7,12 @@
     z-index: 10;
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(10px);
+    padding-left: 1.5rem;
 
 }
 
 .headerOrigin {
-    background-color: var(--color-bg-book);
+    background-color: #fff;
 }
 
 
@@ -19,7 +20,7 @@
     background-color: var(--white1);
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
     border-radius: 10rem;
-    padding: 0.25rem 3rem;
+    padding: 0.25rem 1.75rem;
     max-height: 2.5rem;
 
 }
@@ -39,7 +40,6 @@
 .boxHour .time {
     font-family: 'DigitalFont', sans-serif;
     color: var(--color-primary2);
-    font-size: large;
     text-transform: uppercase;
     font-size: 1.75rem;
 }
@@ -47,7 +47,30 @@
 .timeBox .boxDate p {
     font-family: 'DigitalFont', sans-serif;
     color: var(--color-primary2);
-    font-size: large;
     text-transform: uppercase;
     font-size: 1.75rem;
+}
+
+@media screen and (max-width: 1120px) {
+    .boxHour .time {
+        font-size: 1.5rem;
+    }
+
+    .timeBox .boxDate p {
+
+        font-size: 1.5rem;
+    }
+
+}
+
+@media screen and (max-width: 1060px) {
+    .boxHour .time {
+        font-size: 1.1rem;
+    }
+
+    .timeBox .boxDate p {
+
+        font-size: 1.1rem;
+    }
+
 }

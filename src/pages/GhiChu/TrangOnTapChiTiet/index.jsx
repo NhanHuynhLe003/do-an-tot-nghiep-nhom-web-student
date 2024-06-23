@@ -5,23 +5,23 @@ import style from "./TrangOnTapChiTiet.module.css";
 const notes = [
   {
     tieude: "Note 1",
-    nd: "Khoa Học Giỏi Quá Đi.",
+    nd: "khoa dep trai qua di.",
     ngay: "2024-05-15",
   },
   {
     tieude: "Note 2",
-    nd: "Khoa Học Giỏi Quá Quá Đi.",
+    nd: "khoa dep trai qua di.",
     ngay: "2024-05-14",
   },
   {
     tieude: "Note 3",
-    nd: "Khoa Học Giỏi Quá Quá Đi .",
+    nd: "khoa dep trai qua di.",
     ngay: "2024-05-24",
 
   },
   {
     tieude: "Note 4",
-    nd: "Khoa Học Giỏi Quá Quá Quá Quá Đi.",
+    nd: "khoa dep trai qua di.",
     ngay: "2024-05-12",
   },
 ];

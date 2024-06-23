@@ -49,4 +49,32 @@ function calculateTimeDifference(dateString) {
   // Trả về số tuần
   return -weeksDifference;
 }
-export { shuffleArray, roundNumber, calculateTimeDifference };
+
+/**
+ * @description Hàm tính khoảng cách giữa hai điểm trên mặt phẳng
+ * @param {*} param0
+ * @returns
+ */
+function calculateDistanceByCoordinate({ x1, y1, x2, y2 }) {
+  return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+}
+
+function debounce(func, delay) {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+}
+
+export {
+  calculateDistanceByCoordinate,
+  shuffleArray,
+  roundNumber,
+  calculateTimeDifference,
+  debounce,
+};
