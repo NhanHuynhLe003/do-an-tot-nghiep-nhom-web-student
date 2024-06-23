@@ -1,9 +1,16 @@
 import React from "react";
+import style from "./TrangGhiChuChiTiet.module.css"
+import "@blocknote/core/fonts/inter.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 
-/**
- * Trang ghi chu chi tiet => chứa toàn bộ nội dung của 1 ghi chú
- *
- */
 export default function TrangGhiChuChiTiet() {
-  return <div></div>;
+  const editor = useCreateBlockNote();
+  return <div className={style.GhiChuChiTiet}>
+    <div>
+      <BlockNoteView editor={editor} className={"TrangGhiChuChiTiet___BlockNoteView"} />
+    </div>
+
+  </div>
 }
