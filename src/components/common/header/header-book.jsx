@@ -1,28 +1,85 @@
 import SearchIcon from "@mui/icons-material/Search";
-import { Box, IconButton, InputBase, Paper, Stack } from "@mui/material";
-import React from "react";
+import {
+  Box,
+  Button,
+  IconButton,
+  InputBase,
+  Paper,
+  Stack,
+} from "@mui/material";
+import clsx from "clsx";
+import React, { useEffect } from "react";
+import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
 import theme from "../../../theme";
-import style from "./header-book.module.css";
-import { FaRegClock, FaClock } from "react-icons/fa";
-import { FaRegCalendarAlt } from "react-icons/fa";
 import IMenuListFloat from "../../IMenuListFloat";
 import AccountInfo from "./components/account-info";
-import clsx from "clsx";
+import style from "./header-book.module.css";
+import { useStudentLogout } from "../../../hooks/apis/access";
+import { useNavigate } from "react-router-dom";
+
+const listMenuItemFloat = [
+  {
+    id: "menu-item-1",
+    content: "Thông tin cá nhân",
+    tag: "profile",
+  },
+  {
+    id: "menu-item-2",
+    content: "Đăng xuất",
+    tag: "logout",
+  },
+];
 
 export default function HeaderBook({ ref, topPositon = 0 }) {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const {
+    mutate: logout,
+    data: logoutResponse,
+    isLoading,
+    error,
+  } = useStudentLogout();
   const [searchBook, setSearchBook] = React.useState("");
+
+  useEffect(() => {
+    const userAuth = JSON.parse(localStorage.getItem("studentData"));
+    if (userAuth) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   function handleSearchBook(value) {
     setSearchBook(value);
   }
+
+  function handleClickLoginNow() {
+    navigate("/login");
+  }
+
+  function handleClickMenuItem(mark) {
+    if (mark.tag === "logout" && isLoggedIn) {
+      // Gỡ Token khỏi localStorage đồng thời gọi API logout để xóa token trên server
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("studentData");
+      logout();
+
+      // Chuyển hướng về trang login
+      navigate("/login");
+    }
+  }
   return (
     <header
-      className={clsx(style.header, { [style.headerOrigin]: topPositon <= 35 })}
+      className={clsx("animate__animated animate__fadeInDown", style.header, {
+        [style.headerOrigin]: topPositon <= 35,
+      })}
       ref={ref}
     >
       <Stack
         direction={"row"}
         alignItems={"center"}
-        mt={3}
+        // mt={3}
+        py={1}
         position={"relative"}
         className={style.headerContainer}
       >
@@ -76,10 +133,24 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
         </Stack>
 
         <Box width={"2%"}></Box>
-
-        <IMenuListFloat
-          ListButtonContent={<AccountInfo></AccountInfo>}
-        ></IMenuListFloat>
+        {isLoggedIn ? (
+          <IMenuListFloat
+            fnClickItem={handleClickMenuItem}
+            menuListItems={listMenuItemFloat}
+            ListButtonContent={<AccountInfo></AccountInfo>}
+          ></IMenuListFloat>
+        ) : (
+          <Button
+            sx={{
+              color: theme.colors.primary1,
+              padding: "0.5rem 1rem",
+            }}
+            onClick={handleClickLoginNow}
+            variant="text"
+          >
+            Đăng Nhập Ngay
+          </Button>
+        )}
       </Stack>
     </header>
   );

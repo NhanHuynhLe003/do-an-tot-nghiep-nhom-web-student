@@ -21,9 +21,9 @@ export default function ListdBookView({
         id: `${JSON.stringify(book)}-${book.title}-${index}`,
         component: (
           <CardBook
-            img={book.img}
-            title={book.title}
-            rating={book.vote}
+            img={book.book_thumb || book.img}
+            title={book.book_name || book.title}
+            rating={book.book_ratingsAverage || book.vote}
           ></CardBook>
         ),
       };
@@ -33,6 +33,22 @@ export default function ListdBookView({
       ? setListComponentBook([...newBooks])
       : setListComponentBook([]);
   }, []);
+
+  if (dataList.length === 0)
+    return (
+      <Typography
+        component={"h2"}
+        variant="h5"
+        textAlign={"center"}
+        sx={{
+          color: "var(--color-primary2)",
+          opacity: 0.4,
+        }}
+      >
+        Chưa có dữ liệu
+      </Typography>
+    );
+
   return (
     <Stack
       className={clsx("listRecomendBook", style.cardListRecomendBook)}

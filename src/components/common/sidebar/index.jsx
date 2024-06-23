@@ -15,12 +15,14 @@ export default function SideBar({ listNavigation = [...navList] }) {
     <Box className={style.sideBar}>
       <Stack direction={"column"} alignItems={"center"} gap={"1rem"}>
         <Box className={style.imgContainer}>
-          <img
+          <Box
+            mt={3}
+            component={"img"}
             width={"100%"}
             height={"auto"}
             alt="logo-page"
             src={LogoPage}
-          ></img>
+          ></Box>
         </Box>
 
         <Stack
@@ -30,13 +32,20 @@ export default function SideBar({ listNavigation = [...navList] }) {
         >
           {/* Lọc và hiển thị các tab trên thanh nav */}
           {listNavigation.map((item, index) => {
+            // Tính toán thời gian delay dựa trên chỉ số index
+            const delay = `${index * 0.07}s`; // Mỗi phần tử sẽ xuất hiện cách nhau 0.07s
             return (
               <Link
                 key={item.id}
                 to={item.path}
-                className={clsx(style.linkNav, {
-                  [style.activeLinkNav]: pathName === item.path,
-                })} // Add class active when pathName === item.path
+                className={clsx(
+                  "animate__animated animate__fadeInRight",
+                  style.linkNav,
+                  {
+                    [style.activeLinkNav]: pathName === item.path,
+                  }
+                )} // Add class active when pathName === item.path
+                style={{ animationDelay: delay }} // Thêm độ trễ cho animation
               >
                 <Stack
                   direction={"row"}

@@ -1,0 +1,33 @@
+.label {
+    color: var(--color-primary2);
+}
+
+.row {
+    width: 100%;
+    background-color: #e6e6e6;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.25rem 1rem;
+    display: flex;
+    align-items: center;
+
+}
+
+.rowHeader {
+    background-color: #fff;
+}
+
+.colHeaderItem {
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--color-primary1)
+}
+
+.column {
+    display: flex;
+    align-items: center;
+}
+
+.MuiGrid-item {
+    padding: 0 4px;
+}

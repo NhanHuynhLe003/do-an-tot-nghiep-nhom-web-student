@@ -5,7 +5,7 @@ import { PhotoCamera } from "@mui/icons-material";
 import { FaCamera } from "react-icons/fa";
 import axios from "axios";
 
-function DragAndDropFile({ handleUploadImage = (imgFile) => {} }) {
+function DragAndDropFile({ handleUploadImage = (imgFile) => {}, errors = {} }) {
   const [avatar, setAvatar] = useState(null);
   const [preview, setPreview] = useState(null);
 
@@ -37,25 +37,8 @@ function DragAndDropFile({ handleUploadImage = (imgFile) => {} }) {
   // Xử lý sự kiện khi nhấn nút save avatar để tiến hành upload ảnh lên Cloud trước khi lưu vào database
   const handleSaveClick = async () => {
     const imgFile = avatar;
+    //Truyền file ảnh đã chọn lên component cha để xử lý upload ảnh
     handleUploadImage(imgFile);
-    // if (!imgFile) return;
-
-    // const formData = new FormData();
-    // formData.append("fileImg", imgFile);
-
-    // try {
-    //   // Gửi ảnh lên server
-    //   const response = await axios.post("/api/upload-avatar", formData, {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //   });
-
-    //   // Xử lý kết quả trả về, lấy URL ảnh đã upload để sau khi save toàn page sẽ lưu vào database
-    //   console.log("Upload thành công:", response.data);
-    // } catch (error) {
-    //   console.error("Upload thất bại:", error);
-    // }
   };
 
   return (
@@ -113,10 +96,23 @@ function DragAndDropFile({ handleUploadImage = (imgFile) => {} }) {
               >
                 Chọn ảnh hoặc kéo thả ảnh vào đây
               </Typography>
+
+              {/* Message bao loi */}
+              <Typography
+                className="error-message"
+                component={"p"}
+                sx={{
+                  fontSize: "0.75rem",
+                }}
+                color={"error"}
+              >
+                {errors && errors.message}
+              </Typography>
             </Box>
           )}
         </div>
         <div style={{ marginTop: 20 }}>
+          {/* xem ảnh preview trước khi lưu */}
           {preview && (
             <Box width={"100%"}>
               <Box
@@ -155,7 +151,7 @@ function DragAndDropFile({ handleUploadImage = (imgFile) => {} }) {
           style={{ marginTop: 20 }}
           startIcon={<PhotoCamera />}
         >
-          Lưu Ảnh
+          Upload Ảnh
         </Button>
       )}
     </div>

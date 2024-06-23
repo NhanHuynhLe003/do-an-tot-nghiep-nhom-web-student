@@ -10,9 +10,15 @@ import Home from "../pages/Home";
 import Login from "../pages/login";
 import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
-import CreateBookPage from "../pages/Admin/AdminBookManagePage/CreateBookPage";
+import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
+import CvLayout from "../components/layouts/CvLayout";
+import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
+import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
+import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
+import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import TrangChart from "../pages/GhiChu/TrangChart";
+import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 
 const routes = [
   {
@@ -33,10 +39,46 @@ const routes = [
   },
   {
     path: "/admin/book-manage/create-book",
-    component: CreateBookPage,
+    component: CreateAndEditBookPage,
     layout: MainLayout,
     isAdmin: true,
   },
+
+  {
+    path: "/admin/book-manage/trash",
+    component: BookTrashPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+
+  {
+    path: "/admin/book-manage/category",
+    component: CreateCategoryPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+
+  {
+    path: "/admin/order-manage",
+    component: AdminBookOrderPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+
+  {
+    path: "/admin/cv-manage",
+    component: AdminCvManagePage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+
+  {
+    path: "/admin/cv-manage/:id",
+    component: CvAdminPageDetail,
+    layout: CvLayout,
+    isAdmin: true,
+  },
+  //===========================LOGIN===========================
   {
     path: "/login",
     component: Login,
@@ -64,28 +106,32 @@ const routes = [
     path: "/ghi-chu",
     component: TrangChinh, // là các page
     layout: MainLayout, //
+    isAuth: true,
   },
   {
     path: "/chi-tiet-ghi-chu",
     component: TrangGhiChuChiTiet, // là các page
     layout: MainLayout, //
+    isAuth: true,
   },
   {
     path: "/on-tap-chi-tiet",
     component: TrangOnTapChiTiet,
     layout: MainLayout,
+    isAuth: true,
   },
   {
     path: "/trang-chart",
     component: TrangChart,
     layout: MainLayout,
+    isAuth: true,
   },
 
   //==================TRANG CHINH===================
   {
     path: "/trang-chinh",
     component: TrangChinh,
-    layout: MainLayout,
+    layout: EmptyLayout,
   },
 ];
 export { routes };
