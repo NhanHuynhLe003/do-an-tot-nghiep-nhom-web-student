@@ -43,8 +43,6 @@ axiosInstance.interceptors.request.use(
       config.headers["x-rtoken-id"] = curRefreshToken;
     }
 
-    console.log("CONFIG HEADER", config.headers);
-
     if (!!currentUser) {
       //Nếu có user thì gán vào header
       config.headers["x-client-id"] = JSON.parse(currentUser)._id;
@@ -55,7 +53,7 @@ axiosInstance.interceptors.request.use(
   (error) => {
     // Xử lý khi gặp lỗi request trước khi được gửi lên server
     const errorMessage = error.response?.data?.message || error?.message;
-    console.error(errorMessage);
+
     toast.error(errorMessage);
     return Promise.reject(error);
   }
@@ -69,6 +67,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.code === "ERR_NETWORK") return;
     // Xử lý các lỗi chung như lỗi xác thực, tại đây có thể kết hợp react-toastify để hiển thị thông báo
     //Xử lý toàn bộ lỗi ở đây ngoại trừ lỗi 410(GONE - Sử dụng để xác thực token khi access token hết hạn, tiến hành refresh token)
     if (error.response?.status !== 410) {
