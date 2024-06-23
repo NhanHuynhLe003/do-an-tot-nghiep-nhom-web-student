@@ -20,7 +20,8 @@ function DragAndDropFile({ handleUploadImage = (imgFile) => {}, errors = {} }) {
       // Tạo URL preview cho ảnh đã chọn
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Khi load ảnh xong, setPreview để lưu url và hiển thị ảnh đã chọn
+        // Khi load ảnh xong, setPreview để lưu url và hiển thị ảnh đã chọn, đồng thời xóa ảnh đã update trước đó
+        localStorage.removeItem("thumbnailUrl");
         setPreview(reader.result);
       };
       // Đọc file ảnh dưới dạng URL
