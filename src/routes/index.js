@@ -19,7 +19,7 @@ import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
-
+import MyBookShelf from "../pages/BookPage/MyBookShelf";
 const routes = [
   {
     path: "/",
@@ -100,7 +100,12 @@ const routes = [
     component: BookDetailPage,
     layout: MainLayout,
   },
-
+  {
+    path: "/book/mybookshelf",
+    component: MyBookShelf,
+    layout: MainLayout,
+    
+  },
   //===========================GHI CHU===========================
   {
     path: "/ghi-chu",
@@ -118,14 +123,15 @@ const routes = [
     path: "/on-tap-chi-tiet",
     component: TrangOnTapChiTiet,
     layout: MainLayout,
-    isAuth: true,
+    // isAuth: true,
   },
   {
     path: "/trang-chart",
     component: TrangChart,
     layout: MainLayout,
-    isAuth: true,
+    // isAuth: true,
   },
+  
 
   //==================TRANG CHINH===================
   {
