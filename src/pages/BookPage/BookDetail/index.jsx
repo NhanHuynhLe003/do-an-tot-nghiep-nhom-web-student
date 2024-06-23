@@ -1,12 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import style from "./book_detail.module.css";
-import { FaRegHeart } from "react-icons/fa";
-import { MdOutlineShoppingBag } from "react-icons/md";
-import { commentList } from "../../../data/arrays";
-import { FiBookOpen } from "react-icons/fi";
-import { RxShare1 } from "react-icons/rx";
+import React, { useState } from "react";
 import { BsCart2 } from "react-icons/bs";
-import { useWindowSizeDepParent } from "../../../hooks";
+import { FaRegHeart } from "react-icons/fa";
+import { FiBookOpen } from "react-icons/fi";
+import { MdOutlineShoppingBag } from "react-icons/md";
+import { RxShare1 } from "react-icons/rx";
+import { commentList } from "../../../data/arrays";
+import style from "./book_detail.module.css";
 
 import {
   Box,
@@ -14,18 +13,16 @@ import {
   CircularProgress,
   Divider,
   Grid,
-  Icon,
   IconButton,
   Rating,
   Stack,
-  styled,
   Typography,
 } from "@mui/material";
-import { roundNumber } from "../../../utils";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
 import CommentBook from "../../../components/bookDetail/commentBook";
 import TextShowMore from "../../../components/bookDetail/textShowMore";
+import { roundNumber } from "../../../utils";
 export default function BookDetailPage({
   img,
   title = "book title",

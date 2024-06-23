@@ -1,20 +1,28 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 
 import { Box, Stack } from "@mui/material";
-import SideBar from "../../common/sidebar";
-import Footer from "../../common/footer";
+import clsx from "clsx";
+import { useLocation } from "react-router-dom";
 import BgImg from "../../../assets/images/main-bg.png";
+import { useWindowSizeDepParent } from "../../../hooks";
 import theme from "../../../theme";
+import HeaderBook from "../../common/header/header-book";
+import SideBar from "../../common/sidebar";
 import style from "./mainlayout.module.css";
 
-import HeaderBook from "../../common/header/header-book";
-import { useWindowSizeDepParent } from "../../../hooks";
-import clsx from "clsx";
-
 export default function MainLayout({ children, typePage = "" }) {
+  const sideBarWidth = useRef(248);
+
+  const location = useLocation();
+  const urlPathName = useRef(location.pathname);
   const refSlideContent = useRef(null);
   const { left, top } = useWindowSizeDepParent(refSlideContent);
-  // console.log("TOP:", top);
+  const [widthToolBarDrawer, setWidthToolBarDrawer] = React.useState(0);
+
+  function handleSetWidthToolBarDrawer(width) {
+    setWidthToolBarDrawer(width);
+  }
+
   return (
     <Box
       sx={{
@@ -65,12 +73,11 @@ export default function MainLayout({ children, typePage = "" }) {
       >
         {/* Sidebar */}
         <Box
-          width={"18%"}
+          width={sideBarWidth.current}
           padding={"2rem 0 0 0"}
           className={clsx(style.sidebarContainer)}
         >
           <SideBar></SideBar>
-          <Footer></Footer>
         </Box>
         <Box
           width={"82%"}
@@ -78,8 +85,10 @@ export default function MainLayout({ children, typePage = "" }) {
           position={"relative"}
           ref={refSlideContent}
         >
+          {/* Header */}
           <HeaderBook topPositon={top}></HeaderBook>
 
+          {/* Content */}
           {children}
         </Box>
       </Stack>

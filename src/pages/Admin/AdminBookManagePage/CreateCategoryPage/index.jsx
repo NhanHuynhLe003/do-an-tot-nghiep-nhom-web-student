@@ -1,22 +1,24 @@
-import React from "react";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { listCategory } from "../../../../data/arrays";
-import * as yup from "yup";
+import { Delete, Edit } from "@mui/icons-material";
 import {
   Button,
+  Checkbox,
+  Chip,
+  CircularProgress,
+  Grid as MUIGrid,
   Stack,
   Typography,
-  Grid as MUIGrid,
-  Checkbox,
 } from "@mui/material";
-import styles from "./CreateCategoryPage.module.css";
-import { InputArea } from "../../../../components/form-support/input-area";
 import clsx from "clsx";
-import { Delete, Edit } from "@mui/icons-material";
-import { FaCheck, FaAngleUp, FaAngleDown } from "react-icons/fa";
-import { ImCross } from "react-icons/im";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { InputArea } from "../../../../components/form-support/input-area";
 import IPagination from "../../../../components/IPagination";
+import { listCategory } from "../../../../data/arrays";
+import { useGetAllCategories } from "../../../../hooks/apis/category/useGetAllCategories";
+import styles from "./CreateCategoryPage.module.css";
+import { SwitchButton } from "../../../../components/form-support/switch-btn";
 
 // Validation schema using yup
 const validationSchema = yup.object().shape({
@@ -37,6 +39,10 @@ const CreateCategoryPage = ({
   onDelete,
   onEdit,
 }) => {
+  //GET LIST CATEGORIES
+  const { data, isLoading, isError } = useGetAllCategories();
+  const [allCategoriesData, setAllCategoriesData] = React.useState([]);
+  //==============FORM CONTROL================
   const {
     control,
     handleSubmit,
@@ -47,6 +53,7 @@ const CreateCategoryPage = ({
         ? {
             categoryName: "",
             categoryDescription: "",
+            isShowCategory: true,
           }
         : defaultValueEdit,
     resolver: yupResolver(validationSchema),
@@ -65,9 +72,16 @@ const CreateCategoryPage = ({
     }
   };
 
-  function onDisplayItemUp() {}
+  useEffect(() => {
+    setAllCategoriesData(data?.data?.metadata || []);
+  }, [data]);
 
-  function onDisplayItemDown() {}
+  if (isLoading)
+    return (
+      <Stack width={"100%"} minHeight={"80vh"}>
+        <CircularProgress></CircularProgress>
+      </Stack>
+    );
 
   return (
     <Stack
@@ -88,6 +102,21 @@ const CreateCategoryPage = ({
         component={"form"}
         onSubmit={handleSubmit(onSubmit)}
       >
+        <MUIGrid xs={12} sm={12}>
+          <SwitchButton
+            sx={{ mx: 2 }}
+            size={"medium"}
+            name={"isShowCategory"}
+            id={"isShowCategory"}
+            control={control}
+            label={
+              <p>
+                <b>Hiển thị Danh Mục</b>
+              </p>
+            }
+            errors={errors.isPublicBook}
+          />
+        </MUIGrid>
         {/* Category Name */}
         <MUIGrid item xs={12} sm={6}>
           <label htmlFor="categoryName" className={styles.label}>
@@ -148,118 +177,109 @@ const CreateCategoryPage = ({
           <MUIGrid item xs={1} className={styles.colHeaderItem}>
             <Checkbox />
           </MUIGrid>
-          <MUIGrid item xs={1} className={styles.colHeaderItem}>
+          <MUIGrid item xs={2} className={styles.colHeaderItem}>
             ID
           </MUIGrid>
-          <MUIGrid item xs={3} className={styles.colHeaderItem}>
+          <MUIGrid item xs={4} className={styles.colHeaderItem}>
             Danh mục
           </MUIGrid>
-          <MUIGrid item xs={2} className={styles.colHeaderItem}>
-            Published
+          <MUIGrid
+            item
+            xs={2}
+            className={styles.colHeaderItem}
+            alignContent={"center"}
+          >
+            Trạng thái
           </MUIGrid>
-          <MUIGrid item xs={2} className={styles.colHeaderItem}>
-            Thứ tự hiển thị
-          </MUIGrid>
+
           <MUIGrid item xs={3} className={styles.colHeaderItem}>
             Hành động
           </MUIGrid>
         </MUIGrid>
 
         {/* =======================CONTENT TABLE========================= */}
-        {categories.map((category) => (
-          <MUIGrid
-            container
-            className={styles.row}
-            item
-            xs={12}
-            key={category.id}
-            // spacing={2}
-            my={1}
-          >
-            {/* ====Checkbox==== */}
-            <MUIGrid item xs={1}>
-              <Checkbox />
-            </MUIGrid>
+        {allCategoriesData &&
+          allCategoriesData.map((category) => (
+            <MUIGrid
+              container
+              className={styles.row}
+              item
+              xs={12}
+              key={category._id}
+              my={1}
+            >
+              {/* ====Checkbox==== */}
+              <MUIGrid item xs={1}>
+                <Checkbox />
+              </MUIGrid>
 
-            {/* =====id========== */}
+              {/* =====id========== */}
 
-            <MUIGrid item xs={1}>
-              {category.id.toString().length > 10
-                ? `${category.id.toString().substring(0, 10)}...`
-                : category.id.toString()}
-            </MUIGrid>
+              <MUIGrid item xs={2} title={`ID-${category._id}`}>
+                {category._id.toString().length > 10
+                  ? `${category._id.toString().substring(0, 10)}...`
+                  : category._id.toString()}
+              </MUIGrid>
 
-            {/* ======= Ten danh muc======== */}
-            <MUIGrid item xs={3}>
-              {category.value.length > 20
-                ? `${category.value.substring(0, 20)}...`
-                : category.value}
-            </MUIGrid>
-            {/* ========Trạng thái==========*/}
-            <MUIGrid item xs={2}>
-              {category.isPublic ? (
-                <FaCheck color="var(--color-primary1)"></FaCheck>
-              ) : (
-                <ImCross color="red"></ImCross>
-              )}
-            </MUIGrid>
-            <MUIGrid item xs={2}>
-              {category.displayOrder}
-            </MUIGrid>
-            <MUIGrid item xs={3}>
-              <Stack direction={"row"} gap={"0.5rem"} alignItems={"center"}>
-                <Stack direction={"column"} gap={"0.25rem"}>
-                  <Button
-                    onClick={() => onDisplayItemUp(category.id)}
-                    variant="contained"
-                    color="inherit"
-                    size="small"
-                    title="Tăng thứ tự hiển thị lên 1"
+              {/* ======= Ten danh muc======== */}
+              <MUIGrid item xs={4} title="Tên danh mục">
+                {category.name.length > 35
+                  ? `${category.name.substring(0, 35)}...`
+                  : category.name}
+              </MUIGrid>
+              {/* ========Trạng thái==========*/}
+              <MUIGrid item xs={2}>
+                {category.isPublished ? (
+                  <Chip
+                    title="Hiển thị danh mục"
+                    label={"Show"}
+                    color="primary"
                     sx={{
-                      height: "1rem",
+                      width: "5rem",
+                    }}
+                  ></Chip>
+                ) : (
+                  <Chip
+                    title="Ẩn danh mục"
+                    label={"Hide"}
+                    color="error"
+                    sx={{
+                      width: "5rem",
+                    }}
+                  ></Chip>
+                )}
+              </MUIGrid>
+
+              <MUIGrid item xs={3}>
+                <Stack direction={"row"} gap={"0.5rem"} alignItems={"center"}>
+                  <Button
+                    title="Chỉnh sửa danh mục"
+                    onClick={() => onEdit(category._id)}
+                    variant="contained"
+                    color="success"
+                    size="small"
+                    sx={{
+                      height: "1.5rem",
                     }}
                   >
-                    <FaAngleUp fontSize={"14px"}></FaAngleUp>
+                    <Edit fontSize="small"></Edit>
                   </Button>
                   <Button
-                    onClick={() => onDisplayItemDown(category.id)}
+                    title="Xóa danh mục"
+                    onClick={() => onDelete(category._id)}
                     variant="contained"
-                    color="inherit"
+                    color="error"
                     size="small"
-                    title="Giảm thứ tự hiển thị xuống 1"
                     sx={{
-                      height: "1rem",
+                      height: "1.5rem",
                     }}
                   >
-                    <FaAngleDown fontSize={"14px"}></FaAngleDown>
+                    <Delete fontSize="small"></Delete>
                   </Button>
                 </Stack>
-                <Button
-                  onClick={() => onEdit(category.id)}
-                  variant="contained"
-                  color="success"
-                  size="small"
-                  sx={{
-                    height: "1.5rem",
-                  }}
-                >
-                  <Edit fontSize="small"></Edit>
-                </Button>
-                <Button
-                  onClick={() => onDelete(category.id)}
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  sx={{
-                    height: "1.5rem",
-                  }}
-                >
-                  <Delete fontSize="small"></Delete>
-                </Button>
-              </Stack>
+              </MUIGrid>
             </MUIGrid>
-          </MUIGrid>
-        ))}
+          ))}
 
         <MUIGrid
           item

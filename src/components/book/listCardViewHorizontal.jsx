@@ -1,7 +1,6 @@
 import { Box, Stack, Typography } from "@mui/material";
+import clsx from "clsx";
 import React, { useEffect, useState } from "react";
-import style from "./listCardViewHorizontal.module.css";
-import PaginationCarousel from "../ICarousel/PaginationCarousel";
 import book1 from "../../assets/images/books/book_1.png";
 import book2 from "../../assets/images/books/book_2.png";
 import book3 from "../../assets/images/books/book_3.png";
@@ -9,9 +8,9 @@ import book4 from "../../assets/images/books/book_4.png";
 import book5 from "../../assets/images/books/book_5.png";
 import book6 from "../../assets/images/books/book_6.png";
 import book7 from "../../assets/images/books/book_7.png";
-import clsx from "clsx";
 import FreeModeCarousel from "../ICarousel/FreeModeCarousel";
 import CardBook from "./cardBook";
+import style from "./listCardViewHorizontal.module.css";
 
 const listBook = [
   {
@@ -52,29 +51,34 @@ const listBook = [
 ];
 export default function ListCardViewHorizontal({
   title = "Sách Mới Nhất",
-  dataList = [],
+  dataList = [...listBook],
   paginationCustomize,
   classNameSwiper,
   slideCardPerView,
 }) {
   const [listComponentBook, setListComponentBook] = useState([]);
   useEffect(() => {
-    const newBooks = listBook.map((book, index) => {
+    const newBooks = dataList.map((book, index) => {
       return {
         component: (
           <CardBook
-            img={book.img}
-            title={book.title}
-            rating={book.vote}
+            key={book._id || book.title + JSON.stringify(Date.now())}
+            img={book.img || book.book_thumb}
+            title={book.title || book.book_name}
+            rating={book.vote || book.book_ratingsAverage}
+            author={book.book_author || "Author"}
+            yearRelease={
+              book.book_publish_date
+                ? new Date(book.book_publish_date).getFullYear()
+                : new Date().getFullYear()
+            }
           ></CardBook>
         ),
       };
     });
 
-    dataList.length > 0
-      ? setListComponentBook([...dataList])
-      : setListComponentBook([...newBooks]);
-    console.log(listComponentBook);
+    setListComponentBook(newBooks);
+    console.log("LIST COMPONENT BOOK:::", newBooks);
   }, []);
   return (
     <Stack

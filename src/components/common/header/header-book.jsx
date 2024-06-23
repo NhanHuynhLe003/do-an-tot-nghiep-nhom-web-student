@@ -1,18 +1,86 @@
 import SearchIcon from "@mui/icons-material/Search";
-import { Box, IconButton, InputBase, Paper, Stack } from "@mui/material";
-import React from "react";
+import {
+  Badge,
+  Box,
+  Button,
+  IconButton,
+  InputBase,
+  Paper,
+  Stack,
+  styled,
+} from "@mui/material";
+import { RiShoppingBag4Fill } from "react-icons/ri";
+import clsx from "clsx";
+import React, { useEffect } from "react";
+import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
 import theme from "../../../theme";
-import style from "./header-book.module.css";
-import { FaRegClock, FaClock } from "react-icons/fa";
-import { FaRegCalendarAlt } from "react-icons/fa";
 import IMenuListFloat from "../../IMenuListFloat";
 import AccountInfo from "./components/account-info";
-import clsx from "clsx";
+import style from "./header-book.module.css";
+import { useStudentLogout } from "../../../hooks/apis/access";
+import { useNavigate } from "react-router-dom";
+import { Notifications } from "@mui/icons-material";
+import IPopOverBtn from "../../IPopOverBtn";
+import CartBookOrder from "./components/cartBookOrder";
+
+const listMenuItemFloat = [
+  {
+    id: "menu-item-1",
+    content: "Thông tin cá nhân",
+    tag: "profile",
+  },
+  {
+    id: "menu-item-2",
+    content: "Đăng xuất",
+    tag: "logout",
+  },
+];
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    border: `1px solid ${theme.palette.background.paper}`,
+    right: -2,
+    top: -2,
+  },
+}));
 
 export default function HeaderBook({ ref, topPositon = 0 }) {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const {
+    mutate: logout,
+    data: logoutResponse,
+    isLoading,
+    error,
+  } = useStudentLogout();
   const [searchBook, setSearchBook] = React.useState("");
+
+  useEffect(() => {
+    const userAuth = JSON.parse(localStorage.getItem("studentData"));
+    if (userAuth) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   function handleSearchBook(value) {
     setSearchBook(value);
+  }
+
+  function handleClickLoginNow() {
+    navigate("/login");
+  }
+
+  function handleClickMenuItem(mark) {
+    if (mark.tag === "logout" && isLoggedIn) {
+      // Gỡ Token khỏi localStorage đồng thời gọi API logout để xóa token trên server
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("studentData");
+      logout();
+
+      // Chuyển hướng về trang login
+      navigate("/login");
+    }
   }
   return (
     <header
@@ -24,9 +92,11 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
       <Stack
         direction={"row"}
         alignItems={"center"}
-        mt={3}
+        // mt={3}
+        py={1}
         position={"relative"}
         className={style.headerContainer}
+        justifyContent={"space-between"}
       >
         <Paper
           component="form"
@@ -37,12 +107,12 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
             display: "flex",
             alignItems: "center",
             maxHeight: "2.5rem",
-            width: "30%",
+            width: "24%",
           }}
         >
           <InputBase
             sx={{ ml: 1, flex: 1 }}
-            placeholder="Tìm kiếm sách, tác giả"
+            placeholder="Tìm kiếm sách, tác giả...."
             inputProps={{ "aria-label": "search" }}
             onChange={handleSearchBook}
           />
@@ -58,9 +128,8 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
             />
           </IconButton>
         </Paper>
-        <Box width={"10%"}></Box>
 
-        <Stack className={style.timeBox} direction={"row"} gap={"4rem"}>
+        <Stack className={style.timeBox} direction={"row"} gap={"2rem"}>
           <Box className={style.boxHour}>
             <FaRegClock
               color={theme.colors.primary1}
@@ -77,11 +146,70 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
           </Box>
         </Stack>
 
-        <Box width={"2%"}></Box>
+        <Stack direction={"row"} gap={"0.25rem"}>
+          <IPopOverBtn
+            wrapperStyle={{ marginTop: "0.5rem" }}
+            ButtonComponent={
+              <Button
+                sx={{
+                  color: theme.colors.primary2,
+                }}
+              >
+                <StyledBadge badgeContent={4} color="error">
+                  <Notifications
+                    sx={{
+                      fontSize: "1.75rem",
+                      color: "var(--color-primary2)",
+                    }}
+                  ></Notifications>
+                </StyledBadge>
+              </Button>
+            }
+            ComponentPopOver={<Box>Test</Box>}
+          ></IPopOverBtn>
 
-        <IMenuListFloat
-          ListButtonContent={<AccountInfo></AccountInfo>}
-        ></IMenuListFloat>
+          <IPopOverBtn
+            wrapperStyle={{ marginTop: "0.5rem" }}
+            ButtonComponent={
+              <Button
+                sx={{
+                  color: theme.colors.primary2,
+                }}
+              >
+                <StyledBadge badgeContent={4} color="error">
+                  <RiShoppingBag4Fill
+                    fontSize={"1.75rem"}
+                    color="var(--color-primary2)"
+                  ></RiShoppingBag4Fill>
+                </StyledBadge>
+              </Button>
+            }
+            ComponentPopOver={
+              <Box>
+                <CartBookOrder></CartBookOrder>
+              </Box>
+            }
+          ></IPopOverBtn>
+
+          {isLoggedIn ? (
+            <IMenuListFloat
+              fnClickItem={handleClickMenuItem}
+              menuListItems={listMenuItemFloat}
+              ListButtonContent={<AccountInfo></AccountInfo>}
+            ></IMenuListFloat>
+          ) : (
+            <Button
+              sx={{
+                color: theme.colors.primary1,
+                padding: "0.5rem 1rem",
+              }}
+              onClick={handleClickLoginNow}
+              variant="text"
+            >
+              Đăng Nhập Ngay
+            </Button>
+          )}
+        </Stack>
       </Stack>
     </header>
   );

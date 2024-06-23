@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import style from "./AdminBookOrderPage.module.css";
 //===========FILTER===============
@@ -11,27 +11,35 @@ import IPopupButton from "../../../components/IPopupButton";
 import { ArrowDropDown } from "@mui/icons-material";
 import IMenuListFloat from "../../../components/IMenuListFloat";
 import ButtonSortType from "../../../components/bookSearch/buttonSortType";
-import { listCategoryLevel1, listStatusOrder } from "../../../data/arrays";
+import {
+  listCategoryLevel1,
+  listStatusOrder,
+  listSortDateReturnBook,
+  listClassBookOrder,
+} from "../../../data/arrays";
 import slugify from "slugify";
 export default function AdminBookOrderPage() {
   //============Handle Filter================
+
+  // State lưu trữ nội dung filter
   const [filterContent, setFilterContent] = useState({
-    dateSort: "Sắp Xếp",
-    orderType: "Thể Loại",
-    orderStatus: "Tình Trạng",
+    dateSort: "Tất cả ngày",
+    orderType: listCategoryLevel1[0].value,
+    orderStatus: listStatusOrder[0].value,
+    orderDateSortReturn: listSortDateReturnBook[0].value, // [Gần đây, sắp đến hạn, quá hạn]
+    classBorrowBook: listClassBookOrder[0].value,
   });
+
+  //Lấy giá trị calendar
   const [dateCalendatrVal, setDateCalendatrVal] = React.useState(
     dayjs("2022-04-17")
   );
 
-  useEffect(() => {
-    console.log("[filterContent:::]", filterContent);
-  }, [filterContent]);
-
   //=================Function area ================
   function handleSortDateChange(data) {
     // Data nhận vào là object phải convert về dạng string
-    const convertDate = dayjs(data).format("YYYY-MM-DD");
+
+    const convertDate = dayjs(data).format("DD-MM-YYYY");
 
     setFilterContent({
       ...filterContent,
@@ -49,10 +57,23 @@ export default function AdminBookOrderPage() {
   }
 
   function handleClickOrderStatus(item) {
-    console.log("[item:::]", listCategoryLevel1);
     setFilterContent({
       ...filterContent,
       orderStatus: item.content,
+    });
+  }
+
+  function handleSortDateReturnBook(item) {
+    setFilterContent({
+      ...filterContent,
+      orderDateSortReturn: item.content,
+    });
+  }
+
+  function handleSelectClassBorrowBook(item) {
+    setFilterContent({
+      ...filterContent,
+      classBorrowBook: item.content,
     });
   }
 
@@ -70,7 +91,12 @@ export default function AdminBookOrderPage() {
       >
         <Box
           component={"ul"}
-          sx={{ display: "flex", gap: "0.5rem", "& li": { listStyle: "none" } }}
+          sx={{
+            pl: 0,
+            display: "flex",
+            gap: "0.5rem",
+            "& li": { listStyle: "none" },
+          }}
           width={"100%"}
         >
           <Box component={"li"} className={style.filterItem}>
@@ -93,7 +119,7 @@ export default function AdminBookOrderPage() {
               }
               contentButton={
                 <Stack direction={"row"} gap={"0.75rem"}>
-                  <span>Theo Ngày</span>
+                  <span>{filterContent.dateSort}</span>
                   <ArrowDropDown></ArrowDropDown>
                 </Stack>
               }
@@ -144,7 +170,7 @@ export default function AdminBookOrderPage() {
               fnClickItem={handleClickOrderStatus}
               ListButtonContent={
                 <ButtonSortType
-                  width={"10rem"}
+                  width={"12rem"}
                   sx={{ border: "none", color: "var(--color-primary2)" }}
                   content={filterContent.orderStatus}
                 ></ButtonSortType>
@@ -168,16 +194,16 @@ export default function AdminBookOrderPage() {
           {/* --------------Lọc theo hạn trả sách(vừa mượn, gần đến hạn, quá hạn)------------------ */}
           <Box component={"li"} className={style.filterItem}>
             <IMenuListFloat
-              fnClickItem={handleClickOrderStatus}
+              fnClickItem={handleSortDateReturnBook}
               ListButtonContent={
                 <ButtonSortType
                   width={"10rem"}
                   sx={{ border: "none", color: "var(--color-primary2)" }}
-                  content={filterContent.orderStatus}
+                  content={filterContent.orderDateSortReturn}
                 ></ButtonSortType>
               }
               // Chuyển đổi dữ liệu từ listCategoryLevel1 sang dạng object phù hợp
-              menuListItems={listStatusOrder.map((item) => ({
+              menuListItems={listSortDateReturnBook.map((item) => ({
                 ...item,
                 content: item.value,
                 // convert value to tag
@@ -194,12 +220,34 @@ export default function AdminBookOrderPage() {
 
           {/* --------------Lọc theo lớp mượn sách---------------- */}
           <Box component={"li"} className={style.filterItem}>
-            6
+            <IMenuListFloat
+              fnClickItem={handleSelectClassBorrowBook}
+              ListButtonContent={
+                <ButtonSortType
+                  width={"8rem"}
+                  sx={{ border: "none", color: "var(--color-primary2)" }}
+                  content={filterContent.classBorrowBook}
+                ></ButtonSortType>
+              }
+              // Chuyển đổi dữ liệu từ listCategoryLevel1 sang dạng object phù hợp
+              menuListItems={listClassBookOrder.map((item) => ({
+                ...item,
+                content: item.value,
+                // convert value to tag
+                tag:
+                  item.tag ||
+                  slugify(item.value, {
+                    lower: true,
+                    remove: /[*+~.()'"!:@]/g,
+                  }),
+              }))}
+              itemSelected={filterContent.classBorrowBook}
+            ></IMenuListFloat>
           </Box>
 
           {/* --------------Reset Filter Button------------------- */}
           <Box component={"li"} className={style.filterItem}>
-            7
+            <Button>Reset Filter</Button>
           </Box>
         </Box>
       </Stack>

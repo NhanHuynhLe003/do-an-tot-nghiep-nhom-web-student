@@ -61,7 +61,7 @@ const listCategoryLevel1 = [
 const listStatusOrder = [
   {
     id: 0,
-    value: "tất cả",
+    value: "tất cả trạng thái",
     label: "tất cả trạng thái",
     desc: "Mô tả về trạng thái order",
     tag: "all",
@@ -94,4 +94,96 @@ const listStatusOrder = [
   },
 ];
 
-export { listCategoryLevel1, listStatusOrder };
+const listSortDateReturnBook = [
+  {
+    id: 0,
+    value: "Tất cả hạn trả",
+    label: "tất cả hạn trả",
+    desc: "tất cả ngày user mượn, gần đến hạn, quá hạn",
+    tag: "all",
+    isPublic: true,
+    displayOrder: 0,
+  },
+  {
+    id: 1,
+    value: "Gần đây",
+    desc: "User mượn gần đây",
+    tag: "nearly",
+    isPublic: true,
+    displayOrder: 1,
+  },
+  {
+    id: 2,
+    value: "Đến hạn",
+    desc: "User mượn đến hạn, quá 1 tuần tính là quá hạn",
+    isPublic: true,
+    tag: "due",
+    displayOrder: 2,
+  },
+  {
+    id: 3,
+    value: "Quá hạn",
+    desc: "User đã quá hạn trả sách",
+    isPublic: true,
+    tag: "overdue",
+    displayOrder: 3,
+  },
+];
+
+// Các lớp trả sách, mỗi năm mỗi cập nhật, chia theo khóa bằng hàm cho lẹ :))
+const currentDate = new Date();
+const currentYear = currentDate.getFullYear();
+const listClassBookOrder = [
+  {
+    id: 0,
+    value: "Tất cả lớp",
+    label: "tất cả lớp",
+    desc: "tất cả các lớp đã mượn sách",
+    tag: "all",
+    isPublic: true,
+    displayOrder: 0,
+  },
+  {
+    id: 1,
+    value: `Khóa ${currentYear - 3}`,
+    label: `Khóa ${currentYear - 3}`,
+    desc: `Khóa ${currentYear - 3}`,
+    tag: `Khóa ${currentYear - 3}`,
+    isPublic: true,
+    displayOrder: 1,
+  },
+  {
+    id: 2,
+    value: `Khóa ${currentYear - 2}`,
+    label: `Khóa ${currentYear - 2}`,
+    desc: `Khóa ${currentYear - 2}`,
+    tag: `Khóa ${currentYear - 2}`,
+    isPublic: true,
+    displayOrder: 2,
+  },
+  {
+    id: 3,
+    value: `Khóa ${currentYear - 1}`,
+    label: `Khóa ${currentYear - 1}`,
+    desc: `Khóa ${currentYear - 1}`,
+    tag: `Khóa ${currentYear - 1}`,
+    isPublic: true,
+    displayOrder: 3,
+  },
+  {
+    id: 4,
+    value: `Khóa ${currentYear}`,
+    label: `Khóa ${currentYear}`,
+    desc: `Khóa ${currentYear}`,
+    tag: `Khóa ${currentYear}`,
+    isPublic: true,
+    displayOrder: 4,
+  },
+];
+
+export {
+  listCategoryLevel1,
+  listStatusOrder,
+  listSortDateReturnBook,
+  listClassBookOrder,
+};

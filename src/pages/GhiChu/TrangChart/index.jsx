@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bar, Pie, Line } from 'react-chartjs-2';
-import style from "./TrangChart.module.css";
+import style from "./TrangChart.module.css"; // Import các style từ file TrangChart.module.css
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -14,11 +14,7 @@ import {
     Legend,
 } from 'chart.js';
 
-// Import React và các component Bar, Pie, Line từ thư viện react-chartjs-2
-// Import các style từ file TrangChart.module.css
-// Import các thành phần cần thiết từ thư viện Chart.js
 // Đăng ký các thành phần từ Chart.js sẽ được sử dụng trong biểu đồ
-
 ChartJS.register(
     CategoryScale,  // Dùng cho trục X với dữ liệu phân loại
     LinearScale,    // Dùng cho trục Y với tỉ lệ tuyến tính
@@ -33,12 +29,12 @@ ChartJS.register(
 
 // Khai báo dữ liệu và cấu hình cho biểu đồ cột
 const barData = {
-    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7'], // Nhãn trục X
+    labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], // Nhãn trục X
     datasets: [
         {
             label: 'Dữ liệu 1', // Nhãn chú giải
             data: [65, 59, 80, 81, 56, 55, 40], // Dữ liệu trục Y
-            backgroundColor: 'rgba(75, 192, 192, 0.2)', // Màu nền của cột
+            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Màu nền của cột
             borderColor: 'rgba(75, 192, 192, 1)', // Màu viền của cột
             borderWidth: 1, // Độ rộng của viền
         },
@@ -50,7 +46,7 @@ const barOptions = {
     responsive: true, // Tự động điều chỉnh kích thước
     plugins: {
         legend: {
-            position: 'top', // Vị trí của chú giải
+            position: 'bottom', // Vị trí của chú giải
         },
         title: {
             display: true,
@@ -61,28 +57,30 @@ const barOptions = {
 
 // Khai báo dữ liệu và cấu hình cho biểu đồ tròn
 const pieData = {
-    labels: ['Đỏ', 'Xanh', 'Vàng', 'Xanh lá', 'Tím', 'Cam'], // Nhãn của các phần
+    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], // Nhãn của các phần
     datasets: [
         {
             label: 'Dữ liệu 1',
-            data: [12, 19, 3, 5, 2, 3], // Dữ liệu của từng phần
+            data: [50, 5, 10, 7, 4, 16, 8], // Dữ liệu của từng phần, đã thêm dữ liệu cho Chủ nhật
             backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 71, 0.8)',    // Đỏ tươi với độ trong suốt 80%
+                'rgba(255, 140, 0, 0.8)',    // Cam đậm với độ trong suốt 80%
+                'rgba(255, 215, 0, 0.8)',    // Vàng đậm với độ trong suốt 80%
+                'rgba(50, 205, 50, 0.8)',    // Xanh lá cây đậm với độ trong suốt 80%
+                'rgba(148, 0, 211, 0.8)',    // Tím đậm với độ trong suốt 80%
+                'rgba(255, 20, 147, 0.8)',   // Hồng đậm với độ trong suốt 80%
+                'rgba(0, 0, 255, 0.8)'       // Xanh lam đậm với độ trong suốt 80% cho Chủ nhật
             ], // Màu nền của từng phần
             borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)',     // Màu viền cho Thứ Hai
+                'rgba(54, 162, 235, 1)',     // Màu viền cho Thứ Ba
+                'rgba(255, 206, 86, 1)',     // Màu viền cho Thứ Tư
+                'rgba(75, 192, 192, 1)',     // Màu viền cho Thứ Năm
+                'rgba(153, 102, 255, 1)',    // Màu viền cho Thứ Sáu
+                'rgba(255, 159, 64, 1)',     // Màu viền cho Thứ Bảy
+                'rgba(0, 0, 139, 1)'         // Màu viền cho Chủ nhật (Xanh lam đậm hơn)
             ], // Màu viền của từng phần
-            borderWidth: 1, // Độ rộng của viền
+            borderWidth: 0.1, // Độ rộng của viền
         },
     ],
 };
@@ -103,18 +101,19 @@ const pieOptions = {
 
 // Khai báo dữ liệu và cấu hình cho biểu đồ đường là sóng sin
 const sineData = {
-    labels: Array.from({ length: 100 }, (_, i) => i), // Tạo mảng gồm 100 phần tử từ 0 đến 99
+    labels: Array.from({ length: 30 }, (_, i) => i), // Tạo mảng gồm 30 phần tử từ 0 đến 29
     datasets: [
         {
             label: 'Sóng Sin',
-            data: Array.from({ length: 100 }, (_, i) => Math.sin(i * 0.1)), // Tính giá trị sin cho từng phần tử
+            data: Array.from({ length: 30 }, (_, i) => Math.sin((i / 3) * Math.PI)), // Tính giá trị sin cho từng phần tử
             borderColor: 'rgba(255, 99, 132, 1)', // Màu viền của đường
             backgroundColor: 'rgba(255, 99, 132, 0.2)', // Màu nền của đường
             fill: false, // Không tô màu nền
-            tension: 0.1, // Độ căng của đường
+            tension: 0.2, // Độ căng của đường
         },
     ],
 };
+
 
 // Cấu hình cho biểu đồ đường là sóng sin
 const sineOptions = {
@@ -136,15 +135,15 @@ export default function TrangChart() {
         <div className={style.tong}>
             <div className={style.top}>
                 <div className={style.chartcot}>
-                    <Bar data={barData} options={barOptions} />
+                    <Bar data={barData} options={barOptions} className={style.cotchart} /> 
                 </div>
                 <div className={style.charttron}>
-                    <Pie data={pieData} options={pieOptions} />
+                    <Pie data={pieData} options={pieOptions} className={style.tronchart} /> 
                 </div>
             </div>
             <div className={style.bot}>
                 <div className={style.chartsin}>
-                    <Line data={sineData} options={sineOptions} />
+                    <Line data={sineData} options={sineOptions} className={style.sinchart} /> 
                 </div>
             </div>
         </div>

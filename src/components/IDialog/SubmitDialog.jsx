@@ -7,7 +7,9 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
 export default function SubmitDialog({
+  type = "button",
   fncHandleClickAccept = (data) => console.log(data),
+  styleBtnShowInfo = {},
   dialogInfo = {
     contentDialogDesc: "Bạn có chắc chắn xóa tất cả sách đã chọn chứ",
     contentDialogTitle: "Xác nhận xóa tất cả sách đã chọn",
@@ -51,6 +53,8 @@ export default function SubmitDialog({
   return (
     <React.Fragment>
       <Button
+        type={type}
+        sx={{ ...styleBtnShowInfo }}
         variant={buttonShowInfo.variant}
         onClick={handleClickOpen}
         color={buttonShowInfo.color}

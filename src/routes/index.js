@@ -12,13 +12,13 @@ import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
 import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
-
+import CvLayout from "../components/layouts/CvLayout";
 import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
 import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
 import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import TrangChart from "../pages/GhiChu/TrangChart";
-
+import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 
 const routes = [
   {
@@ -72,6 +72,12 @@ const routes = [
     isAdmin: true,
   },
 
+  {
+    path: "/admin/cv-manage/:id",
+    component: CvAdminPageDetail,
+    layout: CvLayout,
+    isAdmin: true,
+  },
   //===========================LOGIN===========================
   {
     path: "/login",
@@ -100,28 +106,32 @@ const routes = [
     path: "/ghi-chu",
     component: TrangChinh, // là các page
     layout: MainLayout, //
+    isAuth: true,
   },
   {
     path: "/chi-tiet-ghi-chu",
     component: TrangGhiChuChiTiet, // là các page
     layout: MainLayout, //
+    isAuth: true,
   },
   {
     path: "/on-tap-chi-tiet",
     component: TrangOnTapChiTiet,
     layout: MainLayout,
+    isAuth: true,
   },
   {
     path: "/trang-chart",
     component: TrangChart,
     layout: MainLayout,
+    isAuth: true,
   },
 
   //==================TRANG CHINH===================
   {
     path: "/trang-chinh",
     component: TrangChinh,
-    layout: MainLayout,
+    layout: EmptyLayout,
   },
 ];
 export { routes };

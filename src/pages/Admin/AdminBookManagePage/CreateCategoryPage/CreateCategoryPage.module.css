@@ -4,8 +4,8 @@
 
 .row {
     width: 100%;
-    background-color: #e6e6e6;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    background-color: #f3f3f3;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
     padding: 0.25rem 1rem;
     display: flex;

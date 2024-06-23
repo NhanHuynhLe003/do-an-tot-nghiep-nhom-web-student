@@ -45,6 +45,7 @@ export default function ITable({
   headerList = columns,
   dataList = rows,
   fncGetListRowSelected = (bookIds) => {},
+  rowHeight = 70,
 }) {
   function getListRowSelected(params) {
     fncGetListRowSelected([...params]);
@@ -55,7 +56,7 @@ export default function ITable({
       // onCellClick={(params) => console.log(params.row)}
       onRowSelectionModelChange={(params) => getListRowSelected(params)} //Lấy ra danh sach id các hàng được chọn
       disableRowSelectionOnClick //Không chọn hàng khi click vào hàng
-      rowHeight={70}
+      rowHeight={rowHeight}
       rows={dataList}
       columns={headerList}
       initialState={{
@@ -65,6 +66,7 @@ export default function ITable({
       }}
       pageSizeOptions={[5, 10, 20]}
       checkboxSelection
+      hideFooterSelectedRowCount
     />
   );
 }

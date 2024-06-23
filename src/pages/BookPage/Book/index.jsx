@@ -1,29 +1,76 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import clsx from "clsx";
-import React, { useRef } from "react";
+import React, { useEffect } from "react";
 import CardUserRank from "../../../components/book/cardUserRank";
 import CarouselCard from "../../../components/book/carouselCard";
-import ListCardViewHorizontal from "../../../components/book/listCardViewHorizontal";
 import ListBookView from "../../../components/book/listBookView";
+import ListCardViewHorizontal from "../../../components/book/listCardViewHorizontal";
 
+import { Link } from "react-router-dom";
 import {
   famouseQuotes,
-  recomendBooks,
-  recentlyBooks,
   rankViewBooks,
   ratingBooks,
+  recentlyBooks,
+  recomendBooks,
 } from "../../../data/arrays";
 import listTopUserRank from "../../../data/jsons/top-user-read-book.json";
-import style from "./book.module.css";
-import { Link } from "react-router-dom";
+import {
+  useGetListBooks,
+  useGetListNewestBook,
+} from "../../../hooks/apis/books";
+import { useWindowSize } from "../../../hooks/useWindowSize";
 import theme from "../../../theme";
 import { shuffleArray } from "../../../utils";
-import { useWindowSize } from "../../../hooks/useWindowSize";
-import { usePositionDefParent } from "../../../hooks";
+import style from "./book.module.css";
+import { useGetListRecommendBooks } from "../../../hooks/apis/books/useGetListRecommendBook";
+import { useGetListSortBookReads } from "../../../hooks/apis/books/useGetListSortBookReads";
 
 export default function Book() {
   // Lấy ra kích thước màn hình hiện tại, để responsive
   const sizeScreen = useWindowSize();
+  const { data, error, isLoading } = useGetListBooks();
+
+  const {
+    data: dataListNewestBook,
+    error: errListNewestBook,
+    isLoading: loadingListNewestBook,
+  } = useGetListNewestBook();
+
+  const {
+    data: dataListRecomendBooks,
+    error: errRecomendBooks,
+    isLoading: loadingRecomendBooks,
+  } = useGetListRecommendBooks();
+
+  const {
+    data: dataListSortBookReads,
+    error: errSortBookReads,
+    isLoading: loadingSortBookReads,
+  } = useGetListSortBookReads();
+  useEffect(
+    () =>
+      console.log(
+        "dataListSortBookReads:::",
+        dataListSortBookReads?.data?.metadata
+      ),
+    [dataListSortBookReads]
+  );
+
+  if (isLoading)
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          minHeight: "80vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress></CircularProgress>
+      </Box>
+    );
 
   const paginationCustomize = {
     clickable: true,
@@ -47,10 +94,6 @@ export default function Book() {
     >
       <h1 className={style.heading01}>Book Store Home</h1>
 
-      <h3>
-        Nơi đây sẽ là Carousel chứa nội dung của Event , đồng thời sẽ chứa pop
-        up hiển thị thông báo event mới
-      </h3>
       <br />
       <br />
       <Stack
@@ -69,6 +112,7 @@ export default function Book() {
           paginationCustomize={paginationCustomize}
           classNameSwiper={"book-newest-carousel"}
           slideCardPerView={3.7}
+          dataList={dataListNewestBook?.data?.metadata}
         ></ListCardViewHorizontal>
       </Stack>
 
@@ -123,7 +167,7 @@ export default function Book() {
 
         <ListBookView
           paginationCustomize={paginationCustomize}
-          dataList={recomendBooks}
+          dataList={dataListRecomendBooks?.data?.metadata}
           classNameSwiper={"book-recommend-carousel"}
           slideCardPerView={6.6}
         ></ListBookView>
@@ -150,7 +194,8 @@ export default function Book() {
 
         <ListBookView
           paginationCustomize={paginationCustomize}
-          dataList={shuffleArray(recentlyBooks)}
+          // dataList={shuffleArray(recentlyBooks)}
+
           classNameSwiper={"book-recommend-carousel"}
           slideCardPerView={6.6}
         ></ListBookView>
@@ -177,7 +222,7 @@ export default function Book() {
 
         <ListBookView
           paginationCustomize={paginationCustomize}
-          dataList={shuffleArray(rankViewBooks)}
+          dataList={dataListSortBookReads?.data?.metadata}
           classNameSwiper={"book-recommend-carousel"}
           slideCardPerView={6.6}
         ></ListBookView>
