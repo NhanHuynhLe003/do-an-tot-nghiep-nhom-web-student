@@ -18,6 +18,7 @@ import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategor
 import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import TrangChart from "../pages/GhiChu/TrangChart";
+import TrangOnTap from "../pages/GhiChu/TrangOnTap";
 
 
 const routes = [
@@ -121,6 +122,11 @@ const routes = [
   {
     path: "/trang-chinh",
     component: TrangChinh,
+    layout: MainLayout,
+  },
+  {
+    path: "/on-tap",
+    component: TrangOnTap,
     layout: MainLayout,
   },
 ];
