@@ -12,6 +12,7 @@ import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
 import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
+
 import CvLayout from "../components/layouts/CvLayout";
 import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
 import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
@@ -20,6 +21,7 @@ import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
+
 const routes = [
   {
     path: "/",
@@ -104,7 +106,6 @@ const routes = [
     path: "/book/mybookshelf",
     component: MyBookShelf,
     layout: MainLayout,
-    
   },
   //===========================GHI CHU===========================
   {
@@ -131,7 +132,6 @@ const routes = [
     layout: MainLayout,
     // isAuth: true,
   },
-  
 
   //==================TRANG CHINH===================
   {
