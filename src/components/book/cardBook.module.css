@@ -1,15 +1,87 @@
+.cardContainer {
+    position: relative;
+    transition: 150ms ease-in-out;
+    cursor: pointer;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
 .bookcard {
     padding: 0.5rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    cursor: pointer;
-    transition: 100ms ease-in-out;
+
+    border-radius: 1rem;
+    filter: blur(0rem);
+    transition: 200ms ease-in-out;
 }
 
-.bookcard:hover {
-    opacity: 0.8;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+.cardContainer:hover {
+    border: 1px solid var(--color-primary2);
+
 }
+
+.cardContainer:hover>.bookcard {
+    filter: blur(1.5rem);
+}
+
+.cardContainer .cover {
+
+    border-radius: 1rem;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    background-color: rgba(255, 255, 255, 0);
+
+    transition: 200ms ease-in-out;
+    opacity: 0;
+
+}
+
+.cardContainer .cover .circleBtnContainer {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.cardContainer:hover>.cover {
+    background-color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+}
+
+
+.cardContainer .circleBtn {
+    background-color: #fff;
+    width: 2rem;
+    height: 2.6rem;
+    font-size: 1.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-primary2);
+    cursor: pointer;
+    transition: 150ms ease-in-out;
+}
+
+.cardContainer .circleBtn:hover {
+    background-color: var(--color-primary2);
+    color: #fff;
+
+}
+
+
+
+
 
 .contentContainer {
     text-align: left;

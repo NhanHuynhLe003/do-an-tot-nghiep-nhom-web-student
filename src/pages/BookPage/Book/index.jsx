@@ -48,6 +48,8 @@ export default function Book() {
     error: errSortBookReads,
     isLoading: loadingSortBookReads,
   } = useGetListSortBookReads();
+
+  //KẾT HỢP THÊM ENABLED LẤY VỊ TRÍ THANH SCROLL HIỆN TẠI, KHI KÉO ĐẾN MỚI TIẾN HÀNH FETCH API
   useEffect(
     () =>
       console.log(
@@ -93,7 +95,6 @@ export default function Book() {
       )}
     >
       <h1 className={style.heading01}>Book Store Home</h1>
-
       <br />
       <br />
       <Stack
@@ -169,7 +170,7 @@ export default function Book() {
           paginationCustomize={paginationCustomize}
           dataList={dataListRecomendBooks?.data?.metadata}
           classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
+          slideCardPerView={4.6}
         ></ListBookView>
       </Stack>
 
@@ -197,7 +198,7 @@ export default function Book() {
           // dataList={shuffleArray(recentlyBooks)}
 
           classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
+          slideCardPerView={4.6}
         ></ListBookView>
       </Stack>
 
@@ -224,7 +225,7 @@ export default function Book() {
           paginationCustomize={paginationCustomize}
           dataList={dataListSortBookReads?.data?.metadata}
           classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
+          slideCardPerView={4.6}
         ></ListBookView>
       </Stack>
 

@@ -17,10 +17,13 @@ export default function ListdBookView({
   const [listComponentBook, setListComponentBook] = useState([]);
   useEffect(() => {
     const newBooks = dataList.map((book, index) => {
+      const currentId =
+        book._id || "ID_" + index + Date.now() + Math.random() * 1000;
       return {
-        id: `${JSON.stringify(book)}-${book.title}-${index}`,
+        id: currentId,
         component: (
           <CardBook
+            idBook={currentId}
             img={book.book_thumb || book.img}
             title={book.book_name || book.title}
             rating={book.book_ratingsAverage || book.vote}
