@@ -1,9 +1,8 @@
 import "../src/styles/app.css";
-
 import "./styles/swiper-slider.css";
 import "./styles/blocknote-ghi-chu-chi-tiet.css"
-
-
+import "./styles/swiper-slider.css";
+import "./styles/blocknote-ghi-chu-chi-tiet.css";
 import EmptyLayout from "./components/layouts/EmptyLayout";
 import { routes } from "./routes";
 import "./styles/swiper-slider.css";

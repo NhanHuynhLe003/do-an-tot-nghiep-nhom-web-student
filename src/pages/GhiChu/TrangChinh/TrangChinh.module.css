@@ -23,20 +23,26 @@
   flex-direction: column;
   border: 1px solid #ccc;
   padding: 10px;
-  border-radius: 8px; /* Border radius tương tự như card */
+  border-radius: 8px;
+  /* Border radius tương tự như card */
   background-color: white;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25); /* Box shadow tương tự như card */
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+  /* Box shadow tương tự như card */
   cursor: pointer;
   width: 200px;
   height: 200px;
   box-sizing: border-box;
-  transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s; /* Thêm transition tương tự */
+  transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+  /* Thêm transition tương tự */
 }
 
 .note-item:hover {
-  transform: translateY(-5px); /* Hiệu ứng transform tương tự */
-  background-color: #268fff; /* Màu nền hover tương tự */
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); /* Shadow hover tương tự */
+  transform: translateY(-5px);
+  /* Hiệu ứng transform tương tự */
+  background-color: #268fff;
+  /* Màu nền hover tương tự */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  /* Shadow hover tương tự */
 }
 
 .notes-header {
@@ -92,3 +98,4 @@ input {
   background-color: #268fff; /* Màu nền hover tương tự */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); /* Shadow hover tương tự */
 }
+
