@@ -55,7 +55,7 @@ export default function TrangChinh() {
           rows={10}
           required
         ></textarea>
-        <button type="submit">LƯU</button>
+        <button type="submit" className={style.saveButton}>LƯU</button>
       </form>
       <div className={style["note-grid"]}>
         {notes.map((note) => (
