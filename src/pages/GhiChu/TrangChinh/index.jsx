@@ -39,8 +39,10 @@ export default function TrangChinh() {
     setNotes(notes.filter(note => note.id !== id));
   };
 
+  let t = 10
+
   return (
-    <div className={style["app-container"]}>
+    <div className={style['app-container']}>
       <form className={style["note-form"]} onSubmit={handleAddNote}>
         <input
           placeholder="Title"
@@ -55,7 +57,7 @@ export default function TrangChinh() {
           rows={10}
           required
         ></textarea>
-        <button type="submit">LƯU</button>
+        <button type="submit" className={style["saveButton"]}>LƯU</button>
       </form>
       <div className={style["note-grid"]}>
         {notes.map((note) => (

@@ -1,5 +1,3 @@
-
-
 .app-container {
   grid-template-columns: 1fr;
 }
@@ -63,6 +61,7 @@ h2 {
   flex-direction: column;
   gap: 20px;
   margin-left: 20px;
+  margin-right: 20px;
 }
 
 textarea,
@@ -71,6 +70,7 @@ input {
   border: 1px solid black;
   padding: 10px;
   font-size: 16px;
+  resize: none; /* Prevents resizing */
 }
 
 .note-form button {
@@ -87,7 +87,7 @@ input {
   cursor: pointer;
 }
 
-button:hover {
+.saveButton:hover {
   transform: translateY(-5px); /* Hiệu ứng transform tương tự */
   background-color: #268fff; /* Màu nền hover tương tự */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); /* Shadow hover tương tự */

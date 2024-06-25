@@ -111,7 +111,7 @@ const routes = [
     path: "/ghi-chu",
     component: TrangChinh, // là các page
     layout: MainLayout, //
-    isAuth: true,
+    //isAuth: true,
   },
   {
     path: "/chi-tiet-ghi-chu",
@@ -137,7 +137,7 @@ const routes = [
   {
     path: "/trang-chinh",
     component: TrangChinh,
-    layout: EmptyLayout,
+    layout: MainLayout,
   },
 ];
 export { routes };
