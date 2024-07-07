@@ -1,35 +1,30 @@
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CardUserRank from "../../../components/book/cardUserRank";
 import CarouselCard from "../../../components/book/carouselCard";
 import ListBookView from "../../../components/book/listBookView";
 import ListCardViewHorizontal from "../../../components/book/listCardViewHorizontal";
 
 import { Link } from "react-router-dom";
-import {
-  famouseQuotes,
-  rankViewBooks,
-  ratingBooks,
-  recentlyBooks,
-  recomendBooks,
-} from "../../../data/arrays";
+import axiosInstance from "../../../apis/axiosConfig";
+import { famouseQuotes, ratingBooks } from "../../../data/arrays";
 import listTopUserRank from "../../../data/jsons/top-user-read-book.json";
 import {
   useGetListBooks,
   useGetListNewestBook,
 } from "../../../hooks/apis/books";
+import { useGetListRecommendBooks } from "../../../hooks/apis/books/useGetListRecommendBook";
+import { useGetListSortBookReads } from "../../../hooks/apis/books/useGetListSortBookReads";
+import { useGetCategoriesPublished } from "../../../hooks/apis/category/useGetCategoriesPublished";
 import { useWindowSize } from "../../../hooks/useWindowSize";
 import theme from "../../../theme";
 import { shuffleArray } from "../../../utils";
 import style from "./book.module.css";
-import { useGetListRecommendBooks } from "../../../hooks/apis/books/useGetListRecommendBook";
-import { useGetListSortBookReads } from "../../../hooks/apis/books/useGetListSortBookReads";
+import { BREAK_POINTS } from "../../../constants";
 
 export default function Book() {
-  // Lấy ra kích thước màn hình hiện tại, để responsive
-  const sizeScreen = useWindowSize();
-  const { data, error, isLoading } = useGetListBooks();
+  const { width, height } = useWindowSize();
 
   const {
     data: dataListNewestBook,
@@ -44,20 +39,50 @@ export default function Book() {
   } = useGetListRecommendBooks();
 
   const {
+    data: dataListCategories,
+    error: errCategories,
+    isLoading: loadingCategories,
+  } = useGetCategoriesPublished();
+
+  const flagDataFirst = useRef(true);
+
+  // Lấy ra kích thước màn hình hiện tại, để responsive
+  const sizeScreen = useWindowSize();
+  const [categoryBooks, setCategoryBooks] = useState({});
+  const [listCategories, setListCategories] = useState([]);
+  const [listBookCateInView, setListBookCateInView] = useState([]);
+
+  const mainPageRef = React.useRef(null);
+  const listBookCateRef = React.useRef([]);
+
+  const { data, error, isLoading } = useGetListBooks();
+
+  const {
     data: dataListSortBookReads,
     error: errSortBookReads,
     isLoading: loadingSortBookReads,
   } = useGetListSortBookReads();
 
-  //KẾT HỢP THÊM ENABLED LẤY VỊ TRÍ THANH SCROLL HIỆN TẠI, KHI KÉO ĐẾN MỚI TIẾN HÀNH FETCH API
-  useEffect(
-    () =>
-      console.log(
-        "dataListSortBookReads:::",
-        dataListSortBookReads?.data?.metadata
-      ),
-    [dataListSortBookReads]
-  );
+  useEffect(() => {
+    setListCategories(dataListCategories?.data?.metadata);
+
+    dataListCategories?.data?.metadata.forEach(async (category, index) => {
+      const listBookCategory = await axiosInstance.get(
+        `/v1/api/book/category/${category._id}`
+      );
+
+      setCategoryBooks((prevObjCate) => ({
+        ...prevObjCate,
+        [category._id]: {
+          isLoading: false,
+          categoryName: category?.name,
+          dataList: listBookCategory?.data?.metadata,
+        },
+      }));
+    });
+
+    // Thêm các quyển sách vào từng thể loại
+  }, [dataListCategories]);
 
   if (isLoading)
     return (
@@ -88,6 +113,7 @@ export default function Book() {
 
   return (
     <Box
+      ref={mainPageRef}
       className={clsx(
         "book-main-page",
         style.contentBookContainer,
@@ -101,18 +127,22 @@ export default function Book() {
         className={clsx(style.section1, "animate__animated animate__zoomIn")}
         direction={"row"}
         justifyContent={"space-between"}
-        px={6}
-        gap={"8rem"}
+        px={{ sm: 6, xs: 2 }}
       >
-        <CarouselCard
-          dataList={famouseQuotes}
-          dotCustomize={paginationCustomize}
-          swiperClassName={"book-quotes-carousel"}
-        ></CarouselCard>
+        {width > BREAK_POINTS.xs && (
+          <CarouselCard
+            dataList={famouseQuotes}
+            dotCustomize={paginationCustomize}
+            swiperClassName={"book-quotes-carousel"}
+          ></CarouselCard>
+        )}
+
+        {/* Sach mới nhất  */}
         <ListCardViewHorizontal
+          spacebetween={width < BREAK_POINTS.xs ? 10 : 30}
           paginationCustomize={paginationCustomize}
           classNameSwiper={"book-newest-carousel"}
-          slideCardPerView={3.7}
+          slideCardPerView={width < BREAK_POINTS.md ? 2.4 : 3.4}
           dataList={dataListNewestBook?.data?.metadata}
         ></ListCardViewHorizontal>
       </Stack>
@@ -121,7 +151,7 @@ export default function Book() {
         className={clsx(style.section2, "animate__animated animate__fadeIn")}
         direction={"column"}
         gap={"1rem"}
-        px={6}
+        px={{ sm: 6, xs: 2 }}
         mt={"3rem"}
       >
         <Typography component={"h2"} variant="h5">
@@ -147,7 +177,12 @@ export default function Book() {
         </Stack>
       </Stack>
 
-      <Stack className={style.section3} mt={"3rem"} px={6} direction={"column"}>
+      <Stack
+        className={style.section3}
+        mt={"3rem"}
+        px={{ sm: 6, xs: 2 }}
+        direction={"column"}
+      >
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Typography component={"h2"} variant="h5">
             Đề Xuất Cho Bạn
@@ -170,11 +205,16 @@ export default function Book() {
           paginationCustomize={paginationCustomize}
           dataList={dataListRecomendBooks?.data?.metadata}
           classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={4.6}
+          slideCardPerView={width < BREAK_POINTS.xs ? 2.6 : 4.6}
         ></ListBookView>
       </Stack>
 
-      <Stack className={style.section4} mt={"3rem"} px={6} direction={"column"}>
+      <Stack
+        className={style.section4}
+        mt={"3rem"}
+        px={{ sm: 6, md: 2 }}
+        direction={"column"}
+      >
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Typography component={"h2"} variant="h5">
             Xem Gần Đây
@@ -198,11 +238,16 @@ export default function Book() {
           // dataList={shuffleArray(recentlyBooks)}
 
           classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={4.6}
+          slideCardPerView={width < BREAK_POINTS.xs ? 2.6 : 4.6}
         ></ListBookView>
       </Stack>
 
-      <Stack className={style.section5} mt={"3rem"} px={6} direction={"column"}>
+      <Stack
+        className={style.section5}
+        mt={"3rem"}
+        px={{ sm: 6, xs: 2 }}
+        direction={"column"}
+      >
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Typography component={"h2"} variant="h5">
             Đọc Nhiều Nhất
@@ -225,12 +270,17 @@ export default function Book() {
           paginationCustomize={paginationCustomize}
           dataList={dataListSortBookReads?.data?.metadata}
           classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={4.6}
+          slideCardPerView={width < BREAK_POINTS.xs ? 2.6 : 4.6}
         ></ListBookView>
       </Stack>
 
       {/* Rating */}
-      <Stack className={style.section6} mt={"3rem"} px={6} direction={"column"}>
+      <Stack
+        className={style.section6}
+        mt={"3rem"}
+        px={{ sm: 6, xs: 2 }}
+        direction={"column"}
+      >
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Typography component={"h2"} variant="h5">
             Đánh Giá Cao
@@ -253,164 +303,51 @@ export default function Book() {
           paginationCustomize={paginationCustomize}
           dataList={shuffleArray(ratingBooks)}
           classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
+          slideCardPerView={width < BREAK_POINTS.xs ? 2.6 : 4.6}
         ></ListBookView>
       </Stack>
 
-      {/* Sách phát triển bản thân */}
-      <Stack className={style.section7} mt={"3rem"} px={6} direction={"column"}>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography component={"h2"} variant="h5">
-            Phát Triển Bản Thân
-          </Typography>
-          <Typography component={"h2"} variant="h6">
-            <Link
-              to={"/"}
-              style={{
-                color: theme.colors.primary1,
-                textDecoration: "none",
-              }}
+      {/* Map ra các sách đúng với thể loại */}
+      {categoryBooks &&
+        Object.keys(categoryBooks).length > 0 &&
+        Object.keys(categoryBooks).map((keyCate, index) => {
+          return (
+            <Stack
+              ref={(el) => (listBookCateRef.current[index] = el)}
+              className={style[`section${index + 7}`]}
+              mt={"3rem"}
+              px={{ sm: 6, xs: 2 }}
+              direction={"column"}
+              key={keyCate}
             >
-              Xem Tất Cả
-            </Link>
-          </Typography>
-        </Stack>
-        <br />
+              <Stack direction={"row"} justifyContent={"space-between"}>
+                <Typography component={"h2"} variant="h5">
+                  {categoryBooks[keyCate]?.categoryName}
+                </Typography>
+                <Typography component={"h2"} variant="h6">
+                  <Link
+                    to={"/"}
+                    style={{
+                      color: theme.colors.primary1,
+                      textDecoration: "none",
+                    }}
+                  >
+                    Xem Tất Cả
+                  </Link>
+                </Typography>
+              </Stack>
+              <br />
 
-        <ListBookView
-          paginationCustomize={paginationCustomize}
-          dataList={shuffleArray(ratingBooks)}
-          classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
-        ></ListBookView>
-      </Stack>
-
-      {/* Sách Tâm Lý Học */}
-      <Stack className={style.section8} mt={"3rem"} px={6} direction={"column"}>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography component={"h2"} variant="h5">
-            Sách Tâm Lý Học
-          </Typography>
-          <Typography component={"h2"} variant="h6">
-            <Link
-              to={"/"}
-              style={{
-                color: theme.colors.primary1,
-                textDecoration: "none",
-              }}
-            >
-              Xem Tất Cả
-            </Link>
-          </Typography>
-        </Stack>
-
-        <br />
-        <ListBookView
-          paginationCustomize={paginationCustomize}
-          dataList={shuffleArray(ratingBooks)}
-          classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
-        ></ListBookView>
-      </Stack>
-      <br />
-      <Stack>
-        <h3>Đánh giá của đọc giả</h3>
-      </Stack>
-      <br />
-
-      {/* Tiểu Thuyết */}
-      <Stack className={style.section9} mt={"3rem"} px={6} direction={"column"}>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography component={"h2"} variant="h5">
-            Tiểu Thuyết
-          </Typography>
-          <Typography component={"h2"} variant="h6">
-            <Link
-              to={"/"}
-              style={{
-                color: theme.colors.primary1,
-                textDecoration: "none",
-              }}
-            >
-              Xem Tất Cả
-            </Link>
-          </Typography>
-        </Stack>
-        <br />
-
-        <ListBookView
-          paginationCustomize={paginationCustomize}
-          dataList={shuffleArray(ratingBooks)}
-          classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
-        ></ListBookView>
-      </Stack>
-
-      {/* Sách Sức Khỏe */}
-      <Stack
-        className={style.section10}
-        mt={"3rem"}
-        px={6}
-        direction={"column"}
-      >
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography component={"h2"} variant="h5">
-            Sách Sức Khỏe
-          </Typography>
-          <Typography component={"h2"} variant="h6">
-            <Link
-              to={"/"}
-              style={{
-                color: theme.colors.primary1,
-                textDecoration: "none",
-              }}
-            >
-              Xem Tất Cả
-            </Link>
-          </Typography>
-        </Stack>
-        <br />
-
-        <ListBookView
-          paginationCustomize={paginationCustomize}
-          dataList={shuffleArray(ratingBooks)}
-          classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
-        ></ListBookView>
-      </Stack>
-
-      {/* Sách Chuyên Ngành */}
-      <Stack
-        className={style.section11}
-        mt={"3rem"}
-        px={6}
-        direction={"column"}
-      >
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography component={"h2"} variant="h5">
-            Sách Chuyên Ngành
-          </Typography>
-          <Typography component={"h2"} variant="h6">
-            <Link
-              to={"/"}
-              style={{
-                color: theme.colors.primary1,
-                textDecoration: "none",
-              }}
-            >
-              Xem Tất Cả
-            </Link>
-          </Typography>
-        </Stack>
-        <br />
-
-        <ListBookView
-          paginationCustomize={paginationCustomize}
-          dataList={shuffleArray(ratingBooks)}
-          classNameSwiper={"book-recommend-carousel"}
-          slideCardPerView={6.6}
-        ></ListBookView>
-      </Stack>
+              <ListBookView
+                isLoading={categoryBooks[keyCate]?.isLoading}
+                paginationCustomize={paginationCustomize}
+                dataList={categoryBooks[keyCate]?.dataList}
+                classNameSwiper={"book-recommend-carousel"}
+                slideCardPerView={width < BREAK_POINTS.xs ? 2.6 : 4.6}
+              ></ListBookView>
+            </Stack>
+          );
+        })}
     </Box>
   );
 }

@@ -1,0 +1,11 @@
+.iconContainer {
+    width: 30%;
+    height: 40%;
+}
+
+@media screen and (max-width: 560px) {
+    .iconContainer {
+        width: 90%;
+        height: 100%;
+    }
+}

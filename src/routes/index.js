@@ -21,6 +21,8 @@ import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
+import BookCheckout from "../pages/BookPage/BookCheckout";
+import NotFoundPage from "../pages/NotFound";
 
 const routes = [
   {
@@ -103,10 +105,20 @@ const routes = [
     layout: MainLayout,
   },
   {
-    path: "/book/mybookshelf",
+    path: "/book/my-bookshelf",
     component: MyBookShelf,
     layout: MainLayout,
+    isAuth: true,
   },
+
+  //==============================Checkout==============================
+  {
+    path: "/checkout/:userId",
+    component: BookCheckout,
+    layout: MainLayout,
+    isAuth: true,
+  },
+
   //===========================GHI CHU===========================
   {
     path: "/ghi-chu",
@@ -138,6 +150,14 @@ const routes = [
     path: "/trang-chinh",
     component: TrangChinh,
     layout: EmptyLayout,
+  },
+
+  //========================404========================
+  {
+    path: "*",
+    component: NotFoundPage,
+    layout: EmptyLayout,
+    isNotFound: true,
   },
 ];
 export { routes };

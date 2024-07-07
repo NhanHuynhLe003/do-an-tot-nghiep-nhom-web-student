@@ -36,9 +36,9 @@ export default function CvFooterToolbar({
         zIndex: 999,
       }}
     >
-      <Box classNames="Footer_Box_Left">Left</Box>
+      <Box className="Footer_Box_Left">Left</Box>
       <Box
-        classNames="Footer_Box_Right"
+        className="Footer_Box_Right"
         sx={{
           display: "flex",
           gap: "2rem",

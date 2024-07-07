@@ -1,9 +1,12 @@
 .section1 {}
 
 .imgBookContainer {
-
+    width: 80%;
+    margin: auto;
     border-radius: 0.5rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 7rem;
 }
 
 .imgBookContainer img {
@@ -20,19 +23,22 @@
 
 
 .infoText .blurText {
-    opacity: 0.7;
-    color: #9A9A9A;
+    opacity: 0.6;
+    color: var(--color-primary2);
     font-size: 1.25rem;
+    font-weight: 500;
 
     color: var(--color-primary2);
 }
 
 .infoText .contentTextInfo {
 
-    font-size: 1.35rem;
-    color: var(--color-primary2);
+    font-size: 1.2rem;
+    color: #bebebe;
+    opacity: 0.8;
     font-weight: 400;
-    text-transform: capitalize;
+    max-width: 16rem;
+    text-wrap: wrap;
 }
 
 .infoText .contentTextInfo:hover {
@@ -68,9 +74,3 @@
 .authorInformation .titleAuthor span:first-child {
     color: var(--color-primary1)
 }
-
-
-
-
-
-

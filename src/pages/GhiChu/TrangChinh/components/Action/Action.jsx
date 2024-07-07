@@ -1,4 +1,4 @@
-import classNames from "clsx";
+import clsx from "clsx";
 import React, { forwardRef } from "react";
 
 import styles from "./Action.module.css";
@@ -9,7 +9,7 @@ export const Action = forwardRef(
       <button
         ref={ref}
         {...props}
-        className={classNames(styles.Action, className)}
+        className={clsx(styles.Action, className)}
         tabIndex={0}
         style={{
           ...style,

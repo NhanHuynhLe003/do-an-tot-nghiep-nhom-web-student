@@ -1,8 +1,9 @@
-import { Box, Button, Stack } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaEye, FaRegHeart } from "react-icons/fa";
 import { RiShoppingBag4Fill } from "react-icons/ri";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { useAddBookToCartStudent } from "../../hooks/apis/cart";
 import style from "./cardBook.module.css";
@@ -14,16 +15,40 @@ export default function CardBook({
   author = "author book",
   yearRelease = "2024",
   rating = 4.5,
+  bookQuantity = 1,
+  isSkeletonLoading = false,
+  isHiddenWhenOutOfStock = true,
 }) {
+  const dispatch = useDispatch();
+  const cardRef = useRef(null);
+  const [widthCard, setWidthCard] = useState(0);
+
   const [isLoadingData, setIsLoadingData] = useState({
     status: false,
     message: "",
   });
 
+  const flagLoading = useRef({ idToast: -1 });
+
   useEffect(() => {
-    isLoadingData.status &&
-      toast.update(isLoadingData.message, { position: "top-center" });
+    if (isLoadingData.status) {
+      flagLoading.current.idToast = toast.loading(isLoadingData.message, {
+        position: "top-center",
+      });
+    } else {
+      if (flagLoading.current.idToast !== -1) {
+        toast.dismiss(flagLoading.current.idToast);
+        flagLoading.current.idToast = -1;
+      }
+    }
   }, [isLoadingData.status, isLoadingData.message]);
+
+  useEffect(() => {
+    const rectCard = cardRef.current?.getBoundingClientRect();
+    if (rectCard) {
+      setWidthCard(rectCard.width);
+    }
+  }, []);
 
   const {
     mutate: addBook,
@@ -53,24 +78,43 @@ export default function CardBook({
     await addBook(payload, {
       onSuccess: () => {
         setIsLoadingData((prev) => ({ ...prev, status: false, message: "" }));
+
         toast.success("Đã thêm vào giỏ hàng thành công", {
           position: "top-center",
         });
       },
       onError: () => {
         setIsLoadingData((prev) => ({ ...prev, status: false, message: "" }));
-        toast.error("Thêm vào giỏ hàng thất bại", {
-          position: "top-center",
-        });
       },
     });
   }
   function handleAddToWishlist() {}
   function handleClickViewDetail() {}
   function handleBorrowBookNow() {}
+
+  if (isHiddenWhenOutOfStock && bookQuantity === 0) return <></>;
+
   return (
-    <Box className={style.cardContainer}>
-      <div className={style.cover}>
+    <Box
+      ref={cardRef}
+      className={clsx(style.cardContainer, {
+        [style.outOfStock]: bookQuantity === 0,
+      })}
+    >
+      {bookQuantity === 0 && (
+        <div className={clsx(style.coverOutOfStock)}>
+          <Typography
+            className={style.titleOutOfStock}
+            component={"h3"}
+            variant="h5"
+          >
+            Đã Hết
+          </Typography>
+        </div>
+      )}
+      <div
+        className={clsx(style.cover, { [style.hidden]: bookQuantity === 0 })}
+      >
         {/* Danh sách các nút nhấn */}
         <div className={style.circleBtnContainer}>
           <button
@@ -78,7 +122,8 @@ export default function CardBook({
             className={clsx(
               style.circleBtn,
               style.viewDetailtBtn,
-              "effect-spread-shadow-click-btn"
+              "effect-spread-shadow-click-btn",
+              { [style.smallBtn]: widthCard < 150 }
             )}
             title="Xem chi tiết"
           >
@@ -88,7 +133,10 @@ export default function CardBook({
             className={clsx(
               style.circleBtn,
               style.cartBtn,
-              "effect-spread-shadow-click-btn"
+              "effect-spread-shadow-click-btn",
+              {
+                [style.smallBtn]: widthCard < 150,
+              }
             )}
             onClick={handleAddToCart}
             title="Thêm vào giỏ hàng"
@@ -100,7 +148,8 @@ export default function CardBook({
             className={clsx(
               style.circleBtn,
               style.wishlistBtn,
-              "effect-spread-shadow-click-btn"
+              "effect-spread-shadow-click-btn",
+              { [style.smallBtn]: widthCard < 150 }
             )}
             onClick={handleAddToWishlist}
             title="Thêm vào danh sách yêu thích"
@@ -113,6 +162,9 @@ export default function CardBook({
             color: "var(--color-primary2)",
             background: "#fff",
           }}
+          className={clsx({
+            [style.smallBtnBuyNow]: widthCard < 150,
+          })}
           onClick={handleBorrowBookNow}
         >
           Mượn Sách Ngay

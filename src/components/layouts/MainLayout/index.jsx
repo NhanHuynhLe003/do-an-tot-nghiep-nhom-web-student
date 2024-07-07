@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Box, Stack } from "@mui/material";
 import clsx from "clsx";
@@ -13,15 +13,32 @@ import style from "./mainlayout.module.css";
 export default function MainLayout({ children, typePage = "" }) {
   const sideBarWidth = useRef(248);
 
-  const location = useLocation();
-  const urlPathName = useRef(location.pathname);
   const refSlideContent = useRef(null);
   const { left, top } = useWindowSizeDepParent(refSlideContent);
   const [widthToolBarDrawer, setWidthToolBarDrawer] = React.useState(0);
+  // const [scrollProperty, setScrollProperty] = useState({
+  //   scrollTopPage: 0,
+  //   scrollHeightPage: 0,
+  //   clientHeightPage: 0,
+  // });
 
   function handleSetWidthToolBarDrawer(width) {
     setWidthToolBarDrawer(width);
   }
+
+  // useEffect(() => {
+  //   const scrollTopContent = refSlideContent.current.scrollTop;
+  //   const scrollHeightContent = refSlideContent.current.scrollHeight;
+
+  //   // const offsetWidthContent = refSlideContent.current.offsetWidth;
+  //   const clientHeightContent = refSlideContent.current.clientHeight;
+
+  //   setScrollProperty({
+  //     scrollTopPage: scrollTopContent,
+  //     scrollHeightPage: scrollHeightContent,
+  //     clientHeightPage: clientHeightContent,
+  //   });
+  // }, [refSlideContent.current?.scrollTop]);
 
   return (
     <Box
