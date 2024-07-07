@@ -1,6 +1,8 @@
 .cardListHorizonContainer {
-    width: 70%;
+    width: 65%;
     box-sizing: border-box;
+    height: fit-content;
+    justify-content: flex-end;
 }
 
 
@@ -41,4 +43,14 @@
     border-top-right-radius: 1rem;
     border-bottom-right-radius: 1rem;
     padding: 0 1rem;
+}
+
+@media screen and (max-width: 576px) {
+    .cardListHorizonContainer {
+        width: 100%;
+    }
+
+    .boxCardCarouselContainer {
+        width: 80%;
+    }
 }

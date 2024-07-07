@@ -1,5 +1,5 @@
 .cardUserRank {
-    width: 22%;
+    width: 20%;
     border: 2px solid var(--color-primary1);
     border-radius: 8px;
     padding: 0.25rem;
@@ -10,4 +10,11 @@
     transform: scale(1.05);
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Mobile */
+@media screen and (max-width: 576px) {
+    .cardUserRank {
+        width: 100%;
+    }
 }

@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { RiShoppingBag4Fill } from "react-icons/ri";
 import clsx from "clsx";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
 import theme from "../../../theme";
 import IMenuListFloat from "../../IMenuListFloat";
@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { Notifications } from "@mui/icons-material";
 import IPopOverBtn from "../../IPopOverBtn";
 import CartBookOrder from "./components/cartBookOrder";
+import { useGetBooksInCart } from "../../../hooks/apis/cart";
 
 const listMenuItemFloat = [
   {
@@ -45,7 +46,23 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 export default function HeaderBook({ ref, topPositon = 0 }) {
+  const dataStudent = JSON.parse(localStorage.getItem("studentData"));
+
   const navigate = useNavigate();
+  // Trigger API lấy danh sách sách trong giỏ hàng
+
+  const {
+    data: dataBooksInCartData,
+    isLoading: isBooksInCartLoading,
+    error: BooksInCartError,
+  } = useGetBooksInCart(
+    { cartUserId: dataStudent?._id || null },
+    {
+      keepPreviousData: true,
+    }
+  );
+
+  const [cartUser, setCartUser] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const {
     mutate: logout,
@@ -54,6 +71,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
     error,
   } = useStudentLogout();
   const [searchBook, setSearchBook] = React.useState("");
+  const [cartProductCount, setCartProductCount] = React.useState(0);
 
   useEffect(() => {
     const userAuth = JSON.parse(localStorage.getItem("studentData"));
@@ -61,6 +79,10 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
       setIsLoggedIn(true);
     }
   }, []);
+
+  useEffect(() => {
+    setCartUser(dataBooksInCartData?.data?.metadata);
+  }, [dataBooksInCartData]);
 
   function handleSearchBook(value) {
     setSearchBook(value);
@@ -82,6 +104,11 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
       navigate("/login");
     }
   }
+
+  function handleGetCartProductCount(count) {
+    setCartProductCount(count);
+  }
+
   return (
     <header
       className={clsx("animate__animated animate__fadeInDown", style.header, {
@@ -176,7 +203,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
                   color: theme.colors.primary2,
                 }}
               >
-                <StyledBadge badgeContent={4} color="error">
+                <StyledBadge badgeContent={cartUser?.length} color="error">
                   <RiShoppingBag4Fill
                     fontSize={"1.75rem"}
                     color="var(--color-primary2)"
@@ -187,7 +214,9 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
             ComponentPopOver={
               //=====================Cart Hiển thị khi click vào====================
               <Box>
-                <CartBookOrder></CartBookOrder>
+                <CartBookOrder
+                  handleGetCartProductCount={handleGetCartProductCount}
+                ></CartBookOrder>
               </Box>
             }
           ></IPopOverBtn>

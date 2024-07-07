@@ -37,10 +37,13 @@ const CvSlice = createSlice({
         title: "CV của tôi",
         thumbnail: "https://placehold.co/200x300",
         status: "private",
-
+        isDelete: false, //CV đã bị xóa
+        isDragDisabled: false, //Không cho kéo thả các item trong board
         boards: [
           {
-            boardId: "BOARD-001",
+            cvId: "CVU-16102003",
+            cvUserId: "CVU-16102003",
+            boardId: "BOARD-001", //thực tế thay bằng _id của board
             name: "Board 1",
             position: { top: 0, left: 0 },
             listDataItem: [
@@ -96,7 +99,7 @@ const CvSlice = createSlice({
                 id: "B2-I001",
                 boardId: "BOARD-002",
                 role: "ALL", //["ONLY_READ", "ONLY_WRITE","ALL"] => chỉ đọc < có thể sửa nội dung text < sửa kích thước, vị trí, góc quay, mọi thứ
-                type: "editor",
+                itemType: "editor",
                 coordinate: {
                   x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
                   y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,

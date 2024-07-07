@@ -14,7 +14,6 @@ import IBreadcrumbs from "../../../../components/IBreadcrumbs";
 import { listCategory } from "../../../../data/arrays";
 import useAdminCreateBook from "../../../../hooks/apis/books/useAdminCreateBook";
 import { useGetCategoriesPublished } from "../../../../hooks/apis/category";
-
 /**
  * @description Trang tạo mới hoặc edit sách
  * @param {*} param
@@ -37,11 +36,27 @@ export default function CreateBookPage({
   const [categoriesConvert, setCategoriesConvert] = useState([]); //Chuyển đổi dữ liệu thể loại sách từ server về dạng [{label: "", value: ""}
   const [isUploadImg, setIsUploadImg] = useState(false); //Kiểm tra xem đã upload ảnh chưa
 
+  const [loadingToast, setLoadingToast] = useState({
+    status: false,
+    message: "",
+  });
+
   const {
     data: dataCategories,
     error: errCategories,
     isLoading: isLoadingCategories,
   } = useGetCategoriesPublished();
+
+  const idLoadingRef = React.useRef(null);
+  useEffect(() => {
+    if (loadingToast.status) {
+      idLoadingRef.current = toast.loading(loadingToast.message, {
+        position: "top-center",
+      });
+    } else {
+      toast.dismiss(idLoadingRef.current);
+    }
+  }, [loadingToast]);
 
   useEffect(() => {
     if (dataCategories) {
@@ -99,12 +114,13 @@ export default function CreateBookPage({
     setValue, // Set giá trị cho form theo cú pháp: setValue("name", value)
     control,
     handleSubmit,
-    // reset, // Reset form khi gọi hàm reset()
+    reset, // Reset form khi gọi hàm reset()
     formState: { errors },
   } = useForm({
     defaultValues:
       mode === "create"
         ? {
+            thumbnailUrlId: null,
             thumbnailUrl: "", //Ảnh mặc định tạm thời để vầy trước, sau này xử lý db rồi cho nó rỗng
             bookQuantity: 1,
             nameBook: "",
@@ -130,8 +146,14 @@ export default function CreateBookPage({
       return;
     }
 
+    const extension = imgFile?.name.split(".").pop();
+    const newFileName = `${Date.now()}.${extension}`;
+    const renamedFile = new File([imgFile], newFileName, {
+      type: imgFile.type,
+    });
+
     const formData = new FormData();
-    formData.append("uploadFileKey", imgFile);
+    formData.append("uploadFileKey", renamedFile);
 
     // Kiểm tra xem formData có dữ liệu không
     if (!formData.has("uploadFileKey")) {
@@ -140,6 +162,10 @@ export default function CreateBookPage({
     }
 
     try {
+      setLoadingToast({
+        status: true,
+        message: "Đang upload ảnh sách...",
+      });
       const response = await axiosInstance.post(
         "/v1/api/upload/d-img?nameStorage=books",
         formData,
@@ -149,18 +175,25 @@ export default function CreateBookPage({
           },
         }
       );
+
+      setLoadingToast({
+        status: false,
+        message: "",
+      });
       toast.success("Upload ảnh thành công", {
         position: "top-center",
       });
 
       if (response.data.metadata.url) {
         //Set giá trị cho form value thumbnailUrl
+        setValue("thumbnailUrlId", response.data.metadata?.imageInfo?._id);
         setValue("thumbnailUrl", response.data.metadata.url);
         setIsUploadImg(true);
         //lưu ảnh vào local storage để lần sau khi reload trang vẫn hiển thị ảnh
         localStorage.setItem("thumbnailUrl", response.data.metadata.url);
       }
     } catch (error) {
+      setIsUploadImg(false);
       toast.error("Upload ảnh thất bại", {
         position: "top-center",
       });
@@ -168,20 +201,12 @@ export default function CreateBookPage({
   };
 
   const handleCreateBook = useCallback((data) => {
-    const thumbnailImgUpload = getValues("thumbnailUrl");
-    console.log(
-      "thumb",
-      isUploadImg,
-      thumbnailImgUpload,
-      thumbnailImgUpload.length
-    );
-
-    createBook({
+    const payloadCreateBook = {
+      book_thumb_id: data.thumbnailUrlId,
       book_name: data.nameBook,
       book_author: data.nameAuthor,
       book_thumb: data.thumbnailUrl,
       book_desc: data.bookDescription,
-
       book_quantity: data.bookQuantity,
       book_genre: data.nameCategory, //Tìm kiếm thể loại trước rồi gán objectID vào
       book_publish_date: data.datePublish.toISOString(),
@@ -189,6 +214,17 @@ export default function CreateBookPage({
       book_ratingsAverage: 4.5,
       book_students_read: 0,
       book_favourites: 0,
+    };
+
+    setLoadingToast({
+      status: true,
+      message: "Đang thêm sách mới...",
+    });
+    //Gọi API tạo sách
+    createBook(payloadCreateBook);
+    setLoadingToast({
+      status: false,
+      message: "",
     });
     toast.success("Thêm sách thành công");
 
@@ -200,27 +236,22 @@ export default function CreateBookPage({
    * @param {*} data
    */
   const onSubmit = (data) => {
-    if (!isUploadImg) {
-      toast.warn("Vui lòng upload ảnh sách trước khi thêm", {
-        position: "top-center",
-      });
-      return;
-    }
     switch (mode) {
       case "create":
         handleCreateBook(data);
+        reset();
+
         break;
       case "update":
         console.log("Handle Update submit:", data);
+        reset();
+
         break;
       default:
         console.error("Chế độ không hợp lệ");
     }
   };
 
-  //========================= HOOOK ========================
-
-  useEffect(() => {}, []);
   return (
     <Stack id="Create-Book-Page" direction={"column"} px={{ xs: 2, sm: 8 }}>
       <IBreadcrumbs
@@ -452,7 +483,17 @@ export default function CreateBookPage({
 
         <Grid item xs={12} sm={12} textAlign={"center"}>
           {mode === "create" ? (
-            <Button sx={{ width: "50%" }} variant="contained" type="submit">
+            <Button
+              onClick={() =>
+                !isUploadImg &&
+                toast.error("Vui lòng upload ảnh sách trước khi thêm", {
+                  position: "top-center",
+                })
+              }
+              sx={{ width: "50%" }}
+              variant="contained"
+              type="submit"
+            >
               Thêm sách
             </Button>
           ) : (
