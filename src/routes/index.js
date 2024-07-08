@@ -21,6 +21,7 @@ import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
+import StudentDetail from "../pages/Student/StudentDetail";
 
 const routes = [
   {
@@ -138,6 +139,13 @@ const routes = [
     path: "/trang-chinh",
     component: TrangChinh,
     layout: EmptyLayout,
+  },
+
+  //========================THONG TIN HOC SINH========================
+  {
+    path: "/student/information",
+    component: StudentDetail,
+    layout: MainLayout,
   },
 ];
 export { routes };
