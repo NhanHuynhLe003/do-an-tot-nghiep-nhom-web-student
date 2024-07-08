@@ -14,7 +14,6 @@ export const useUpdateBookQuantiyInCart = (payload, options = {}) => {
     },
 
     {
-      ...options,
       onSuccess: (data, variables, context) => {
         console.log("SUCCESSED::::", data);
         // Dùng để refetch lại dữ liệu GET_BOOKS_IN_CART sau khi chinh sửa số lượng sách vào giỏ hàng thanh cong
@@ -22,6 +21,7 @@ export const useUpdateBookQuantiyInCart = (payload, options = {}) => {
           queryKey: [CartKeys.GET_BOOKS_IN_CART, data?.metadata?.cart_userId],
         });
       },
+      ...options,
     }
   );
 };

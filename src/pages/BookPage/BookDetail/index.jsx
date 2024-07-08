@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsCart2 } from "react-icons/bs";
 import { FaRegHeart } from "react-icons/fa";
-import { FiBookOpen } from "react-icons/fi";
 import { MdOutlineShoppingBag } from "react-icons/md";
 import { RxShare1 } from "react-icons/rx";
-import { commentList } from "../../../data/arrays";
+import { commentList, dataListBooks, ratingBooks } from "../../../data/arrays";
 import style from "./book_detail.module.css";
 
 import {
@@ -20,9 +19,13 @@ import {
 } from "@mui/material";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
+import ListBookView from "../../../components/book/listBookView";
 import CommentBook from "../../../components/bookDetail/commentBook";
 import TextShowMore from "../../../components/bookDetail/textShowMore";
+import { useGetBooksByCategoryId } from "../../../hooks/apis/books/useGetBooksByCategoryId";
 import { roundNumber } from "../../../utils";
+import { useWindowSize } from "../../../hooks";
+import { BREAK_POINTS } from "../../../constants";
 export default function BookDetailPage({
   img,
   title = "book title",
@@ -69,12 +72,19 @@ export default function BookDetailPage({
     { content: "Tự Truyện", tag: "self-help" },
   ],
 }) {
-  //================HOOKS=================
+  const { width, height } = useWindowSize();
 
   const [currentBtnComment, setCurrentBtnComment] = React.useState(0);
   // Sử dụng useState để quản lý số lượng comment đã hiển thị
   const [visibleCount, setVisibleCount] = useState(7);
   const [showLoadingCmt, setShowLoadingCmt] = useState(false);
+  const [booksRelated, setBooksRelated] = useState([]);
+
+  const {
+    data: bookListCategory,
+    isLoading: isLoadingData,
+    error: errorData,
+  } = useGetBooksByCategoryId({ categoryId: "667bb9d4f159a0af59debd19" });
 
   //================FUNCTION HANDLER=================
 
@@ -91,14 +101,37 @@ export default function BookDetailPage({
     setVisibleCount((prev) => (prev <= 7 ? comments.length : 7));
   };
 
+  useEffect(() => {
+    if (
+      bookListCategory &&
+      bookListCategory.data &&
+      bookListCategory.data.metadata
+    ) {
+      const dataRelatedBooks = bookListCategory.data.metadata;
+      setBooksRelated(dataRelatedBooks);
+    }
+  }, [bookListCategory]);
+
+  const paginationCustomize = {
+    clickable: true,
+    renderBullet: function (index, className) {
+      //className nằm ở src/styles/swiper-slider.css
+      return `<span class="${className} book-quotes-pagination"> </span>`;
+    },
+  };
+
   return (
     <Stack direction={"column"}>
       {/* Section sach va thong tin chi tiet sach + comment */}
       <Grid
         container
-        spacing={4}
+        spacing={{
+          sm: 4,
+          xs: 0,
+        }}
         className={style.section1}
         sx={{
+          position: "relative",
           "& > .book-img-detail-container": {
             pl: 0,
             pt: 0,
@@ -106,15 +139,21 @@ export default function BookDetailPage({
           },
           mt: 6,
         }}
-        px={12}
+        px={{
+          sm: 12,
+          xs: 4,
+        }}
       >
         {/* Anh cua sach */}
         <Grid
           item
           className={clsx("book-img-detail-container")}
-          md={3}
-          sm={4}
+          md={4}
+          sm={5}
           xs={12}
+          mb={{
+            xs: 6,
+          }}
         >
           <Box className={style.imgBookContainer}>
             <img src="/imgs/books/book_1.png" alt="anh-chi-tiet-sach" />
@@ -126,8 +165,8 @@ export default function BookDetailPage({
           item
           direction={"column"}
           className={style.bookInformation}
-          md={6}
-          sm={5}
+          md={8}
+          sm={7}
           xs={12}
         >
           <Typography
@@ -135,11 +174,18 @@ export default function BookDetailPage({
             variant="h4"
             className={style.titleBook}
             fontWeight={500}
+            mt={6}
             mb={2}
+            textAlign={{ xs: "center", sm: "left" }}
           >
             {title}
           </Typography>
-          <Stack direction={"row"} spacing={"2rem"} mb={4}>
+          <Stack
+            direction={"row"}
+            spacing={"2rem"}
+            mb={4}
+            alignItems={"center"}
+          >
             {/* Rating */}
             <Stack
               className={style.ratingAndVote}
@@ -245,6 +291,7 @@ export default function BookDetailPage({
               width={"100%"}
               gap={"1rem"}
               flexWrap={"wrap"}
+              my={4}
             >
               <Button
                 className={style.borrowBookBtn}
@@ -258,6 +305,14 @@ export default function BookDetailPage({
                     color: "var(--color-primary1)",
                     backgroundColor: "var(--color-white1)",
                   },
+
+                  "@media (max-width: 600px)": {
+                    width: "100%",
+                  },
+                }}
+                fullWidth={{
+                  xs: true,
+                  sm: false,
                 }}
               >
                 <MdOutlineShoppingBag
@@ -266,31 +321,16 @@ export default function BookDetailPage({
                 ></MdOutlineShoppingBag>
                 Mượn Sách
               </Button>
-              <Button
-                className={style.readBookBtn}
-                title={"Hiện tại sách vẫn chưa có dữ liệu"}
-                sx={{
-                  color: "var(--color-white1)",
-                  backgroundColor: "var(--color-secondary2)",
-                  borderRadius: "5rem",
-                  width: "15rem",
-                  "&:hover": {
-                    color: "var(--color-secondary2)",
-                    backgroundColor: "var(--color-white1)",
-                  },
-                }}
-              >
-                <FiBookOpen
-                  fontSize={"1.75rem"}
-                  style={{ marginRight: "0.5rem" }}
-                ></FiBookOpen>
-                Đọc Sách
-              </Button>
+
               <IconButton
                 className={clsx(style.favouriteBtn, style.btnControlGroup)}
                 sx={{
                   color: "var(--color-primary1)",
                   border: "1px solid var(--color-primary1)",
+                  ":hover": {
+                    color: "var(--color-white1)",
+                    backgroundColor: "var(--color-primary1)",
+                  },
                 }}
               >
                 <FaRegHeart fontSize={"1.3rem"}></FaRegHeart>
@@ -298,9 +338,12 @@ export default function BookDetailPage({
               <IconButton
                 className={style.btnControlGroup}
                 sx={{
-                  borderRadius: "50%",
                   color: "var(--color-primary1)",
                   border: "1px solid var(--color-primary1)",
+                  ":hover": {
+                    color: "var(--color-white1)",
+                    backgroundColor: "var(--color-primary1)",
+                  },
                 }}
               >
                 <BsCart2 fontSize={"1.3rem"}></BsCart2>
@@ -308,9 +351,12 @@ export default function BookDetailPage({
               <IconButton
                 className={style.btnControlGroup}
                 sx={{
-                  borderRadius: "50%",
                   color: "var(--color-primary1)",
                   border: "1px solid var(--color-primary1)",
+                  ":hover": {
+                    color: "var(--color-white1)",
+                    backgroundColor: "var(--color-primary1)",
+                  },
                 }}
               >
                 <RxShare1 fontSize={"1.3rem"}></RxShare1>
@@ -318,11 +364,11 @@ export default function BookDetailPage({
             </Stack>
 
             {/* Mô tả sách */}
-            <TextShowMore text={description}></TextShowMore>
+            <TextShowMore text={description} textAlign="left"></TextShowMore>
           </Stack>
 
           {/* Comment Select Control */}
-          <Stack direction={"row"} gap={"1rem"}>
+          <Stack direction={"row"} gap={"1rem"} mt={8}>
             <Button
               variant="outlined"
               sx={{
@@ -377,20 +423,37 @@ export default function BookDetailPage({
             </Button>
           </Box>
         </Grid>
-
-        {/* Thong Tin Tac Gia */}
-        <Grid item md={3} sm={3} xs={12} className={style.authorInformation}>
-          <Stack direction={"column"} spacing={2}>
-            <Typography
-              component={"h2"}
-              variant={"h5"}
-              className={style.titleAuthor}
-            >
-              <span>Thông tin </span> <span>Tác giả</span>
-            </Typography>
-          </Stack>
-        </Grid>
       </Grid>
+
+      <Stack
+        direction={"column"}
+        className={style.section2}
+        px={{ sm: 12, xs: 2 }}
+        mt={{ sm: 8, xs: 6 }}
+        mb={8}
+      >
+        <Typography
+          component={"h2"}
+          variant="h4"
+          sx={{
+            fontWeight: "500",
+            fontSize: "2rem",
+            color: "var(--color-primary2)",
+            opacity: 0.7,
+            textTransform: "capitalize",
+            mb: 4,
+          }}
+        >
+          Sách liên quan
+        </Typography>
+        <ListBookView
+          paginationCustomize={paginationCustomize}
+          dataList={booksRelated}
+          classNameSwiper={"book-recommend-carousel"}
+          spacebetween={width < BREAK_POINTS.xs ? 5 : 20}
+          slideCardPerView={width < BREAK_POINTS.xs ? 2.6 : 4.6}
+        ></ListBookView>
+      </Stack>
     </Stack>
   );
 }

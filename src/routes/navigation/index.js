@@ -25,7 +25,7 @@ const navList = [
   {
     id: 4,
     name: "Tủ Sách Của Tôi",
-    path: "/my-bookcase",
+    path: "/book/my-bookshelf",
     icon: <FaBookOpenReader></FaBookOpenReader>,
     isLogin: true,
   },

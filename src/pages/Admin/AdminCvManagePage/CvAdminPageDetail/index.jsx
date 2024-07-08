@@ -153,6 +153,8 @@ export default function CvAdminPageDetail() {
             : {},
           component: (
             <IWrapperResizeRotate
+              childContent={item.type === "editor" && item.content}
+              dataResize={item.sizeItem}
               color={item.color}
               layer={item.layer} // layer level hiện tại của item
               id={item.id}
@@ -188,6 +190,8 @@ export default function CvAdminPageDetail() {
   }, [listBoardCv]);
 
   useEffect(() => {
+    console.log("[LIST_CV_USERS]", listCvUsers);
+
     const newListBoard = [...listCvUsers[0].boards];
 
     //Update BoardRef
@@ -399,23 +403,25 @@ export default function CvAdminPageDetail() {
 
   //=================== Hàm xử lý khi hover vào page===============
   const handleHoverPage = (id) => {
-    console.log("HOVERING::::", id);
     setCurrentPageActive(id);
   };
 
-  // Hàm xử lý sự kiện cuộn chuột
+  // Hàm xử lý sự kiện zoom to nhỏ, tìm cách xử lý 2 ngón tay
   const handleWheel = (event) => {
-    event.preventDefault();
+    //Dùng để kiểm tra khi nào nhấn ctrl thì mới zoom, khi tabpad dùng 2 ngón tay mở rộng trình duyệt tự hiểu là đang nhấn ctrl
+    if (event.ctrlKey) {
+      event.preventDefault(); // Ngăn hành vi zoom mặc định của trình duyệt
 
-    // Tính toán delta để thay đổi zoom
-    const delta = event.deltaY > 0 ? -0.02 : 0.02;
+      // Tính toán delta để thay đổi zoom
+      const delta = event.deltaY > 0 ? -0.02 : 0.02;
 
-    setScale((prevScale) => {
-      let newScale = prevScale + delta;
-      if (newScale < 0.1) newScale = 0.1;
-      if (newScale > 5) newScale = 5;
-      return newScale;
-    });
+      setScale((prevScale) => {
+        let newScale = prevScale + delta;
+        if (newScale < 0.1) newScale = 0.1;
+        if (newScale > 5) newScale = 5;
+        return newScale;
+      });
+    }
   };
 
   // Hàm xử lý sự kiện chạm hai ngón tay
@@ -530,6 +536,7 @@ export default function CvAdminPageDetail() {
                     //====
                     className={"page_cv_" + board.boardId}
                     direction={"column"}
+                    // CV SIZE
                     width={"800px"}
                     height={"1122px"}
                     bgcolor={"#fff"}

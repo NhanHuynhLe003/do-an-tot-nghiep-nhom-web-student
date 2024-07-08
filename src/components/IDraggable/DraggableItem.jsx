@@ -2,13 +2,6 @@ import clsx from "clsx";
 import styles from "./IDraggableFree.module.css";
 
 import React from "react";
-import { cloneDeep } from "lodash";
-
-const Axis = {
-  ALL: "AXIS_ALL",
-  VERTICAL: "AXIS_VERTICAL",
-  HORIZONTAL: "AXIS_HORIZONTAL",
-};
 
 /**
  * IDraggableItem là một component đại diện cho một mục có thể kéo được trong giao diện kéo-thả.
@@ -29,7 +22,6 @@ const Axis = {
 const IDraggableItem = React.forwardRef((props, ref) => {
   const {
     coordinate,
-    rotate = 0,
     id,
     sizeLines, // Kích thước của các đường kẻ có dạng {id:1, lines:[]}
     axis,

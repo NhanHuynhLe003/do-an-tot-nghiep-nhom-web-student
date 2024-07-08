@@ -142,7 +142,6 @@ export default function IDraggableFree({
     if (
       !_.isEqual(listStateDataItemHistory.present?.listDataItem, listDataItem)
     ) {
-      console.log("[listStateDataItemHistory:::]", listStateDataItemHistory);
       dispatch(
         CvSlice.actions.setUpdateListDataItemInBoard(
           listStateDataItemHistory.present
@@ -274,16 +273,27 @@ export default function IDraggableFree({
     // listIdItemResizeOrRotateSelector có 2 board nên chạy 2 lần, mà trong 2 lần thì listDataItem mỗi lần là khác nhau, do vậy cần phải checkId của item đang resize hoặc rotate đúng thì mới update ListDataItem vào lich su
   }, [listIdItemResizeOrRotateSelector]);
 
+  // Hàm xử lý format data trước khi update
+  // function formatDataBeforeUpdate(listDataItem = []) {
+  //   return listDataItem.map((dataItem) => {
+  //     delete dataItem.component;
+  //     return dataItem;
+  //   });
+  // }
+
   //====================Hàm xử lý updateListDataItem vào Store Redux=========================
   function handleUpdateListDataItemIntoStore(
     newListDataItem,
     typeUpdate = "normal"
   ) {
+    // const convertObjPayload = formatDataBeforeUpdate(newListDataItem);
+    const convertObjPayload = newListDataItem;
+
     //Cập nhật lại listDataItem trong Store
     const newObjectUpdate = {
       cvId: idCurrentCv,
       boardId: boardId,
-      listDataItem: cloneDeep(newListDataItem),
+      listDataItem: cloneDeep(convertObjPayload),
     };
     dispatch(CvSlice.actions.setUpdateListDataItemInBoard(newObjectUpdate));
 
@@ -410,6 +420,8 @@ export default function IDraggableFree({
 
         //Lấy ra kích thước của wrapper-drag-item sau khi rotate
         const rectChildActive = currentActiveChild?.getBoundingClientRect();
+
+        //Lưu lại width, height của item vào redux để khi lấy ra vẫn ở trạng thái xoay, resize và nội dung content không bị thay đổi
 
         if (rectChildActive) {
           const newListDataItemRotateResize = [...listDataItem].map((data) => {
@@ -679,12 +691,17 @@ export default function IDraggableFree({
 
     const { active, delta } = event;
 
+    if (!active) return;
+
     const idDragging = active.id;
     const dataComponentDragging = active.data.current;
 
     const currentComponentDom = dataComponentDragging.componentRef.current;
 
     // Lấy ra kích thước item hiện tại để tính tọa độ
+    if (!currentComponentDom && !currentComponentDom?.getBoundingClientRect())
+      return;
+
     const { width, height } = currentComponentDom.getBoundingClientRect();
 
     //Do nó sẽ dịch 50% nên phải trừ đi 50% để nó dịch về vị trí cũ tiện so sánh, đồng thời bên trong hàm measureDistanceBetweenItems cũng sẽ dịch 50% => cùng gốc mới so sánh được
@@ -755,6 +772,9 @@ export default function IDraggableFree({
 
     const currentComponentDom = dataComponentActive.componentRef.current;
 
+    if (!currentComponentDom && !currentComponentDom?.getBoundingClientRect())
+      return;
+
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
     const newCoordinateActive = {
@@ -793,12 +813,22 @@ export default function IDraggableFree({
     );
   }
 
-  function handleDragEnd({ active, delta }) {
+  function handleDragEnd(event) {
+    console.log("EVENT DRAG END:::", event);
+
+    const { active, delta } = event;
+
+    if (!active) return;
+
     setIsDragging(false);
 
     const dataComponentDragging = active.data.current;
+
+    console.log("DATA: CURRENT:::", dataComponentDragging);
     const currentComponentDom = dataComponentDragging.componentRef.current;
 
+    if (!currentComponentDom && !currentComponentDom?.getBoundingClientRect())
+      return;
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
 
@@ -857,8 +887,7 @@ export default function IDraggableFree({
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
-      // autoScroll={true}
-
+      autoScroll={true}
       modifiers={modifiers}
       collisionDetection={rectIntersection}
     >

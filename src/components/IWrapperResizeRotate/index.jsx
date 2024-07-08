@@ -31,8 +31,20 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     typeChildren = "editor",
     ChildComponentProps = {},
     ChildComponent = <Box></Box>,
+
+    // Tránh khi component bị re-render lại thì dữ liệu bị mất
+    dataRotate,
+    dataResize,
     ...restProps
   } = props;
+
+  useEffect(() => {
+    console.warn("COMPONENT REMOUNTED");
+
+    return () => {
+      console.warn("COMPONENT [---UNMOUNTED---]");
+    };
+  }, []);
 
   const [newChildComponentProps, setNewChildComponentProps] = useState(
     _.cloneDeep(ChildComponentProps)
@@ -83,7 +95,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   const debouncedUpdateColorChange = useCallback(
     _.debounce((value) => {
       handleSetColorValue(value);
-    }, 100),
+    }, 50),
     []
   );
 
@@ -199,10 +211,12 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   const [keyPressed, setKeyPressed] = useState(null);
 
   const [isHoverRotate, setIsHoverRoate] = useState(false);
-  const [rotate, setRotate] = useState(0);
+  const [rotate, setRotate] = useState(dataRotate ? dataRotate : 0);
 
   const [size, setSize] = useState(
-    typeChildren === "editor"
+    dataResize
+      ? dataResize //Nếu dữ liệu resize có sự thay đổi thì lấy còn mới khởi tạo thường cũng chẳng có
+      : typeChildren === "editor"
       ? sizeEditorDefault
       : typeChildren === "shape"
       ? sizeShapeElementDefault

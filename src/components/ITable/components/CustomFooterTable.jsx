@@ -3,7 +3,10 @@ import React from "react";
 import TrashSelectedRowsButton from "./TrashSelectedRowsButton";
 import ITableCustomPagination from "./ITableCustomPagination";
 
-export default function CustomFooterTable() {
+export default function CustomFooterTable({
+  isShowPagination = true,
+  isShowTrashButton = true,
+}) {
   return (
     <Stack
       direction={"row"}
@@ -12,8 +15,8 @@ export default function CustomFooterTable() {
       m={2}
       width={"100%"}
     >
-      <TrashSelectedRowsButton></TrashSelectedRowsButton>
-      <ITableCustomPagination></ITableCustomPagination>
+      {isShowTrashButton && <TrashSelectedRowsButton></TrashSelectedRowsButton>}
+      {isShowPagination && <ITableCustomPagination></ITableCustomPagination>}
     </Stack>
   );
 }
