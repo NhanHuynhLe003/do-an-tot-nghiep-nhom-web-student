@@ -5,81 +5,11 @@ import SubmitDialog from "../../../components/IDialog/SubmitDialog";
 import { useReturnOrderByUser } from "../../../hooks/apis/checkout_order/useReturnOrderByUser";
 import { useGetStudentReadingBooks } from "../../../hooks/apis/students/useGetStudentReadingBooks";
 import style from "./MyBookShelf.module.css";
-
-const books = [
-  {
-    id: 1,
-    title: "Book 1",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-01-01",
-    submissionDue: "2024-01-15",
-  },
-  {
-    id: 2,
-    title: "Book 2",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-02-01",
-    submissionDue: "2024-02-15",
-  },
-  {
-    id: 3,
-    title: "Book 3",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-03-01",
-    submissionDue: "2024-03-15",
-  },
-  {
-    id: 4,
-    title: "Book 4",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-04-01",
-    submissionDue: "2024-04-15",
-  },
-  {
-    id: 5,
-    title: "Book 5",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-05-01",
-    submissionDue: "2024-05-15",
-  },
-  {
-    id: 6,
-    title: "Book 6",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-06-01",
-    submissionDue: "2024-06-15",
-  },
-  {
-    id: 7,
-    title: "Book 7",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-07-01",
-    submissionDue: "2024-07-15",
-  },
-  {
-    id: 8,
-    title: "Book 8",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-08-01",
-    submissionDue: "2024-08-15",
-  },
-  {
-    id: 9,
-    title: "Book 9",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-09-01",
-    submissionDue: "2024-09-15",
-  },
-  {
-    id: 10,
-    title: "Book 10",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-10-01",
-    submissionDue: "2024-10-15",
-  },
-];
+import axiosInstance from "../../../apis/axiosConfig";
 
 export default function MyBookShelf() {
+  const [booksInShelf, setBooksInShelf] = useState([]);
+
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   const {
     data: userBooksReadingData,
@@ -100,12 +30,36 @@ export default function MyBookShelf() {
     message: "Chờ xác nhận",
   });
 
-  const [dataOrderBook, setDataOrderBook] = useState([]);
-  const [listBookOrder, setListBookOrder] = useState(null);
-
   useEffect(() => {
     if (userBooksReadingData) {
-      console.log("userBooksReadingData:::", userBooksReadingData);
+      console.log("Books in shelf", userBooksReadingData?.data?.metadata);
+
+      const convertDataBooksInShelf = userBooksReadingData?.data?.metadata.map(
+        async (book) => {
+          //get new image
+          const bookFoundId = await axiosInstance.get(
+            "/v1/api/book/publish/" + book.book_data.bookId
+          );
+
+          return {
+            ...book,
+            bookData: {
+              ...book.book_data,
+              bookThumb: bookFoundId?.data?.metadata?.book_thumb,
+            },
+          };
+        }
+      );
+
+      //Chờ tất cả các Promise trong mảng convertDataBooksInShelf hoàn thành
+      Promise.all(convertDataBooksInShelf)
+        .then((datas) => {
+          console.log("Convert data books in shelf", datas);
+          setBooksInShelf(datas);
+        })
+        .catch((error) => {
+          console.error("Error convert data books in shelf", error);
+        });
     }
   }, [userBooksReadingData]);
 
@@ -158,8 +112,8 @@ export default function MyBookShelf() {
         </ul>
       </div>
       <div className={style.bookContainer}>
-        {listBookOrder &&
-          listBookOrder.map((book) => (
+        {booksInShelf &&
+          booksInShelf.map((book) => (
             <div
               key={book.data?.bookId}
               className={`${style.book} ${
@@ -169,8 +123,8 @@ export default function MyBookShelf() {
               <div className={style.bookcard}>
                 <div className={style.bookImgContainer}>
                   <img
-                    src={book.data?.bookThumb}
-                    alt={book.data?.bookName}
+                    src={book?.bookData?.bookThumb}
+                    alt={book?.bookData?.bookName}
                     className={style.imgbook}
                   />
                 </div>
@@ -249,11 +203,15 @@ export default function MyBookShelf() {
                       "Bạn có chắc chắn trả quyển sách này chứ?",
                   }}
                   fncHandleClickAccept={(data) =>
-                    handleAcceptReturnBook(book.orderId, data, book.bookId)
+                    handleAcceptReturnBook(
+                      book?.book_orderId,
+                      data,
+                      book?.book_data?.bookId
+                    )
                   }
                 ></SubmitDialog>
                 <Button
-                  disabled={book.status === "indue" ? false : true}
+                  disabled={book.book_status === "indue" ? false : true}
                   fullWidth
                   type="button"
                   variant="outlined"

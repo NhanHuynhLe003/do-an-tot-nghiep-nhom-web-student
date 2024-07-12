@@ -26,20 +26,6 @@ export default function MainLayout({ children, typePage = "" }) {
     setWidthToolBarDrawer(width);
   }
 
-  // useEffect(() => {
-  //   const scrollTopContent = refSlideContent.current.scrollTop;
-  //   const scrollHeightContent = refSlideContent.current.scrollHeight;
-
-  //   // const offsetWidthContent = refSlideContent.current.offsetWidth;
-  //   const clientHeightContent = refSlideContent.current.clientHeight;
-
-  //   setScrollProperty({
-  //     scrollTopPage: scrollTopContent,
-  //     scrollHeightPage: scrollHeightContent,
-  //     clientHeightPage: clientHeightContent,
-  //   });
-  // }, [refSlideContent.current?.scrollTop]);
-
   return (
     <Box
       sx={{
@@ -70,7 +56,6 @@ export default function MainLayout({ children, typePage = "" }) {
           style={{
             width: "100%",
             height: "100%",
-            // filter: "drop-shadow(3px 3px 30px #6154FA)",
           }}
         />
       </Box>

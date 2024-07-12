@@ -1,50 +1,108 @@
-import { Box, Stack } from "@mui/material";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Box, Button, Input, Stack } from "@mui/material";
+import { debounce } from "lodash";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import axiosInstance from "../../../../apis/axiosConfig";
+import SubmitDialog from "../../../../components/IDialog/SubmitDialog";
+import IDndImage from "../../../../components/IDndImage";
 import IDraggableFree from "../../../../components/IDraggable/IDraggableFree";
-import IEmptyComponent from "../../../../components/IEmptyComponent";
 import IShapeElement from "../../../../components/IShapeElement";
 import ITipTapEditor from "../../../../components/ITipTapEditor";
 import IWrapperResizeRotate from "../../../../components/IWrapperResizeRotate";
+import { BREAK_POINTS } from "../../../../constants";
+import { useWindowSize } from "../../../../hooks";
+import { useGetCvById } from "../../../../hooks/apis/admin/useGetCvById";
 import {
   cvZoomScaleSelector,
   listCvUserSelector,
 } from "../../../../redux/selector";
 import CvSlice from "../../../../redux/slices/CvSlice";
-import { useParams } from "react-router-dom";
-import IDndImage from "../../../../components/IDndImage";
 
 export default function CvAdminPageDetail() {
+  const { widthScreen, heightScreen } = useWindowSize();
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
+
   const { id: currentCvPageId } = useParams();
-  const [isExistCvPage, setIsExistCvPage] = useState(false);
+
+  const [isExistCvPage, setIsExistCvPage] = useState(true);
+
+  //Dữ liệu CV từ Store Redux
   const listCvUsers = useSelector(listCvUserSelector);
+  const boardCvConvertToDisplay = useRef([]);
 
-  useLayoutEffect(() => {
-    const isExistCv = listCvUsers.some((cv) => cv.cvId === currentCvPageId);
-    setIsExistCvPage(isExistCv);
-  }, []);
+  const {
+    data: cvDataDetail,
+    error: errorCvDetail,
+    isLoading: isLoadingCvDetail,
+  } = useGetCvById({ cvId: currentCvPageId, userId: studentData?._id });
 
-  const [listBoardCv, setListBoardCv] = useState([...listCvUsers[0].boards]);
+  // useLayoutEffect(() => {
+  //   const isExistCv = listCvUsers.some((cv) => cv.cvId === currentCvPageId);
+  //   setIsExistCvPage(isExistCv);
+  // }, []);
+
+  // const [listBoardCv, setListBoardCv] = useState([...listCvUsers[0].boards]);
+  const [listBoardCv, setListBoardCv] = useState([]);
+  const [getApiFirstTime, setGetApiFirstTime] = useState(true);
+
+  // Chuyển sang dạng hiển thị được trên IDraggableFree
   const [listBoardCvConvert, setListBoardCvConvert] = useState([]);
-  const [listBoardRefs, setListBoardRefs] = useState(
-    listBoardCv.map((board) => ({
-      boardId: board.boardId,
-      id: board.boardId,
-      name: board.name,
-      type: board.type,
-      layer: board.layer,
-      color: board.color,
-      ChildComponentProps: board.ChildComponentProps
-        ? board.ChildComponentProps
-        : {},
-      position: board.position,
-      boardRef: React.createRef(),
-      cvWrapperRef: React.createRef(),
-    }))
-  );
+  const [listBoardRefs, setListBoardRefs] = useState([]);
 
-  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    if (getApiFirstTime && cvDataDetail) {
+      const data = cvDataDetail?.data?.metadata;
+      const cvDetailConvert = data && {
+        ...data,
+        boards: data.boards.map((board) => ({
+          ...board,
+          boardId: board._id,
+        })),
+        cvId: data._id,
+        dateUpdated: data.updatedAt,
+        dateCreated: data.createdAt,
+      };
+
+      const convertDataBoardFromApi = cvDetailConvert?.boards?.map((board) => ({
+        boardId: board.boardId,
+        id: board.boardId,
+        name: board.name,
+        type: board.type,
+        layer: board.layer,
+        color: board.color,
+        ChildComponentProps: board.ChildComponentProps
+          ? board.ChildComponentProps
+          : {},
+        position: board.position,
+        boardRef: React.createRef(),
+        cvWrapperRef: React.createRef(),
+      }));
+
+      // Set Vị trí CV đầu tiên cho view
+      dispatch(
+        CvSlice.actions.setCurrentBoardInView({
+          id: cvDetailConvert?.boards[0]?.boardId,
+          name: cvDetailConvert?.boards[0]?.name,
+          position: cvDetailConvert?.boards[0]?.position,
+        })
+      );
+
+      // ADD CV từ API vào listCVUsers trong Redux để xử lý kéo thả phía client
+      dispatch(CvSlice.actions.setDataListCvUser([cvDetailConvert]));
+
+      // Set Giá trị Board cho các state quản lý
+      setListBoardCv(cvDetailConvert?.boards);
+      setListBoardRefs(convertDataBoardFromApi);
+
+      // Tắt gán giá trị lần đầu tiên
+      setGetApiFirstTime(false);
+    }
+  }, [cvDataDetail, getApiFirstTime]);
+
+  const [scale, setScale] = useState(widthScreen <= BREAK_POINTS.xs ? 0.3 : 1);
   const [CurrentPageActive, setCurrentPageActive] = useState(-1);
 
   const [keyPressed, setKeyPressed] = useState("");
@@ -63,6 +121,9 @@ export default function CvAdminPageDetail() {
     x: 0,
     y: 0,
   });
+
+  //focus input name
+  const [currentInputFocus, setCurrentInputFocus] = useState(-1);
 
   const scaleCvSelector = useSelector(cvZoomScaleSelector);
   const dispatch = useDispatch();
@@ -124,11 +185,23 @@ export default function CvAdminPageDetail() {
 
   useEffect(() => {
     //(*)Chuyển CV sang dạng Hiển thị được trong BOARD
-    const newBoardDataConvert = listBoardCv.map((board, index) => {
+
+    //cv userID bằng với id user hiện tại thì cho phép kéo bất kể quyền gì
+
+    //chỉ lấy listBoardCv trong lần đầu tiên từ API, sau khi listCVUsers đã có dữ liệu thì lấy từ board của listCVUsers
+    const listCVTemp = getApiFirstTime
+      ? [...listBoardCv]
+      : [...listCvUsers[0]?.boards];
+
+    console.log("LIST CV TEMP:::", listCVTemp);
+    const newBoardDataConvert = listCVTemp.map((board, index) => {
       const newItemDataConvert = board.listDataItem.map((item) => {
-        //Component sẽ được truyền xuống Board
-        let ChildComponent = IEmptyComponent;
-        switch (item.type) {
+        console.log("ITEM:::", item);
+
+        // console.log("TYPE ITEM DRAG:::", typeItemDrag);
+        //(*)Component sẽ được truyền xuống Board, tìm cách chỉ hiển thị khi có type thôi
+        let ChildComponent = ITipTapEditor;
+        switch (item?.itemType) {
           case "editor":
             ChildComponent = ITipTapEditor;
             break;
@@ -139,26 +212,30 @@ export default function CvAdminPageDetail() {
             ChildComponent = IDndImage;
             break;
           default:
-            ChildComponent = IEmptyComponent;
+            ChildComponent = ITipTapEditor;
             break;
         }
 
         return {
+          ...item,
+
           boardId: item.boardId,
-          id: item.id,
-          type: item.type,
+          id: item.id || item._id,
+          itemType: item.itemType,
           color: item.color, // Màu của item áp dụng cho shape
           ChildComponentProps: item.ChildComponentProps
             ? item.ChildComponentProps
             : {},
           component: (
             <IWrapperResizeRotate
-              childContent={item.type === "editor" && item.content}
+              roleItem={item.role}
+              dataRotate={item.rotateDeg}
               dataResize={item.sizeItem}
+              childContent={item.content}
               color={item.color}
               layer={item.layer} // layer level hiện tại của item
               id={item.id}
-              typeChildren={item.type}
+              typeChildren={item.itemType}
               cvId={currentCvPageId}
               boardId={board.boardId}
               ChildComponentProps={{
@@ -179,51 +256,53 @@ export default function CvAdminPageDetail() {
         };
       });
 
-      return {
+      const res = {
         ...board,
         listDataItem: newItemDataConvert,
         position: { top: index * 80, left: 0 },
       };
+
+      return res;
     });
 
-    setListBoardCvConvert(newBoardDataConvert);
-  }, [listBoardCv]);
+    boardCvConvertToDisplay.current = newBoardDataConvert;
+
+    // setListBoardCvConvert(newBoardDataConvert);
+  }, [listBoardCv, listCvUsers, getApiFirstTime, boardCvConvertToDisplay]);
 
   useEffect(() => {
-    console.log("[LIST_CV_USERS]", listCvUsers);
-
-    const newListBoard = [...listCvUsers[0].boards];
-
+    const newListBoard = listCvUsers[0]?.boards
+      ? listCvUsers[0]?.boards
+      : [...listBoardCv];
     //Update BoardRef
-    setListBoardRefs((prev) =>
-      newListBoard.map((board) => {
-        const boardRef = prev.find(
-          (item) => item.boardRef && item.id === board.boardId
-        );
-        if (boardRef) {
-          //Có rồi thì trả về luôn
-          return boardRef;
-        } else {
-          //Chưa có thì tạo mới Ref
-          return {
-            id: board.boardId,
-            name: board.name,
-            type: board.type,
-            ChildComponentProps: board.ChildComponentProps
-              ? board.ChildComponentProps
-              : {},
-            position: board.position,
-            boardRef: React.createRef(),
-            cvWrapperRef: React.createRef(),
-          };
-        }
-      })
-    );
+    const newListBoardRef = newListBoard.map((board) => {
+      const boardRef = listBoardRefs.find(
+        (item) => item.boardRef && item.id === board.boardId
+      );
+      if (boardRef) {
+        //Có rồi thì trả về luôn
+        return boardRef;
+      } else {
+        //Chưa có thì tạo mới Ref
+        return {
+          id: board.boardId,
+          name: board.name,
+          type: board.type,
+          ChildComponentProps: board.ChildComponentProps
+            ? board.ChildComponentProps
+            : {},
+          position: board.position,
+          boardRef: React.createRef(),
+          cvWrapperRef: React.createRef(),
+        };
+      }
+    });
 
-    // console.log("[NEW_LIST_BOARD_CV_UPDATED]", newListBoard);
-    //Update Board
-    setListBoardCv(newListBoard);
-  }, [listCvUsers]);
+    setListBoardRefs(newListBoardRef);
+
+    //vua tat
+    // setListBoardCv(newListBoard);
+  }, [listCvUsers, listBoardCv]);
 
   //===========Tính Toán vị trí của thanh cuộn Y Để thêm Text vào item==================
   useEffect(() => {
@@ -237,7 +316,7 @@ export default function CvAdminPageDetail() {
       const scrollTop = containerBoardRef.current.scrollTop;
 
       /**
-       *@description Tính toán vị trí của Board
+       *@description Tính toán vị trí của Board => lấy ra board hiện tại đang nhìn thấy
        */
       const calculateBoardPosition = (boardRef) => {
         const boardRect =
@@ -250,12 +329,16 @@ export default function CvAdminPageDetail() {
       const startViewport = scrollTop + rectContainer.top;
       const endViewport = startViewport + rectContainer.height;
 
+      // Lấy ra danh sách các ref của board để so sánh
       listBoardRefs.forEach((boardRef, index) => {
         const { topBoard, bottomBoard } = calculateBoardPosition(boardRef);
+
+        //Lấy ra Board tiếp theo để so sánh
         const nextBoardRef = listBoardRefs[index + 1];
 
         if (startViewport >= topBoard && endViewport <= bottomBoard) {
           //CASE 1: View nằm trong Board
+
           dispatch(
             CvSlice.actions.setCurrentBoardInView({
               id: boardRef.id,
@@ -353,7 +436,7 @@ export default function CvAdminPageDetail() {
         );
       }
     };
-  }, []);
+  }, [listBoardRefs]);
 
   useEffect(() => {
     //Xử lý nhấn nút xem có phải đang nhấn ctrl để chọn nhiều item không
@@ -424,6 +507,13 @@ export default function CvAdminPageDetail() {
     }
   };
 
+  const handleFoucusInput = useCallback(
+    (index) => {
+      setCurrentInputFocus(index);
+    },
+    [currentInputFocus]
+  );
+
   // Hàm xử lý sự kiện chạm hai ngón tay
   const handleTouchMove = (event) => {
     if (event.touches.length === 2) {
@@ -479,6 +569,84 @@ export default function CvAdminPageDetail() {
     setLastTouchPositions(null);
   };
 
+  const handleChangeInputNameBoard = useCallback(
+    debounce(function (boardId, value) {
+      dispatch(
+        CvSlice.actions.setNameBoard({
+          cvId: currentCvPageId,
+          boardId,
+          name: value,
+        })
+      );
+    }, 300)
+  );
+
+  const handleClickAddPage = useCallback(
+    debounce(async () => {
+      //fetch API thêm board vào bảng mới
+      const res = await axiosInstance.post("/v1/api/cv/add/board", {
+        cvId: currentCvPageId,
+        userId: studentData?._id,
+      });
+      const IdBoardApi = res?.data?.metadata?._id;
+
+      dispatch(
+        CvSlice.actions.setAddBoardIntoCv({
+          cvId: currentCvPageId,
+          board: {
+            cvId: currentCvPageId,
+            cvUserId: studentData?._id,
+            boardId: IdBoardApi, //thực tế thay bằng _id của board
+            name: "Untitled",
+            position: { top: listCvUsers[0]?.boards.length * 80, left: 0 },
+            listDataItem: [],
+          },
+        })
+      );
+
+      toast.success("Thêm bảng mới thành công!", {
+        position: "top-center",
+        autoClose: 1500,
+      });
+    }, 1000),
+    []
+  );
+
+  const handleRemovePage = useCallback(
+    debounce((isAccept, boardId) => {
+      if (!isAccept) return;
+
+      if (listCvUsers[0]?.boards.length <= 1) {
+        toast.error(
+          "Phải có tối thiểu 1 bảng, hãy tạo 1 bảng trống mới rồi xóa bảng hiện tại!",
+          {
+            position: "top-center",
+          }
+        );
+        return;
+      }
+
+      dispatch(
+        CvSlice.actions.setRemoveBoardInCv({
+          cvId: currentCvPageId,
+          boardId,
+        })
+      );
+
+      toast.success("Xóa bảng thành công!", {
+        position: "top-center",
+        autoClose: 1500,
+      });
+    }, 500)
+  );
+
+  // useEffect(() => {
+  //   if (listBoardRefs[0]?.cvWrapperRef?.current) {
+  //     const rect =
+  //       listBoardRefs[0]?.cvWrapperRef?.current.getBoundingClientRect();
+  //   }
+  // }, [listBoardRefs[0]?.cvWrapperRef?.current]);
+
   return (
     <Box
       className="board_container_cv"
@@ -490,9 +658,15 @@ export default function CvAdminPageDetail() {
         justifyContent: "center",
         alignItems: "flex-start",
         overflowY: "auto",
-        // Ẩn thanh scroll khi scale nhỏ hơn 0.44
-        overflowX: scale < 0.44 ? "hidden" : "auto",
+        // Ẩn thanh scroll khi scale nhỏ hơn 0.4
+        overflowX: scale < 0.4 ? "hidden" : "auto",
         scrollBehavior: "unset",
+
+        //Mobile
+        "@media (max-width: 600px)": {
+          justifyContent: "center",
+          minHeight: "100vh",
+        },
       }}
     >
       {isExistCvPage ? (
@@ -506,13 +680,14 @@ export default function CvAdminPageDetail() {
             transformOrigin: "top left",
           }}
         >
-          {listBoardCvConvert ? (
-            listBoardCvConvert.map((board, index) => {
+          {boardCvConvertToDisplay.current ? (
+            boardCvConvertToDisplay.current.map((board, index) => {
               return (
                 <Box
                   key={"BOARD_" + board.boardId}
                   ref={(node) => {
-                    listBoardRefs[index].cvWrapperRef.current = node;
+                    if (listBoardRefs[index])
+                      listBoardRefs[index].cvWrapperRef.current = node;
                     return node;
                   }}
                   className={"page_cv_wrapper_" + board.boardId}
@@ -520,11 +695,97 @@ export default function CvAdminPageDetail() {
                     position: "absolute",
                     top: `${board.position?.top}rem`,
                     left: `${board.position?.left}rem`,
+                    "@media (max-width: 600px)": {
+                      overflow: "hidden",
+                    },
                   }}
                 >
                   <Stack
+                    direction={"row"}
+                    maxWidth={"800px"}
+                    mb={1}
+                    justifyContent={"space-between"}
+                  >
+                    <Stack
+                      direction={"row"}
+                      justifyContent={"center"}
+                      alignItems={"center"}
+                    >
+                      <Input
+                        defaultValue={board.name || "Untitled"}
+                        inputProps={{ "aria-label": "description" }}
+                        disableUnderline={
+                          currentInputFocus === index ? false : true
+                        }
+                        onChange={(e) =>
+                          handleChangeInputNameBoard(
+                            board.boardId,
+                            e.target.value
+                          )
+                        }
+                        onFocus={() => handleFoucusInput(index)}
+                        onBlur={() => setCurrentInputFocus(-1)}
+                        sx={{
+                          opacity: currentInputFocus === index ? 1 : 0.7,
+                          color: "var(--color-primary2)",
+                        }}
+                      />
+                    </Stack>
+
+                    <Stack
+                      direction={"row"}
+                      justifyContent={"center"}
+                      alignItems={"center"}
+                      gap={2}
+                    >
+                      <Button
+                        onClick={handleClickAddPage}
+                        type="button"
+                        variant="text"
+                        sx={{
+                          color: "var(--color-primary2)",
+                          opacity: 0.5,
+                          transition: "all 0.2s",
+                          ":hover": {
+                            color: "#fff",
+                            backgroundColor: "var(--color-primary2)",
+                          },
+                        }}
+                      >
+                        Thêm Bảng mới
+                      </Button>
+                      <SubmitDialog
+                        styleBtnShowInfo={{
+                          borderRadius: 28,
+                          opacity: 0.7,
+                          color: "red",
+                          backgroundColor: "transparent",
+                          transition: "0.2s ease-in-out",
+                          ":hover": {
+                            backgroundColor: "red",
+                            color: "#fff",
+                          },
+                        }}
+                        buttonShowInfo={{
+                          variant: "text",
+
+                          title: "X",
+                        }}
+                        dialogInfo={{
+                          contentDialogTitle: "Xác nhận xóa bảng",
+                          contentDialogDesc:
+                            "Bạn có chắc chắn xóa bảng này chứ",
+                        }}
+                        fncHandleClickAccept={(isAccept) =>
+                          handleRemovePage(isAccept, board.boardId)
+                        }
+                      ></SubmitDialog>
+                    </Stack>
+                  </Stack>
+                  <Stack
                     ref={(node) => {
-                      listBoardRefs[index].boardRef.current = node;
+                      if (listBoardRefs[index])
+                        listBoardRefs[index].boardRef.current = node;
                       return node;
                     }}
                     onMouseEnter={() => handleHoverPage(board.boardId)}
@@ -540,14 +801,36 @@ export default function CvAdminPageDetail() {
                     width={"800px"}
                     height={"1122px"}
                     bgcolor={"#fff"}
-                    boxShadow={"0 0 10px rgba(0,0,0,0.1)"}
+                    boxShadow={"0 0 14px rgba(0,0,0,0.2)"}
                     overflow={"hidden"} //Ẩn nội dung khi vượt quá page
                     position={"relative"}
+                    // Tính khoảng cách bên trái để đẩy ra 1 khoảng để căn giữa thanh bar
                     marginRight={`${
                       listBoardRefs[
                         index
-                      ].cvWrapperRef?.current?.getBoundingClientRect().left
+                      ]?.cvWrapperRef?.current?.getBoundingClientRect().left
                     }px`}
+                    marginBottom={
+                      index === listBoardCvConvert.length - 1 ? 12 : 0
+                    }
+                    sx={{
+                      "@media (max-width: 600px)": {
+                        marginRight:
+                          scale > 0.8
+                            ? `${Math.abs(
+                                listBoardRefs[
+                                  index
+                                ]?.cvWrapperRef?.current?.getBoundingClientRect()
+                                  .left
+                              )}px`
+                            : `${Math.abs(
+                                listBoardRefs[
+                                  index
+                                ]?.cvWrapperRef?.current?.getBoundingClientRect()
+                                  .right
+                              )}px`,
+                      },
+                    }}
                   >
                     <IDraggableFree
                       idCurrentCv={currentCvPageId}
