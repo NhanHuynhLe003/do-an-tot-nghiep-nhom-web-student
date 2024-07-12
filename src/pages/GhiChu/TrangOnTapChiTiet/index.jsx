@@ -1,6 +1,7 @@
 ////////////////////ANHKHOA//////////////////////////
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import style from "./TrangOnTapChiTiet.module.css";
+import { useGetNhungNoteHomNay } from "../../../hooks/apis/notes/useGetNhungNoteHomNay.js";
 
 const notes = [
   {
@@ -27,15 +28,48 @@ const notes = [
 ];
 
 export default function TrangOnTapChiTiet() {
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
+  const [noteList, setNoteList] = useState([]);
+  ///ĐÃ SỮA
+  const [currentNoteIndex, setCurrentNoteIndex] = useState(0); // Chỉ số của ghi chú hiện tại
+  //////////
+  const {
+    data: dataNotesServerTraVe, //du lieu server tra ve sau khi lay data thong qua api
+    isLoading,
+    error
+  } = useGetNhungNoteHomNay({
+    note_userId: studentData._id, // user cua id dang nhap hien tai
+    note_parentId: "668a6b13ddf1507a255c8681", // la id cua note chinh(ko chua cac duc lo)
+  })
+
+  useEffect(() => {
+    console.log("ID STudent:::", studentData)
+    console.log("dataNotesServerTraVe", dataNotesServerTraVe);
+    if (dataNotesServerTraVe && dataNotesServerTraVe.data && dataNotesServerTraVe.data.metadata) {
+      const danhSachDuLieuMoi = dataNotesServerTraVe.data.metadata
+      console.log("danhSachDuLieuMoi", danhSachDuLieuMoi);
+      setNoteList(danhSachDuLieuMoi);
+    }
+
+  }, [dataNotesServerTraVe])
+
+
   const [selectedNote, setSelectedNote] = useState(notes[0]); // Ghi chú mặc định
   const [shButtun, setButtun] = useState(false)
   function handleButtonClick() {
     setButtun(true);
   }
+  /////////////ĐÃ SỮA
+  function handleNoteChange() {
+    setCurrentNoteIndex(prevIndex => (prevIndex + 1) % noteList.length);
+    setButtun(false);
+  }
+  ////////////////////  
   return (
     <div className={style.TrangOnTap}>
       <div className={style.documentList} >
         <h5 className={style.tieude}>Documents</h5>
+        {/* Danh Sach Note Goc */}
         {notes.map((note, index) => (
           <div key={index} onClick={() => setSelectedNote(note)}>
             <div className={style.notecard}>
@@ -49,7 +83,8 @@ export default function TrangOnTapChiTiet() {
         ))}
       </div>
       <div className={style.OnTapChiTiet}>
-        <h2>{selectedNote.tieude}</h2>
+        {/* <h2>{selectedNote.tieude}</h2> */}
+        <h2>{noteList[currentNoteIndex] && noteList[currentNoteIndex].note_title}</h2>
         <div className={style.fonderdate}>
           <img
             src="https://tse3.explicit.bing.net/th?id=OIP.SQo02J3N13kPFLekg_E3TAHaHu&pid=Api&P=0&h=180"
@@ -58,7 +93,9 @@ export default function TrangOnTapChiTiet() {
           />
           <div className={style.dateContainer}>
             <p className={style.h2}>Date</p>
-            <span className={style.date}>{selectedNote.ngay}</span>
+            {/* <span className={style.date}>{selectedNote.ngay}</span> */}
+            <span className={style.date}>{noteList[currentNoteIndex] && noteList[currentNoteIndex].createdOn.toString()}</span>
+
           </div>
         </div>
         <div className={style.fonderdate}>
@@ -72,18 +109,26 @@ export default function TrangOnTapChiTiet() {
             <span className={style.date}>Documents</span>
           </div>
         </div>
-        <div className={style.contentEditable} >
+        {/* <div className={style.contentEditable} >
           {selectedNote.nd}
+        </div> */}
+        <div className={style.contentEditable} >
+          <div className={style.contentEditable}>
+            {noteList[currentNoteIndex] && !shButtun ? noteList[currentNoteIndex]?.note_cloze : noteList[currentNoteIndex]?.note_content}
+          </div>
+
         </div>
-        <div className={style.buttonKQ}>
-          <button onClick={handleButtonClick} className={style.ButtonHT}>  Hiển Thị Kết Quả </button>
-        </div>
+        {!shButtun && (
+          <div className={style.buttonKQ}>
+            <button onClick={handleButtonClick} className={style.ButtonHT}>  Hiển Thị Kết Quả </button>
+          </div>
+        )}
         {shButtun && (
           <div className={style.buttonlon}>
-            <button className={style.Buttonnho}>1 day</button>
-            <button className={style.Buttonnho}>2 days</button>
-            <button className={style.Buttonnho}>3 days</button>
-            <button className={style.Buttonnho}>4 days</button>
+            <button className={style.Buttonnho} onClick={handleNoteChange}>1 day</button>
+            <button className={style.Buttonnho} onClick={handleNoteChange}>2 days</button>
+            <button className={style.Buttonnho} onClick={handleNoteChange}>3 days</button>
+            <button className={style.Buttonnho} onClick={handleNoteChange}>4 days</button>
           </div>
         )}
       </div>

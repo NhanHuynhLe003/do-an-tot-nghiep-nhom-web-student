@@ -140,7 +140,10 @@
 /* qua dep luon */
 .Buttonnho:hover {
     /* dùng chuyển màu khi đưa trỏ vào nút nhấn*/
-    background-color: #13DDFA;
+    background-color: #0056b3;
+}
+.ButtonHT:hover {
+   background-color: #0056b3;
 }
 .buttonKQ{
     text-align: center;
@@ -186,5 +189,15 @@
 
     .img{
         max-width: 10%;
+    }
+    .documentList{
+        width: 30%;
+    }
+    .OnTapChiTiet{
+        width: 70%;
+    }
+    .Buttonnho{
+        width: 20%;
+        height: 40px;
     }
 }
