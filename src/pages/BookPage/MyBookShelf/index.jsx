@@ -40,7 +40,6 @@ export default function MyBookShelf() {
           const bookFoundId = await axiosInstance.get(
             "/v1/api/book/publish/" + book.book_data.bookId
           );
-          console.log("Book found id", bookFoundId?.data?.metadata?.book_thumb);
 
           return {
             ...book,
@@ -52,6 +51,7 @@ export default function MyBookShelf() {
         }
       );
 
+      //Chờ tất cả các Promise trong mảng convertDataBooksInShelf hoàn thành
       Promise.all(convertDataBooksInShelf)
         .then((datas) => {
           console.log("Convert data books in shelf", datas);
@@ -203,11 +203,15 @@ export default function MyBookShelf() {
                       "Bạn có chắc chắn trả quyển sách này chứ?",
                   }}
                   fncHandleClickAccept={(data) =>
-                    handleAcceptReturnBook(book.orderId, data, book.bookId)
+                    handleAcceptReturnBook(
+                      book?.book_orderId,
+                      data,
+                      book?.book_data?.bookId
+                    )
                   }
                 ></SubmitDialog>
                 <Button
-                  disabled={book.status === "indue" ? false : true}
+                  disabled={book.book_status === "indue" ? false : true}
                   fullWidth
                   type="button"
                   variant="outlined"

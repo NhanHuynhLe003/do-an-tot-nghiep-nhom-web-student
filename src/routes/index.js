@@ -1,28 +1,29 @@
 import AccessLayout from "../components/layouts/AccessLayout";
 import EmptyLayout from "../components/layouts/EmptyLayout";
 import MainLayout from "../components/layouts/MainLayout";
-import AdminMainPage from "../pages/Admin/AdminMainPage";
 import AdminBookManagePage from "../pages/Admin/AdminBookManagePage";
+import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
+import AdminMainPage from "../pages/Admin/AdminMainPage";
 import Book from "../pages/BookPage/Book";
 import BookDetailPage from "../pages/BookPage/BookDetail";
 import BookSearchPage from "../pages/BookPage/BookSearch";
-import Home from "../pages/Home";
-import Login from "../pages/login";
 import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
-import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
+import Home from "../pages/Home";
+import Login from "../pages/login";
 
 import CvLayout from "../components/layouts/CvLayout";
 import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
 import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
 import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
-import TrangChart from "../pages/GhiChu/TrangChart";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
-import MyBookShelf from "../pages/BookPage/MyBookShelf";
 import BookCheckout from "../pages/BookPage/BookCheckout";
+import MyBookShelf from "../pages/BookPage/MyBookShelf";
+import TrangChart from "../pages/GhiChu/TrangChart";
 import NotFoundPage from "../pages/NotFound";
+import StudentInformation from "../pages/Student/StudentInformation";
 
 const routes = [
   {
@@ -152,6 +153,12 @@ const routes = [
     layout: EmptyLayout,
   },
 
+  //===========================Student Information===========================
+  {
+    path: "/student/information",
+    component: StudentInformation,
+    layout: MainLayout,
+  },
   //========================404========================
   {
     path: "*",

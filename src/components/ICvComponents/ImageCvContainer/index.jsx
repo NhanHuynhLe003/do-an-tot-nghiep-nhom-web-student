@@ -38,7 +38,7 @@ const IUploadImageDropZone = () => {
       boardId: boardId,
       id: idItemDrag,
       role: "ALL", //["ONLY_READ", "ONLY_WRITE", "ALL"]
-      type: "image",
+      itemType: "image",
 
       coordinate: {
         x: initCoordinate - TRANSLATE_NUM * sizeImageDndDefault.width,
@@ -71,7 +71,9 @@ const IUploadImageDropZone = () => {
           TRANSLATE_NUM * sizeImageDndDefault.height,
       },
       sizeItem: sizeImageDndDefault,
+      rotateDeg: 0,
       layer: 1,
+      color: "",
 
       // Props của component con
       ChildComponentProps: {

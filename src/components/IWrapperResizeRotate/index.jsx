@@ -1,5 +1,5 @@
 import { Box, Button } from "@mui/material";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaArrowRotateRight } from "react-icons/fa6";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -19,9 +19,11 @@ import CvSlice from "../../redux/slices/CvSlice";
 import IMenuListFloat from "../IMenuListFloat";
 import styles from "./IWrapperResizeRotate.module.css";
 import clsx from "clsx";
+import IHoverMenu from "../IHoverMenu";
 
 const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   const {
+    roleItem,
     color = "#5496FA",
     layer,
     cvId,
@@ -38,14 +40,6 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     ...restProps
   } = props;
 
-  useEffect(() => {
-    console.warn("COMPONENT REMOUNTED");
-
-    return () => {
-      console.warn("COMPONENT [---UNMOUNTED---]");
-    };
-  }, []);
-
   const [newChildComponentProps, setNewChildComponentProps] = useState(
     _.cloneDeep(ChildComponentProps)
   );
@@ -55,6 +49,23 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     isResizing: false,
     isRotating: false,
   });
+
+  const listRoleRef = useRef([
+    { id: "ALL", content: "ALL" },
+    { id: "ONLY_READ", content: "ONLY_READ" },
+    { id: "ONLY_WRITE", content: "ONLY_WRITE" },
+  ]);
+  const [roleVal, setRoleVal] = useState(
+    roleItem
+      ? {
+          id: listRoleRef.current.find((item) => item.content === roleItem).id,
+          content: roleItem,
+        }
+      : {
+          id: listRoleRef.current[0].id,
+          content: listRoleRef.current[0].content,
+        }
+  );
 
   // Đg chọn lớp phủ hay ko
   const [isOverlay, setIsOverlay] = useState(false);
@@ -95,13 +106,12 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   const debouncedUpdateColorChange = useCallback(
     _.debounce((value) => {
       handleSetColorValue(value);
-    }, 50),
+    }, 100),
     []
   );
 
   function handleSetColorValue(value) {
     //Update Color Input
-    setColorValue(value);
 
     //Update Color Drag item in redux
     dispatch(
@@ -116,7 +126,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     if (typeChildren === "shape") {
       setNewChildComponentProps((prev) => ({
         ...prev,
-        styleValue: { ...prev.styleValue, fill: value },
+        styleValue: { ...prev.styleValue, fill: value, color: value },
       }));
     }
   }
@@ -142,6 +152,20 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
       })
     );
   }
+
+  const handleSetRole = ({ idItem, role }) => {
+    setRoleVal(role);
+    dispatch(
+      CvSlice.actions.setAddRoleForItem({
+        cvId,
+        boardId,
+        idItem,
+        role: role.content,
+      })
+    );
+  };
+
+  const listRoleDragItem = ["ALL", "ONLY_READ", "ONLY_WRITE"];
 
   // Danh sách option trong menu
   const listMenuAdvance = [
@@ -190,13 +214,20 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     },
     {
       id: "OPT004",
-      content: "Role",
+      content: (
+        <IHoverMenu
+          listMenuItem={listRoleRef.current}
+          value={roleVal}
+          onChange={(val) => handleSetRole({ idItem: id, role: val })}
+        ></IHoverMenu>
+      ),
       tag: "role",
     },
     {
       id: "OPT005",
       content: (
         <input
+          style={{ height: "2rem", padding: "0.15rem", borderRadius: "4px" }}
           value={colorValue}
           onInput={(e) => debouncedUpdateColorChange(e.target.value)}
           type="color"
@@ -296,16 +327,22 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
       Math.abs(curr - angle) < Math.abs(prev - angle) ? curr : prev
     );
   }
-  function handleRotate(deg) {
-    setRotate(deg);
-    dispatch(
-      CvSlice.actions.setSizeAndDegItemDraggable({
-        id: id,
-        size: size,
-        deg: deg,
-      })
-    );
-  }
+  const handleRotate = useCallback(
+    (deg) => {
+      setRotate((prevRotate) => {
+        if (prevRotate === deg) return prevRotate; // Prevent unnecessary updates
+        return deg;
+      });
+      dispatch(
+        CvSlice.actions.setSizeAndDegItemDraggable({
+          id: id,
+          size: size,
+          deg: deg,
+        })
+      );
+    },
+    [dispatch, id, size]
+  );
 
   function handleSetSize(size) {
     setSize(size);
@@ -319,9 +356,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   }
 
   // Xử lý sự kiện khi bắt đầu kéo để xoay
-  const handleMouseDownRotate = (e) => {
-    console.log("START ROTATE");
-
+  const handleMouseDownRotate = useCallback((e) => {
     dispatch(
       CvSlice.actions.setListIdItemResizingOrRotating({
         isResizeRotate: true,
@@ -355,12 +390,11 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
         // Tự động fit vào góc nếu nằm trong khoảng cách nhất định (ở đây là 5 độ)
         angle = nearestSnapAngle;
       }
-      handleRotate(angle);
+      handleRotate(Math.floor(angle));
     };
 
     //kết thúc kéo xoay
     const handleMouseUpRotate = () => {
-      console.log("STOP ROTATE");
       dispatch(
         CvSlice.actions.setListIdItemResizingOrRotating({
           isResizeRotate: false,
@@ -381,11 +415,10 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     window.addEventListener("mouseup", handleMouseUpRotate);
     window.addEventListener("touchmove", handleMouseMoveRotate);
     window.addEventListener("touchend", handleMouseUpRotate);
-  };
+  }, []);
 
   // Xử lý sự kiện khi bắt đầu kéo để thay đổi kích thước
   const handleMouseDownResize = (e) => {
-    console.log("START RESIZE");
     dispatch(
       CvSlice.actions.setListIdItemResizingOrRotating({
         isResizeRotate: true,
@@ -443,6 +476,18 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     window.addEventListener("touchmove", handleMouseMoveResize);
     window.addEventListener("touchend", handleMouseUpResize);
   };
+
+  const handleGetContentEditor = debounce((html) => {
+    console.log("TXT UPDATED", html);
+    dispatch(
+      CvSlice.actions.setAddContentToEditorItem({
+        cvId,
+        boardId,
+        idItem: id,
+        content: html,
+      })
+    );
+  }, 300);
 
   return (
     <div
@@ -513,9 +558,15 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
               ></Box>
             )}
             <ChildComponent
+              getSizeEditorWhenChangeContent={(size) => {
+                handleSetSize(size);
+              }}
+              getHTMLContent={(html) => {
+                handleGetContentEditor(html);
+              }}
               ref={ref}
               size={size}
-              content={childContent}
+              content={childContent} //Content cho type là editor
               {...newChildComponentProps}
               {...props}
             ></ChildComponent>

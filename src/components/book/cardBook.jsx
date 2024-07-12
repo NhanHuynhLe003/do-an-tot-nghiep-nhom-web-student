@@ -108,7 +108,7 @@ export default function CardBook({
             component={"h3"}
             variant="h5"
           >
-            Đã Hết
+            Hết
           </Typography>
         </div>
       )}

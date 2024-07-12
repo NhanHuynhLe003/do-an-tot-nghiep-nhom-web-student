@@ -9,6 +9,8 @@ export default function IPagination({
   size = "medium",
   props,
   pageValueControl, //Kết hợp với context
+
+  getPageNotControl = (page) => console.log("Current Page:", page),
 }) {
   const [page, setPage] = React.useState(currentPage);
   return (
@@ -16,6 +18,7 @@ export default function IPagination({
       size={size}
       onChange={(event, newPage) => {
         setPage(newPage);
+        getPageNotControl(newPage);
 
         //MUI Control có thể gây ra lỗi do đó ta phải check
         pageValueControl && getPage(newPage);
