@@ -9,7 +9,7 @@ import {
 } from "@dnd-kit/core";
 import { Box } from "@mui/material";
 import _, { cloneDeep } from "lodash";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   clickOutsideDragItemSelector,
@@ -27,6 +27,7 @@ import IDraggableItem from "./DraggableItem";
 const TRANSLATE_RATE = 50;
 
 export default function IDraggableFree({
+  isDragDisabled = true,
   idCurrentCv = "1234", //Id của CV hiện tại lấy từ url
   zoomScale,
   IdPageActive, //Id của page đang active(Đang được mouseEnter)
@@ -45,7 +46,7 @@ export default function IDraggableFree({
   boardInformation,
 }) {
   const { boardId, name, position } = boardInformation;
-
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
   //Cờ dùng update Lịch sử lần đầu tiên khi component được mount
   const flagUpdateHistoryRefFirstTime = useRef(false);
 
@@ -102,18 +103,27 @@ export default function IDraggableFree({
     y4: 0,
   });
 
+  //Khi CV User Store có sự thay đổi thì cập nhật lại listDataItem
+  // useEffect(() => {
+  //   const newChildRefs = listChildData.map(() => React.createRef());
+
+  //   setListChildRefs(newChildRefs);
+
+  //   setListDataItem(listChildData);
+  // }, [listChildData]);
+
   // (*)Kỹ thuật setRefs tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM do ta truyền vào <Item> chứ nếu truyền hàm component:Item ko cần, nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
-  const [listChildRefs, setListChildRefs] = useState(
-    listDataItem.map(() => React.createRef())
+  const listChildRefs = useMemo(
+    () => listDataItem.map(() => React.createRef()),
+    [listDataItem]
   );
 
-  //Khi CV User Store có sự thay đổi thì cập nhật lại listDataItem
+  const previousListChildDataRef = useRef(listChildData);
   useEffect(() => {
-    const newChildRefs = listChildData.map(() => React.createRef());
-
-    setListChildRefs(newChildRefs);
-
-    setListDataItem(listChildData);
+    if (previousListChildDataRef.current !== listChildData) {
+      setListDataItem(listChildData);
+      previousListChildDataRef.current = listChildData;
+    }
   }, [listChildData]);
 
   useEffect(() => {
@@ -433,6 +443,7 @@ export default function IDraggableFree({
                   width: rectChildActive.width / zoomScale,
                   height: rectChildActive.height / zoomScale,
                 },
+                rotateDeg: sizeAndRotateItemSelector.deg,
               };
 
               // Đo khoảng cách giữa các item sau khi xoay, x = tọa độ tại X gốc - độ dịch * width Item
@@ -757,6 +768,8 @@ export default function IDraggableFree({
     );
   }
   function handleDragStart(event) {
+    console.log("Event STart:::", event);
+
     setIsDragging(true);
 
     //(*)Sai số cho phép khi so sánh tọa độ
@@ -921,6 +934,10 @@ export default function IDraggableFree({
         listDataItem.map((childData, index) => {
           return (
             <IDraggbleItemWrapper
+              isDragDisabled={
+                // Chỉ có Author mới được kéo dù cho disabled
+                isDragDisabled && studentData?.id !== childData.cvUserId
+              }
               layer={childData.layer}
               typeDragItem={childData.type}
               sizeItem={childData.sizeItem}
@@ -978,6 +995,7 @@ export const IDraggbleItemWrapper = ({
   buttonStyle,
   componentRef,
   typeDragItem,
+  isDragDisabled,
 }) => {
   /**
    useDraggable chỉ chạy khi component được kéo
@@ -989,6 +1007,7 @@ export const IDraggbleItemWrapper = ({
         ...dataItem,
         componentRef, //Sau khi gán xong Ref component con sẽ lưu trữ vào trong data dưới dạng domElement
       }, //Gán data vào trong component khi kéo thả
+      disabled: isDragDisabled,
     });
 
   return (

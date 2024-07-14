@@ -30,121 +30,122 @@ const CvSlice = createSlice({
     }, //Mảng chứa các item được chọn, gồm {id, status}
 
     //Quản lý CV User(1 người có thể có nhiều CV nên phải là mảng)
-    listCvUser: [
-      {
-        cvId: CVID,
-        cvUserId: "CVU-16102003", //UserId của user, dùng để biết tác giả
-        title: "CV của tôi",
-        thumbnail: "https://placehold.co/200x300",
-        status: "private",
-        isDelete: false, //CV đã bị xóa
-        isDragDisabled: false, //Không cho kéo thả các item trong board
-        boards: [
-          {
-            cvId: "CVU-16102003",
-            cvUserId: "CVU-16102003",
-            boardId: "BOARD-001", //thực tế thay bằng _id của board
-            name: "Board 1",
-            position: { top: 0, left: 0 },
-            listDataItem: [
-              {
-                id: "B1-I001",
-                boardId: "BOARD-001",
-                role: "ALL", //["ONLY_READ", "ONLY_WRITE", "ALL"]
-                type: "editor",
-                coordinate: {
-                  x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-                  y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-                  x2:
-                    initCoordinate +
-                    sizeEditorDefault.width -
-                    TRANSLATE_NUM * sizeEditorDefault.width,
-                  y2: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-                  x3:
-                    initCoordinate +
-                    sizeEditorDefault.width -
-                    TRANSLATE_NUM * sizeEditorDefault.width,
-                  y3:
-                    initCoordinate +
-                    sizeEditorDefault.height -
-                    TRANSLATE_NUM * sizeEditorDefault.height,
-                  x4: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-                  y4:
-                    initCoordinate +
-                    sizeEditorDefault.height -
-                    TRANSLATE_NUM * sizeEditorDefault.height,
-                  x5:
-                    initCoordinate +
-                    sizeEditorDefault.width / 2 -
-                    TRANSLATE_NUM * sizeEditorDefault.width,
-                  y5:
-                    initCoordinate +
-                    sizeEditorDefault.height / 2 -
-                    TRANSLATE_NUM * sizeEditorDefault.height,
-                },
-                sizeItem: sizeEditorDefault,
-                ChildComponentProps: {},
-                layer: 1,
-                content: "<p>Đây là nội dung của editor</p>",
-                color: "#5496FA",
-              },
-            ],
-          },
-          {
-            boardId: "BOARD-002",
-            name: "Board 2",
-            position: { top: 80, left: 0 },
-            listDataItem: [
-              {
-                id: "B2-I001",
-                boardId: "BOARD-002",
-                role: "ALL", //["ONLY_READ", "ONLY_WRITE","ALL"] => chỉ đọc < có thể sửa nội dung text < sửa kích thước, vị trí, góc quay, mọi thứ
-                itemType: "editor",
-                coordinate: {
-                  x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-                  y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-                  x2:
-                    initCoordinate +
-                    sizeEditorDefault.width -
-                    TRANSLATE_NUM * sizeEditorDefault.width,
-                  y2: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
-                  x3:
-                    initCoordinate +
-                    sizeEditorDefault.width -
-                    TRANSLATE_NUM * sizeEditorDefault.width,
-                  y3:
-                    initCoordinate +
-                    sizeEditorDefault.height -
-                    TRANSLATE_NUM * sizeEditorDefault.height,
-                  x4: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
-                  y4:
-                    initCoordinate +
-                    sizeEditorDefault.height -
-                    TRANSLATE_NUM * sizeEditorDefault.height,
-                  x5:
-                    initCoordinate +
-                    sizeEditorDefault.width / 2 -
-                    TRANSLATE_NUM * sizeEditorDefault.width,
-                  y5:
-                    initCoordinate +
-                    sizeEditorDefault.height / 2 -
-                    TRANSLATE_NUM * sizeEditorDefault.height,
-                },
-                sizeItem: sizeEditorDefault,
-                ChildComponentProps: {},
-                layer: 1,
-                content: "<p>Đây là nội dung của editor</p>",
-                color: "#5496FA",
-              },
-            ],
-          },
-        ],
-        dateCreated: "2021-09-01",
-        dateModified: "2021-09-01",
-      },
-    ],
+    // listCvUser: [
+    //   {
+    //     cvId: CVID,
+    //     cvUserId: "CVU-16102003", //UserId của user, dùng để biết tác giả
+    //     title: "CV của tôi",
+    //     thumbnail: "https://placehold.co/200x300",
+    //     status: "private",
+    //     isDelete: false, //CV đã bị xóa
+    //     isDragDisabled: false, //Không cho kéo thả các item trong board
+    //     boards: [
+    //       // {
+    //       //   cvId: "CVU-16102003",
+    //       //   cvUserId: "CVU-16102003",
+    //       //   boardId: "BOARD-001", //thực tế thay bằng _id của board
+    //       //   name: "Board 1",
+    //       //   position: { top: 0, left: 0 },
+    //       //   listDataItem: [
+    //       //     {
+    //       //       id: "B1-I001",
+    //       //       boardId: "BOARD-001",
+    //       //       role: "ALL", //["ONLY_READ", "ONLY_WRITE", "ALL"]
+    //       //       type: "editor",
+    //       //       coordinate: {
+    //       //         x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //         x2:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.width -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y2: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //         x3:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.width -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y3:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.height -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //         x4: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y4:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.height -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //         x5:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.width / 2 -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y5:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.height / 2 -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //       },
+    //       //       sizeItem: sizeEditorDefault,
+    //       //       ChildComponentProps: {},
+    //       //       layer: 1,
+    //       //       content: "<p>Đây là nội dung của editor</p>",
+    //       //       color: "#5496FA",
+    //       //     },
+    //       //   ],
+    //       // },
+    //       // {
+    //       //   boardId: "BOARD-002",
+    //       //   name: "Board 2",
+    //       //   position: { top: 80, left: 0 },
+    //       //   listDataItem: [
+    //       //     {
+    //       //       id: "B2-I001",
+    //       //       boardId: "BOARD-002",
+    //       //       role: "ALL", //["ONLY_READ", "ONLY_WRITE","ALL"] => chỉ đọc < có thể sửa nội dung text < sửa kích thước, vị trí, góc quay, mọi thứ
+    //       //       itemType: "editor",
+    //       //       coordinate: {
+    //       //         x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //         x2:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.width -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y2: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //         x3:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.width -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y3:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.height -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //         x4: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y4:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.height -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //         x5:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.width / 2 -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.width,
+    //       //         y5:
+    //       //           initCoordinate +
+    //       //           sizeEditorDefault.height / 2 -
+    //       //           TRANSLATE_NUM * sizeEditorDefault.height,
+    //       //       },
+    //       //       sizeItem: sizeEditorDefault,
+    //       //       ChildComponentProps: {},
+    //       //       layer: 1,
+    //       //       content: "<p>Đây là nội dung của editor</p>",
+    //       //       color: "#5496FA",
+    //       //     },
+    //       //   ],
+    //       // },
+    //     ],
+    //     dateCreated: "2021-09-01",
+    //     dateModified: "2021-09-01",
+    //   },
+    // ],
+    listCvUser: [],
 
-    //Quản lý board hiện tại đang xem (trong viewPort)
+    //Quản lý board hiện tại đang xem (trong viewPort) để thêm item vào CV đúng board đúng vị trí
     currentBoardInView: {
       id: "BOARD-001",
       name: "Board 1",
@@ -198,17 +199,114 @@ const CvSlice = createSlice({
       state.itemsDragSelect = action.payload;
     },
 
+    //Set dữ liệu cho list CV User thường chỉ set trong lần đầu tiên
+    setDataListCvUser: (state, action) => {
+      state.listCvUser = action.payload;
+    },
+
     setCurrentBoardInView: (state, action) => {
       state.currentBoardInView = action.payload;
     },
 
+    setNameBoard: (state, action) => {
+      const { cvId, boardId, name } = action.payload;
+      const cv = state.listCvUser.find((cv) => cv.cvId === cvId);
+      const board = cv.boards.find((board) => board.boardId === boardId);
+      board.name = name;
+    },
+
+    setAddBoardIntoCv: (state, action) => {
+      const { cvId, board } = action.payload;
+      let indexFound = -1;
+      const cv = state.listCvUser.find((cv, index) => {
+        if (cv.cvId === cvId) {
+          indexFound = index;
+          return true;
+        }
+        return false;
+      });
+
+      if (indexFound !== -1) {
+        cv.boards.splice(indexFound + 1, 0, board);
+      }
+    },
+
+    setRemoveBoardInCv: (state, action) => {
+      const { cvId, boardId } = action.payload;
+      const cv = state.listCvUser.find((cv) => cv.cvId === cvId);
+      if (cv) {
+        cv.boards = cv.boards.filter((board) => board.boardId !== boardId);
+      }
+    },
+
+    // setAddDragItemIntoBoard: (state, action) => {
+    //   const { cvId, boardId, dataItem } = action.payload;
+
+    //   state.listCvUser
+    //     .find((cv) => cv.cvId === cvId)
+    //     .boards.find((board) => board.boardId === boardId)
+    //     .listDataItem.push(dataItem);
+    // },
+
     setAddDragItemIntoBoard: (state, action) => {
       const { cvId, boardId, dataItem } = action.payload;
 
-      state.listCvUser
-        .find((cv) => cv.cvId === cvId)
-        .boards.find((board) => board.boardId === boardId)
-        .listDataItem.push(dataItem);
+      const cv = state.listCvUser?.find((cv) => cv.cvId === cvId);
+
+      const board = cv?.boards?.find((board) => board.boardId === boardId);
+
+      if (board) {
+        if (!board.listDataItem) board.listDataItem = [];
+        board.listDataItem?.push(dataItem);
+      }
+    },
+
+    setAddRoleForItem: (state, action) => {
+      const { cvId, boardId, idItem, role } = action.payload;
+
+      const cv = state.listCvUser?.find((cv) => cv.cvId === cvId);
+
+      const board = cv?.boards?.find((board) => board.boardId === boardId);
+
+      const dataItem = board?.listDataItem?.find(
+        (dataItem) => dataItem.id === idItem
+      );
+
+      if (dataItem) {
+        dataItem.role = role;
+      }
+    },
+
+    setAddColorToShapeItem: (state, action) => {
+      const { cvId, boardId, idItem, color } = action.payload;
+
+      const cv = state.listCvUser?.find((cv) => cv.cvId === cvId);
+
+      const board = cv?.boards?.find((board) => board.boardId === boardId);
+
+      const dataItem = board?.listDataItem?.find(
+        (dataItem) => dataItem.id === idItem
+      );
+
+      if (dataItem) {
+        dataItem.color = color;
+      }
+    },
+
+    setAddContentToEditorItem: (state, action) => {
+      const { cvId, boardId, idItem, content } = action.payload;
+
+      const cv = state.listCvUser?.find((cv) => cv.cvId === cvId);
+
+      const board = cv?.boards?.find((board) => board.boardId === boardId);
+
+      const dataItem = board?.listDataItem?.find(
+        (dataItem) => dataItem.id === idItem
+      );
+
+      if (dataItem) {
+        dataItem.content = content;
+      }
     },
 
     setUpdateListDataItemInBoard: (state, action) => {
@@ -216,31 +314,37 @@ const CvSlice = createSlice({
 
       const { cvId, boardId, listDataItem } = action.payload;
 
-      state.listCvUser
-        .find((cv) => cv.cvId === cvId)
-        .boards.find((board) => board.boardId === boardId).listDataItem =
-        listDataItem;
+      const cv = state.listCvUser?.find((cv) => cv.cvId === cvId);
+      const board = cv?.boards?.find((board) => board.boardId === boardId);
+
+      if (board) {
+        board.listDataItem = listDataItem;
+      }
     },
 
     setUpdateLayerItemInBoard: (state, action) => {
       const { cvId, boardId, idItem, layerItem } = action.payload;
-
       const layerData = layerItem < 1 ? 1 : layerItem;
-      state.listCvUser
-        .find((cv) => cv.cvId === cvId)
-        .boards.find((board) => board.boardId === boardId)
-        .listDataItem.find((dataItem) => dataItem.id === idItem).layer =
-        layerData;
+      const cv = state.listCvUser?.find((cv) => cv.cvId === cvId);
+      const board = cv?.boards?.find((board) => board.boardId === boardId);
+      const dataItem = board?.listDataItem?.find(
+        (dataItem) => dataItem.id === idItem
+      );
+      if (dataItem) {
+        dataItem.layer = layerData;
+      }
     },
 
     setUpdateColorItemInBoard: (state, action) => {
       const { cvId, boardId, idItem, colorItem } = action.payload;
-
-      state.listCvUser
-        .find((cv) => cv.cvId === cvId)
-        .boards.find((board) => board.boardId === boardId)
-        .listDataItem.find((dataItem) => dataItem.id === idItem).color =
-        colorItem;
+      const cv = state.listCvUser?.find((cv) => cv.cvId === cvId);
+      const board = cv?.boards?.find((board) => board.boardId === boardId);
+      const dataItem = board?.listDataItem?.find(
+        (dataItem) => dataItem.id === idItem
+      );
+      if (dataItem) {
+        dataItem.color = colorItem;
+      }
     },
 
     setHistoryState: (state, action) => {

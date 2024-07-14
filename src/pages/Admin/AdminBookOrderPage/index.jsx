@@ -183,9 +183,9 @@ export default function AdminBookOrderPage() {
             case "completed":
               chipValue = "Hoàn Thành";
               chipStyle = {
-                color: "var(--success-color-status)",
+                color: "var(--completed-color-status)",
                 fontWeight: "500",
-                backgroundColor: "var(--success-color-status-rgba)",
+                backgroundColor: "var(--completed-color-status-rgba)",
               };
               break;
             case "pending":

@@ -15,12 +15,15 @@ import MobileMainLayout from "./components/layouts/MobileMainLayout";
 import { useWindowSize } from "./hooks";
 //CSS ANIMATE
 import "animate.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BREAK_POINTS } from "./constants";
 import { useCreateEmptyCart } from "./hooks/apis/cart";
+import { toast } from "react-toastify";
 
+const ADMINROLE = process.env.REACT_APP_ADMIN_ROLE;
 function App() {
   const dataStudent = JSON.parse(localStorage.getItem("studentData"));
+
   const { width, height } = useWindowSize();
   const [routesConvert, setRoutes] = useState({
     nonAuthRoutes: [],
@@ -58,6 +61,15 @@ function App() {
 
     //Nếu chưa đăng nhập thì chuyển hướng về trang login, replace = true để không cho back lại trang trước đó
     if (!userAuth) return <Navigate to="/login" replace={true}></Navigate>;
+
+    if (!userAuth?.roles?.includes(ADMINROLE)) {
+      toast.error("Admin mới được phép truy cập trang này", {
+        position: "top-center",
+        autoClose: 1500,
+      });
+
+      return <Navigate to="/admin/login" replace={true}></Navigate>;
+    }
 
     //Nếu đã đăng nhập thì cho phép truy cập các Route con bên trong
     return <Outlet></Outlet>;

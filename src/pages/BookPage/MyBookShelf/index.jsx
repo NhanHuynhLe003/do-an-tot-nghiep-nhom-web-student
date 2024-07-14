@@ -5,94 +5,22 @@ import SubmitDialog from "../../../components/IDialog/SubmitDialog";
 import { useReturnOrderByUser } from "../../../hooks/apis/checkout_order/useReturnOrderByUser";
 import { useGetStudentReadingBooks } from "../../../hooks/apis/students/useGetStudentReadingBooks";
 import style from "./MyBookShelf.module.css";
-
-const books = [
-  {
-    id: 1,
-    title: "Book 1",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-01-01",
-    submissionDue: "2024-01-15",
-  },
-  {
-    id: 2,
-    title: "Book 2",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-02-01",
-    submissionDue: "2024-02-15",
-  },
-  {
-    id: 3,
-    title: "Book 3",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-03-01",
-    submissionDue: "2024-03-15",
-  },
-  {
-    id: 4,
-    title: "Book 4",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-04-01",
-    submissionDue: "2024-04-15",
-  },
-  {
-    id: 5,
-    title: "Book 5",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-05-01",
-    submissionDue: "2024-05-15",
-  },
-  {
-    id: 6,
-    title: "Book 6",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-06-01",
-    submissionDue: "2024-06-15",
-  },
-  {
-    id: 7,
-    title: "Book 7",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-07-01",
-    submissionDue: "2024-07-15",
-  },
-  {
-    id: 8,
-    title: "Book 8",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-08-01",
-    submissionDue: "2024-08-15",
-  },
-  {
-    id: 9,
-    title: "Book 9",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-09-01",
-    submissionDue: "2024-09-15",
-  },
-  {
-    id: 10,
-    title: "Book 10",
-    img: "/imgs/books/book_1.png",
-    borrowedOn: "2024-10-01",
-    submissionDue: "2024-10-15",
-  },
-];
+import axiosInstance from "../../../apis/axiosConfig";
+import { useGetStudentReadedBooks } from "../../../hooks/apis/students/useGetStudentReadedBooks";
 
 export default function MyBookShelf() {
-  const studentData = JSON.parse(localStorage.getItem("studentData"));
-  const {
-    data: userBooksReadingData,
-    isLoading: isLoadingOrder,
-    error: errorOrder,
-  } = useGetStudentReadingBooks({ userId: studentData?._id });
+  const [booksReadingInShelf, setBooksReadingInShelf] = useState([]);
+  const [booksReadedInShelf, setBooksReadedInShelf] = useState([]);
 
-  const {
-    mutate: returnOrderBook,
-    data: orderReturnData,
-    isLoading: isLoadingReturnOrder,
-    error: errorReturnOrder,
-  } = useReturnOrderByUser();
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
+  const { data: userBooksReadingData } = useGetStudentReadingBooks({
+    userId: studentData?._id,
+  });
+
+  const { data: dataBooksReaded } = useGetStudentReadedBooks({
+    userId: studentData?._id,
+  });
+  const { mutate: returnOrderBook } = useReturnOrderByUser();
 
   const [activeItem, setActiveItem] = useState("All Books"); // State để lưu trữ mục đang active
   const [statusBook, setStatusBook] = useState({
@@ -100,22 +28,68 @@ export default function MyBookShelf() {
     message: "Chờ xác nhận",
   });
 
-  const [dataOrderBook, setDataOrderBook] = useState([]);
-  const [listBookOrder, setListBookOrder] = useState(null);
-
   useEffect(() => {
-    if (userBooksReadingData) {
-      console.log("userBooksReadingData:::", userBooksReadingData);
-    }
-  }, [userBooksReadingData]);
+    if (userBooksReadingData && dataBooksReaded) {
+      const convertDataBooksReadingInShelf =
+        userBooksReadingData?.data?.metadata.map(async (book) => {
+          //get new image
+          const bookFoundId = await axiosInstance.get(
+            "/v1/api/book/publish/" + book.book_data.bookId
+          );
 
-  function handleAcceptReturnBook(orderId, value, bookId) {
+          return {
+            ...book,
+            bookData: {
+              ...book.book_data,
+              bookThumb: bookFoundId?.data?.metadata?.book_thumb,
+            },
+          };
+        });
+
+      const convertDataBooksReadedInShelf = dataBooksReaded?.data?.metadata.map(
+        async (book) => {
+          //get new image
+          const bookFoundId = await axiosInstance.get(
+            "/v1/api/book/publish/" + book.book_data.bookId
+          );
+
+          return {
+            ...book,
+            bookData: {
+              ...book.book_data,
+              bookThumb: bookFoundId?.data?.metadata?.book_thumb,
+            },
+          };
+        }
+      );
+
+      //Chờ tất cả các Promise trong mảng convertDataBooksInShelf hoàn thành
+      Promise.all(convertDataBooksReadingInShelf)
+        .then((datas) => {
+          setBooksReadingInShelf(datas);
+        })
+        .catch((error) => {
+          console.error("Error convert data books in shelf", error);
+        });
+
+      Promise.all(convertDataBooksReadedInShelf)
+        .then((datas) => {
+          setBooksReadedInShelf(datas);
+        })
+        .catch((error) => {
+          console.error("Error convert data books in shelf", error);
+        });
+    }
+  }, [userBooksReadingData, dataBooksReaded]);
+
+  function handleAcceptReturnBook(orderId, value, bookId, idBookReading) {
     if (value) {
-      console.log("Accept return book");
       returnOrderBook({
         userId: studentData?._id,
         orderId: orderId,
         bookId: bookId,
+
+        idBookReading: idBookReading,
       });
     }
   }
@@ -157,9 +131,21 @@ export default function MyBookShelf() {
           </li>
         </ul>
       </div>
+
+      <Typography
+        component={"h2"}
+        variant="h4"
+        sx={{
+          fontWeight: "500",
+          color: "var(--color-primary2)",
+          opacity: 0.4,
+        }}
+      >
+        Sách Đang Đọc
+      </Typography>
       <div className={style.bookContainer}>
-        {listBookOrder &&
-          listBookOrder.map((book) => (
+        {booksReadingInShelf && booksReadingInShelf.length > 0 ? (
+          booksReadingInShelf.map((book) => (
             <div
               key={book.data?.bookId}
               className={`${style.book} ${
@@ -169,8 +155,8 @@ export default function MyBookShelf() {
               <div className={style.bookcard}>
                 <div className={style.bookImgContainer}>
                   <img
-                    src={book.data?.bookThumb}
-                    alt={book.data?.bookName}
+                    src={book?.bookData?.bookThumb}
+                    alt={book?.bookData?.bookName}
                     className={style.imgbook}
                   />
                 </div>
@@ -206,21 +192,25 @@ export default function MyBookShelf() {
                 }`}
               >
                 <h4 className={style.titleBookInfo}>Ngày mượn</h4>
-                <span className={style.date}>{book.borrowDate}</span>
+                <span className={style.date}>
+                  {book.book_checkout.borrowDate}
+                </span>
                 <br />
 
                 <h4 className={style.titleBookInfo}>Ngày trả </h4>
-                <span className={style.date}>{book.returnDate}</span>
+                <span className={style.date}>
+                  {book.book_checkout.returnDate}
+                </span>
                 <br />
                 <h4 className={style.titleBookInfo}>Trạng thái</h4>
                 <div className={style.btnborrowedOn}>
                   <Chip
-                    label={`${book.status}`}
+                    label={`${book.book_status}`}
                     variant="filled"
                     sx={{
                       fontSize: "0.85rem",
-                      backgroundColor: `var(--${book.status}-color-status-rgba)`,
-                      color: `var(--${book.status}-color-status)`,
+                      backgroundColor: `var(--${book.book_status}-color-status-rgba)`,
+                      color: `var(--${book.book_status}-color-status)`,
                       textTransform: "capitalize",
                     }}
                   />
@@ -241,7 +231,7 @@ export default function MyBookShelf() {
                   buttonShowInfo={{
                     variant: "outlined",
                     color: "primary",
-                    title: "X",
+                    title: "Trả sách",
                   }}
                   dialogInfo={{
                     contentDialogTitle: "Xác nhận trả sách",
@@ -249,20 +239,120 @@ export default function MyBookShelf() {
                       "Bạn có chắc chắn trả quyển sách này chứ?",
                   }}
                   fncHandleClickAccept={(data) =>
-                    handleAcceptReturnBook(book.orderId, data, book.bookId)
+                    handleAcceptReturnBook(
+                      book?.book_orderId,
+                      data,
+                      book?.book_data?.bookId,
+                      book?._id
+                    )
                   }
                 ></SubmitDialog>
-                <Button
-                  disabled={book.status === "indue" ? false : true}
-                  fullWidth
-                  type="button"
-                  variant="outlined"
-                  sx={{
-                    mt: "3rem",
-                  }}
-                >
-                  Trả sách
-                </Button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <Typography
+            component={"h3"}
+            variant="h6"
+            sx={{
+              color: "var(--color-primary2)",
+              fontWeight: "400",
+              opacity: 0.4,
+              textAlign: "center",
+              width: "100%",
+            }}
+          >
+            {"Chưa có quyển sách nào :("}
+          </Typography>
+        )}
+      </div>
+
+      <br />
+      <br />
+      <Typography
+        component={"h2"}
+        variant="h4"
+        sx={{
+          fontWeight: "500",
+          color: "var(--color-primary2)",
+          opacity: 0.4,
+        }}
+      >
+        Sách Đã Đọc
+      </Typography>
+
+      <div className={style.bookContainer}>
+        {booksReadedInShelf &&
+          booksReadedInShelf.map((book) => (
+            <div
+              key={book.data?.bookId}
+              className={`${style.book} ${
+                activeItem === "Borrowed Books" ? style.show : ""
+              }`}
+            >
+              <div className={style.bookcard}>
+                <div className={style.bookImgContainer}>
+                  <img
+                    src={book?.bookData?.bookThumb}
+                    alt={book?.bookData?.bookName}
+                    className={style.imgbook}
+                  />
+                </div>
+
+                <Stack direction={"column"}>
+                  <Typography
+                    className={style.bookTitle}
+                    component={"h5"}
+                    title={book?.book_data?.bookName}
+                    sx={{
+                      fontSize: "1rem",
+                      color: "var(--color-primary2)",
+                    }}
+                  >
+                    {book?.book_data?.bookName}
+                  </Typography>
+                  <Typography
+                    component={"h5"}
+                    sx={{
+                      fontSize: "0.7rem",
+                      color: "var(--color-primary2)",
+                      opacity: 0.5,
+                      mt: "0.5rem",
+                    }}
+                  >
+                    Author
+                  </Typography>
+                </Stack>
+              </div>
+              <div
+                className={`${style.bookShelfInformation} ${
+                  activeItem === "Borrowed Books" ? style.show : ""
+                }`}
+              >
+                <h4 className={style.titleBookInfo}>Ngày mượn</h4>
+                <span className={style.date}>
+                  {book?.book_checkout?.borrowDate}
+                </span>
+                <br />
+
+                <h4 className={style.titleBookInfo}>Ngày trả </h4>
+                <span className={style.date}>
+                  {book?.book_checkout?.returnDate}
+                </span>
+                <br />
+                <h4 className={style.titleBookInfo}>Trạng thái</h4>
+                <div className={style.btnborrowedOn}>
+                  <Chip
+                    label={`${book?.book_status}`}
+                    variant="filled"
+                    sx={{
+                      fontSize: "0.85rem",
+                      backgroundColor: `var(--${book?.book_status}-color-status-rgba)`,
+                      color: `var(--${book?.book_status}-color-status)`,
+                      textTransform: "capitalize",
+                    }}
+                  />
+                </div>
               </div>
             </div>
           ))}
