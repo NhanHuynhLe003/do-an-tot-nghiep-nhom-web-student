@@ -558,8 +558,8 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
               ></Box>
             )}
             <ChildComponent
-              getSizeEditorWhenChangeContent={(size) => {
-                handleSetSize(size);
+              getSizeEditorWhenChangeContent={(sizeData) => {
+                handleSetSize({ ...size, height: sizeData?.height });
               }}
               getHTMLContent={(html) => {
                 handleGetContentEditor(html);

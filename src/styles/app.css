@@ -91,8 +91,8 @@
 
 
     /* ============== Color Status =============== */
-    --success-color-status: #00b69b;
-    --success-color-status-rgba: rgba(0, 182, 155, 0.2);
+    --completed-color-status: #00b69b;
+    --completed-color-status-rgba: rgba(0, 182, 155, 0.2);
 
     --pending-color-status: #6226EF;
     --pending-color-status-rgba: rgba(98, 38, 239, 0.2);

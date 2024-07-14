@@ -17,6 +17,8 @@ import {
   sizeImageDndDefault,
   sizeShapeElementDefault,
 } from "../../../constants";
+import axiosInstance from "../../../apis/axiosConfig";
+import { toast } from "react-toastify";
 
 const TRANSLATE_NUM = 0.5;
 const initCoordinate = 500;
@@ -93,7 +95,7 @@ const IUploadImageDropZone = () => {
     );
   }
 
-  const onDrop = useCallback((acceptedFiles) => {
+  const onDrop = useCallback(async (acceptedFiles) => {
     // Thêm list ảnh vào mảng images
     setImages((prevImages) => [
       ...prevImages,
@@ -148,7 +150,29 @@ const IUploadImageDropZone = () => {
             key={index}
             style={thumb}
             ref={refImage}
-            onClick={() => {
+            onClick={async () => {
+              const formData = new FormData();
+              const extension = file?.name.split(".").pop();
+              const newFileName = `${Date.now()}.${extension}`;
+              const renamedFile = new File([file], newFileName, {
+                type: file.type,
+              });
+
+              formData.append("uploadFileKey", renamedFile);
+
+              const imageUpload = await axiosInstance.post(
+                "/v1/api/upload/static/img?nameStorage=cvs",
+                formData,
+                {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                }
+              );
+              toast.success("Upload ảnh thành công", {});
+
+              console.log("IMAGE UPLOAD:::", imageUpload?.data?.metadata);
+
               //Lấy ra kích thươc item hiện tại
               const currentFileName = file?.name.slice(
                 0,

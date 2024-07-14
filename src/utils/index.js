@@ -1,4 +1,5 @@
 import { format, parse, differenceInWeeks } from "date-fns";
+import slugify from "slugify";
 
 /**
  * @description Hàm trộn mảng
@@ -71,10 +72,19 @@ function debounce(func, delay) {
   };
 }
 
+function createSlug(text) {
+  return slugify(String(text), {
+    lower: true,
+    strict: true,
+    trim: true,
+  });
+}
+
 export {
   calculateDistanceByCoordinate,
   shuffleArray,
   roundNumber,
   calculateTimeDifference,
   debounce,
+  createSlug,
 };

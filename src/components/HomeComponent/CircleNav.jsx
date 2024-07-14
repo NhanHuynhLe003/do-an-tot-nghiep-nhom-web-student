@@ -142,7 +142,7 @@ export default function CircleNav({ isOpenToggle = false }) {
           style={{ "--i": 4 }}
           className={clsx({ [style.activeBtn]: btnSelected === 4 })}
         >
-          <Link to={"#"} onClick={() => toggleLoader("/cv")}>
+          <Link to={"#"} onClick={() => toggleLoader("/cv/manage")}>
             {btnSelected === 4 ? (
               <Lottie
                 options={lottieJsonOptions(animationCvTemplate)}

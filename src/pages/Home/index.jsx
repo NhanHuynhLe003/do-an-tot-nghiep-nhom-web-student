@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import CircleNav from "../../components/HomeComponent/CircleNav";
 import { Box } from "@mui/material";
-import PageLoader from "../../components/pageLoader";
+import React from "react";
+import CircleNav from "../../components/HomeComponent/CircleNav";
 
 // import anh2 from "/imgs/avatar-user.jpg";
 export default function Home() {

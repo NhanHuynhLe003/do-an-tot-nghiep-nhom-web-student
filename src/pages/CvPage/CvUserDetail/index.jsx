@@ -5,23 +5,23 @@ import { FaSpinner } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import axiosInstance from "../../../../apis/axiosConfig";
-import SubmitDialog from "../../../../components/IDialog/SubmitDialog";
-import IDndImage from "../../../../components/IDndImage";
-import IDraggableFree from "../../../../components/IDraggable/IDraggableFree";
-import IShapeElement from "../../../../components/IShapeElement";
-import ITipTapEditor from "../../../../components/ITipTapEditor";
-import IWrapperResizeRotate from "../../../../components/IWrapperResizeRotate";
-import { BREAK_POINTS } from "../../../../constants";
-import { useWindowSize } from "../../../../hooks";
-import { useGetCvById } from "../../../../hooks/apis/admin/useGetCvById";
+import axiosInstance from "../../../apis/axiosConfig";
+import SubmitDialog from "../../../components/IDialog/SubmitDialog";
+import IDndImage from "../../../components/IDndImage";
+import IDraggableFree from "../../../components/IDraggable/IDraggableFree";
+import IShapeElement from "../../../components/IShapeElement";
+import ITipTapEditor from "../../../components/ITipTapEditor";
+import IWrapperResizeRotate from "../../../components/IWrapperResizeRotate";
+import { BREAK_POINTS } from "../../../constants";
+import { useWindowSize } from "../../../hooks";
+import { useGetCvById } from "../../../hooks/apis/admin/useGetCvById";
 import {
   cvZoomScaleSelector,
   listCvUserSelector,
-} from "../../../../redux/selector";
-import CvSlice from "../../../../redux/slices/CvSlice";
+} from "../../../redux/selector";
+import CvSlice from "../../../redux/slices/CvSlice";
 
-export default function CvAdminPageDetail() {
+export default function CvUserDetail() {
   const { widthScreen, heightScreen } = useWindowSize();
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
