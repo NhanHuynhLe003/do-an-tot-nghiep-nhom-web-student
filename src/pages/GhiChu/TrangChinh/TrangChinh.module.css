@@ -87,7 +87,7 @@ input {
   cursor: pointer;
 }
 
-button:hover {
+.saveButton:hover {
   transform: translateY(-5px); /* Hiệu ứng transform tương tự */
   background-color: #268fff; /* Màu nền hover tương tự */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); /* Shadow hover tương tự */
