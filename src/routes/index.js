@@ -1,26 +1,32 @@
 import AccessLayout from "../components/layouts/AccessLayout";
 import EmptyLayout from "../components/layouts/EmptyLayout";
 import MainLayout from "../components/layouts/MainLayout";
-import AdminMainPage from "../pages/Admin/AdminMainPage";
 import AdminBookManagePage from "../pages/Admin/AdminBookManagePage";
+import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
+import AdminMainPage from "../pages/Admin/AdminMainPage";
 import Book from "../pages/BookPage/Book";
 import BookDetailPage from "../pages/BookPage/BookDetail";
 import BookSearchPage from "../pages/BookPage/BookSearch";
-import Home from "../pages/Home";
-import Login from "../pages/login";
 import TrangChinh from "../pages/GhiChu/TrangChinh";
 import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
-import CreateAndEditBookPage from "../pages/Admin/AdminBookManagePage/CreateAndEditBookPage";
 import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
+import Home from "../pages/Home";
+import Login from "../pages/login";
 
 import CvLayout from "../components/layouts/CvLayout";
 import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
 import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
 import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
-import TrangChart from "../pages/GhiChu/TrangChart";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
+import BookCheckout from "../pages/BookPage/BookCheckout";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
+import TrangChart from "../pages/GhiChu/TrangChart";
+import NotFoundPage from "../pages/NotFound";
+import StudentInformation from "../pages/Student/StudentInformation";
+import CvPage from "../pages/CvPage";
+import CvUserDetail from "../pages/CvPage/CvUserDetail";
+import AdminLogin from "../pages/Admin/Access/AdminLogin";
 
 const routes = [
   {
@@ -28,10 +34,29 @@ const routes = [
     component: Home,
   },
   {
+    path: "/cv/manage",
+    component: CvPage,
+    layout: MainLayout,
+    isAuth: true,
+  },
+  {
+    path: "/cv/manage/:id",
+    component: CvUserDetail,
+    layout: CvLayout,
+    isAuth: true,
+  },
+
+  //==============================ADMIN==============================
+  {
     path: "/admin",
     component: AdminMainPage, // là các page
     layout: MainLayout, // là các layout
     isAdmin: true,
+  },
+  {
+    path: "/admin/login",
+    component: AdminLogin, // là các page
+    layout: AccessLayout, // là các layout
   },
   {
     path: "/admin/book-manage",
@@ -103,10 +128,20 @@ const routes = [
     layout: MainLayout,
   },
   {
-    path: "/book/mybookshelf",
+    path: "/book/my-bookshelf",
     component: MyBookShelf,
     layout: MainLayout,
+    isAuth: true,
   },
+
+  //==============================Checkout==============================
+  {
+    path: "/checkout/:userId",
+    component: BookCheckout,
+    layout: MainLayout,
+    isAuth: true,
+  },
+
   //===========================GHI CHU===========================
   {
     path: "/ghi-chu",
@@ -138,6 +173,20 @@ const routes = [
     path: "/trang-chinh",
     component: TrangChinh,
     layout: EmptyLayout,
+  },
+
+  //===========================Student Information===========================
+  {
+    path: "/student/information",
+    component: StudentInformation,
+    layout: MainLayout,
+  },
+  //========================404========================
+  {
+    path: "*",
+    component: NotFoundPage,
+    layout: EmptyLayout,
+    isNotFound: true,
   },
 ];
 export { routes };

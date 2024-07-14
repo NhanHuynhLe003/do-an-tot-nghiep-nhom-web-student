@@ -1,6 +1,7 @@
 import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
+import { Button, Stack } from "@mui/material";
+import CustomeFooter from "./components/CustomFooterTable";
 
 //Dữ liệu tạm thời
 const columns = [
@@ -40,19 +41,42 @@ const rows = [
   { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
 ];
 
+//Tạo một context để truyền dữ liệu về pagination từ con lên cha
+export const IPaginationTableCustomContext = React.createContext();
+
 // Tạo một hàm component để render mỗi hàng
 export default function ITable({
   headerList = columns,
   dataList = rows,
   fncGetListRowSelected = (bookIds) => {},
+  fncGetCurrentPage = (currentPage) => {},
   rowHeight = 70,
+  isHideFooterSelectedRowCount = true,
+  isShowPageSizeOpt = false,
+  maxHeightTable = 370,
+  minHeightTable = 70,
+  isCustomFooter = false,
+  pageSize = 5, //Số lượng hàng mỗi trang
+  localeTextNoRow = "Chưa có sách trong giỏ hàng",
+  customTotalPageSize = 10,
 }) {
   function getListRowSelected(params) {
     fncGetListRowSelected([...params]);
   }
 
+  const [pagePagination, setPagePagination] = React.useState({
+    page: 1,
+    pageSize: 20,
+    customTotalPageSize: customTotalPageSize,
+  });
+
+  React.useEffect(() => {
+    fncGetCurrentPage(pagePagination.page);
+  }, [pagePagination]);
+
   return (
     <DataGrid
+      className="DATA_GRID_TABLE"
       // onCellClick={(params) => console.log(params.row)}
       onRowSelectionModelChange={(params) => getListRowSelected(params)} //Lấy ra danh sach id các hàng được chọn
       disableRowSelectionOnClick //Không chọn hàng khi click vào hàng
@@ -61,12 +85,38 @@ export default function ITable({
       columns={headerList}
       initialState={{
         pagination: {
-          paginationModel: { page: 0, pageSize: 20 },
+          paginationModel: { page: 0, pageSize: pageSize },
         },
       }}
-      pageSizeOptions={[5, 10, 20]}
+      pageSizeOptions={isShowPageSizeOpt && [5, 10, 20]}
       checkboxSelection
-      hideFooterSelectedRowCount
+      hideFooterSelectedRowCount={isHideFooterSelectedRowCount}
+      sx={{
+        // maxHeight: maxHeightTable,
+        // overflowY: "auto",
+
+        "& .MuiDataGrid-virtualScrollerContent": {
+          minHeight: minHeightTable,
+        },
+
+        "& .MuiDataGrid-cell:focus-within": {
+          outline: "none !important",
+        },
+      }}
+      // Custom footer
+      slots={
+        isCustomFooter && {
+          pagination: () => (
+            <IPaginationTableCustomContext.Provider
+              value={{ pagePagination, setPagePagination }}
+            >
+              <CustomeFooter />
+            </IPaginationTableCustomContext.Provider>
+          ),
+        }
+      }
+      //Hiển thị text khi không có dữ liệu
+      localeText={{ noRowsLabel: localeTextNoRow }}
     />
   );
 }

@@ -33,6 +33,9 @@ const stateCvHistorySelector = (state) => state.cvs.history;
 const listIdItemResizingOrRotatingSelector = (state) =>
   state.cvs.listIdItemResizingOrRotating;
 
+//===========================COMMON SELECTOR===========================
+const commonGetScrollProperty = (state) => state.common.scrollProperty;
+
 export {
   listIdItemResizingOrRotatingSelector,
   stateCvHistorySelector,
@@ -48,4 +51,7 @@ export {
   positionPointerSelector,
   sizeEditorSelector,
   remainingSelector,
+
+  //COMMON SELECTOR
+  commonGetScrollProperty,
 };

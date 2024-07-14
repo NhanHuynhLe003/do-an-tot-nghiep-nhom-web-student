@@ -32,6 +32,17 @@ const listShapeElement = [
       cursor: "pointer",
     },
   },
+  {
+    id: "SHAPE003",
+    title: "CircleFrame",
+    srcSvg: "/svgs/shapeElements/circle-frame.svg",
+    styleValue: {
+      width: "100px",
+      height: "100px",
+      fill: "var(--color-primary1)",
+      cursor: "pointer",
+    },
+  },
 ];
 export default function ShapeElementCvContainer() {
   //Lấy id của trang hiện tại tu url
@@ -48,7 +59,7 @@ export default function ShapeElementCvContainer() {
       boardId: boardId,
       id: idItemDrag,
       role: "ALL", //["ONLY_READ", "ONLY_WRITE", "ALL"]
-      type: "shape",
+      itemType: "shape",
 
       coordinate: {
         x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
@@ -81,6 +92,9 @@ export default function ShapeElementCvContainer() {
           TRANSLATE_NUM * sizeEditorDefault.height,
       },
       sizeItem: sizeShapeElementDefault,
+      rotateDeg: 0,
+      color: "#5496FA",
+
       layer: 1,
       ChildComponentProps: {
         id: idItemDrag,
@@ -105,6 +119,10 @@ export default function ShapeElementCvContainer() {
       justifyContent={"space-between"}
       flexWrap={"wrap"}
       width={"100%"}
+      sx={{
+        height: "15rem",
+        mt: 4,
+      }}
     >
       {listShapeElement ? (
         listShapeElement.map((shapeElement) => (

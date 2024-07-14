@@ -14,13 +14,14 @@ export const sizeImageDndDefault = { width: 150, height: 150 };
 
 //Breakpoints
 export const BREAK_POINTS = {
-  xs: 0, // Extra small devices (phones)
-  sm: 600, // Small devices (tablets)
-  md: 960, // Medium devices (desktops)
-  lg: 1280, // Large devices (larger desktops)
-  xl: 1920, // Extra large devices (very large screens)
+  xs: 576,
+  sm: 768,
+  md: 992,
+  lg: 1200,
+  xl: 1400,
 };
 
 export * from "./ReactQuery/access";
 export * from "./ReactQuery/book";
 export * from "./ReactQuery/category";
+export * from "./ReactQuery/checkout";

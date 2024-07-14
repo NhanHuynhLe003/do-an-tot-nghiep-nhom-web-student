@@ -9,7 +9,7 @@ import {
 } from "@dnd-kit/core";
 import { Box } from "@mui/material";
 import _, { cloneDeep } from "lodash";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   clickOutsideDragItemSelector,
@@ -27,6 +27,7 @@ import IDraggableItem from "./DraggableItem";
 const TRANSLATE_RATE = 50;
 
 export default function IDraggableFree({
+  isDragDisabled = true,
   idCurrentCv = "1234", //Id của CV hiện tại lấy từ url
   zoomScale,
   IdPageActive, //Id của page đang active(Đang được mouseEnter)
@@ -45,7 +46,7 @@ export default function IDraggableFree({
   boardInformation,
 }) {
   const { boardId, name, position } = boardInformation;
-
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
   //Cờ dùng update Lịch sử lần đầu tiên khi component được mount
   const flagUpdateHistoryRefFirstTime = useRef(false);
 
@@ -102,18 +103,27 @@ export default function IDraggableFree({
     y4: 0,
   });
 
+  //Khi CV User Store có sự thay đổi thì cập nhật lại listDataItem
+  // useEffect(() => {
+  //   const newChildRefs = listChildData.map(() => React.createRef());
+
+  //   setListChildRefs(newChildRefs);
+
+  //   setListDataItem(listChildData);
+  // }, [listChildData]);
+
   // (*)Kỹ thuật setRefs tạo mảng chứa các Ref cho các item component kéo thả bên trong, vì dữ liệu trả về là ReactDOM do ta truyền vào <Item> chứ nếu truyền hàm component:Item ko cần, nên ta cần chuyển sang DomElement để lấy các kích thước xử lý
-  const [listChildRefs, setListChildRefs] = useState(
-    listDataItem.map(() => React.createRef())
+  const listChildRefs = useMemo(
+    () => listDataItem.map(() => React.createRef()),
+    [listDataItem]
   );
 
-  //Khi CV User Store có sự thay đổi thì cập nhật lại listDataItem
+  const previousListChildDataRef = useRef(listChildData);
   useEffect(() => {
-    const newChildRefs = listChildData.map(() => React.createRef());
-
-    setListChildRefs(newChildRefs);
-
-    setListDataItem(listChildData);
+    if (previousListChildDataRef.current !== listChildData) {
+      setListDataItem(listChildData);
+      previousListChildDataRef.current = listChildData;
+    }
   }, [listChildData]);
 
   useEffect(() => {
@@ -142,7 +152,6 @@ export default function IDraggableFree({
     if (
       !_.isEqual(listStateDataItemHistory.present?.listDataItem, listDataItem)
     ) {
-      console.log("[listStateDataItemHistory:::]", listStateDataItemHistory);
       dispatch(
         CvSlice.actions.setUpdateListDataItemInBoard(
           listStateDataItemHistory.present
@@ -274,16 +283,27 @@ export default function IDraggableFree({
     // listIdItemResizeOrRotateSelector có 2 board nên chạy 2 lần, mà trong 2 lần thì listDataItem mỗi lần là khác nhau, do vậy cần phải checkId của item đang resize hoặc rotate đúng thì mới update ListDataItem vào lich su
   }, [listIdItemResizeOrRotateSelector]);
 
+  // Hàm xử lý format data trước khi update
+  // function formatDataBeforeUpdate(listDataItem = []) {
+  //   return listDataItem.map((dataItem) => {
+  //     delete dataItem.component;
+  //     return dataItem;
+  //   });
+  // }
+
   //====================Hàm xử lý updateListDataItem vào Store Redux=========================
   function handleUpdateListDataItemIntoStore(
     newListDataItem,
     typeUpdate = "normal"
   ) {
+    // const convertObjPayload = formatDataBeforeUpdate(newListDataItem);
+    const convertObjPayload = newListDataItem;
+
     //Cập nhật lại listDataItem trong Store
     const newObjectUpdate = {
       cvId: idCurrentCv,
       boardId: boardId,
-      listDataItem: cloneDeep(newListDataItem),
+      listDataItem: cloneDeep(convertObjPayload),
     };
     dispatch(CvSlice.actions.setUpdateListDataItemInBoard(newObjectUpdate));
 
@@ -411,6 +431,8 @@ export default function IDraggableFree({
         //Lấy ra kích thước của wrapper-drag-item sau khi rotate
         const rectChildActive = currentActiveChild?.getBoundingClientRect();
 
+        //Lưu lại width, height của item vào redux để khi lấy ra vẫn ở trạng thái xoay, resize và nội dung content không bị thay đổi
+
         if (rectChildActive) {
           const newListDataItemRotateResize = [...listDataItem].map((data) => {
             if (data.id === idActiveRotate) {
@@ -421,6 +443,7 @@ export default function IDraggableFree({
                   width: rectChildActive.width / zoomScale,
                   height: rectChildActive.height / zoomScale,
                 },
+                rotateDeg: sizeAndRotateItemSelector.deg,
               };
 
               // Đo khoảng cách giữa các item sau khi xoay, x = tọa độ tại X gốc - độ dịch * width Item
@@ -679,12 +702,17 @@ export default function IDraggableFree({
 
     const { active, delta } = event;
 
+    if (!active) return;
+
     const idDragging = active.id;
     const dataComponentDragging = active.data.current;
 
     const currentComponentDom = dataComponentDragging.componentRef.current;
 
     // Lấy ra kích thước item hiện tại để tính tọa độ
+    if (!currentComponentDom && !currentComponentDom?.getBoundingClientRect())
+      return;
+
     const { width, height } = currentComponentDom.getBoundingClientRect();
 
     //Do nó sẽ dịch 50% nên phải trừ đi 50% để nó dịch về vị trí cũ tiện so sánh, đồng thời bên trong hàm measureDistanceBetweenItems cũng sẽ dịch 50% => cùng gốc mới so sánh được
@@ -740,6 +768,8 @@ export default function IDraggableFree({
     );
   }
   function handleDragStart(event) {
+    console.log("Event STart:::", event);
+
     setIsDragging(true);
 
     //(*)Sai số cho phép khi so sánh tọa độ
@@ -754,6 +784,9 @@ export default function IDraggableFree({
     const dataComponentActive = active.data.current;
 
     const currentComponentDom = dataComponentActive.componentRef.current;
+
+    if (!currentComponentDom && !currentComponentDom?.getBoundingClientRect())
+      return;
 
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
@@ -793,12 +826,22 @@ export default function IDraggableFree({
     );
   }
 
-  function handleDragEnd({ active, delta }) {
+  function handleDragEnd(event) {
+    console.log("EVENT DRAG END:::", event);
+
+    const { active, delta } = event;
+
+    if (!active) return;
+
     setIsDragging(false);
 
     const dataComponentDragging = active.data.current;
+
+    console.log("DATA: CURRENT:::", dataComponentDragging);
     const currentComponentDom = dataComponentDragging.componentRef.current;
 
+    if (!currentComponentDom && !currentComponentDom?.getBoundingClientRect())
+      return;
     // Lấy ra kích thước item hiện tại để tính tọa độ
     const { width, height } = currentComponentDom.getBoundingClientRect();
 
@@ -857,8 +900,7 @@ export default function IDraggableFree({
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
-      // autoScroll={true}
-
+      autoScroll={true}
       modifiers={modifiers}
       collisionDetection={rectIntersection}
     >
@@ -892,6 +934,10 @@ export default function IDraggableFree({
         listDataItem.map((childData, index) => {
           return (
             <IDraggbleItemWrapper
+              isDragDisabled={
+                // Chỉ có Author mới được kéo dù cho disabled
+                isDragDisabled && studentData?.id !== childData.cvUserId
+              }
               layer={childData.layer}
               typeDragItem={childData.type}
               sizeItem={childData.sizeItem}
@@ -949,6 +995,7 @@ export const IDraggbleItemWrapper = ({
   buttonStyle,
   componentRef,
   typeDragItem,
+  isDragDisabled,
 }) => {
   /**
    useDraggable chỉ chạy khi component được kéo
@@ -960,6 +1007,7 @@ export const IDraggbleItemWrapper = ({
         ...dataItem,
         componentRef, //Sau khi gán xong Ref component con sẽ lưu trữ vào trong data dưới dạng domElement
       }, //Gán data vào trong component khi kéo thả
+      disabled: isDragDisabled,
     });
 
   return (

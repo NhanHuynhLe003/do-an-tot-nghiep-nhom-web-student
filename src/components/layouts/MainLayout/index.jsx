@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Box, Stack } from "@mui/material";
 import clsx from "clsx";
@@ -13,11 +13,14 @@ import style from "./mainlayout.module.css";
 export default function MainLayout({ children, typePage = "" }) {
   const sideBarWidth = useRef(248);
 
-  const location = useLocation();
-  const urlPathName = useRef(location.pathname);
   const refSlideContent = useRef(null);
   const { left, top } = useWindowSizeDepParent(refSlideContent);
   const [widthToolBarDrawer, setWidthToolBarDrawer] = React.useState(0);
+  // const [scrollProperty, setScrollProperty] = useState({
+  //   scrollTopPage: 0,
+  //   scrollHeightPage: 0,
+  //   clientHeightPage: 0,
+  // });
 
   function handleSetWidthToolBarDrawer(width) {
     setWidthToolBarDrawer(width);
@@ -53,7 +56,6 @@ export default function MainLayout({ children, typePage = "" }) {
           style={{
             width: "100%",
             height: "100%",
-            // filter: "drop-shadow(3px 3px 30px #6154FA)",
           }}
         />
       </Box>

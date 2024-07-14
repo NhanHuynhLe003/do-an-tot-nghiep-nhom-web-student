@@ -82,9 +82,46 @@
     --font-primary: 'Inter', sans-serif;
     --font-secondary: 'Helvetica', sans-serif;
 
+    /* =============== break point================ */
     --breakpoint-xs: 576;
     --breakpoint-sm: 768;
     --breakpoint-md: 992;
     --breakpoint-lg: 1200;
     --breakpoint-xl: 1400;
+
+
+    /* ============== Color Status =============== */
+    --completed-color-status: #00b69b;
+    --completed-color-status-rgba: rgba(0, 182, 155, 0.2);
+
+    --pending-color-status: #6226EF;
+    --pending-color-status-rgba: rgba(98, 38, 239, 0.2);
+    --cancel-color-status: #ef3826;
+    --cancel-color-status-rgba: rgba(239, 56, 38, 0.2);
+
+    --indue-color-status: #5496FA;
+    --indue-color-status-rgba: rgba(84, 150, 250, 0.2);
+
+    --overdue-color-status: #ffa600;
+    --overdue-color-status-rgba: rgba(255, 166, 0, 0.2);
+}
+
+
+.effect-spread-shadow-click-btn {
+
+    outline: none;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.effect-spread-shadow-click-btn:active {
+    border: 1px solid var(--color-primary2);
+    box-shadow: 0px 0px 0px 1px var(--color-primary2);
+    animation: anim-shadow .3s forwards;
+}
+
+@keyframes anim-shadow {
+    100% {
+        box-shadow: 0px 0px 50px 20px rgba(112, 111, 211, 0);
+    }
 }

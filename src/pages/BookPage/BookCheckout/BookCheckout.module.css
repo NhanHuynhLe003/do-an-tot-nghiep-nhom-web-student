@@ -1,0 +1,98 @@
+#BookCheckout {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.left {
+    width: 55%;
+
+}
+
+.right {
+    width: 35%;
+    position: sticky;
+    top: 7rem;
+    height: fit-content;
+
+}
+
+.titleFormBook {
+    background-image: linear-gradient(to bottom right, var(--color-blue2), var(--color-blue1));
+}
+
+.cardBookCheckout {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 0.25rem 0.5rem;
+
+}
+
+.buttonDelete {
+    width: 2.5em;
+    height: 2.5em;
+    margin-top: 0.5rem;
+    border-radius: 50%;
+    border: none;
+    opacity: 0 0 8px rgba(0, 0, 0, 0.1);
+    color: var(--color-primary2);
+    opacity: 0.5;
+    transition: 200ms ease-in-out;
+    margin-left: 0.5rem;
+}
+
+.buttonDelete:hover {
+    background-color: var(--color-primary2);
+    color: #fff;
+    opacity: 1;
+}
+
+.imgContainer {
+    width: 30%;
+    border-radius: 4px;
+
+}
+
+.imgContainer>img {
+    border-radius: 4px;
+}
+
+.contentBookCheckout {
+    width: 84%;
+}
+
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+
+
+@media screen and (max-width: 560px) {
+    .imgContainer {
+        width: 30%;
+    }
+
+    #BookCheckout {
+        display: flex;
+        flex-direction: column;
+        margin-top: 2rem;
+    }
+
+    .left {
+        width: 100%;
+        order: 2;
+        margin-top: 3rem;
+    }
+
+    .right {
+        width: 100%;
+        position: relative;
+        top: 0;
+        order: 1;
+        margin-top: 1rem;
+    }
+
+}

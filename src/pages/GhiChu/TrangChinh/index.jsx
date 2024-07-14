@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import style from "./TrangChinh.module.css";
+import AppKeoTha from "./components/AppKeoTha";
 
 export default function TrangChinh() {
   const [notes, setNotes] = useState([
@@ -36,7 +37,7 @@ export default function TrangChinh() {
   };
 
   const handleDeleteNote = (id) => {
-    setNotes(notes.filter(note => note.id !== id));
+    setNotes(notes.filter((note) => note.id !== id));
   };
 
   return (
@@ -55,7 +56,9 @@ export default function TrangChinh() {
           rows={10}
           required
         ></textarea>
-        <button type="submit" className={style.saveButton}>LƯU</button>
+        <button type="submit" className={style.saveButton}>
+          LƯU
+        </button>
       </form>
       <div className={style["note-grid"]}>
         {notes.map((note) => (
@@ -68,6 +71,8 @@ export default function TrangChinh() {
           </div>
         ))}
       </div>
+
+      <AppKeoTha></AppKeoTha>
     </div>
   );
 }

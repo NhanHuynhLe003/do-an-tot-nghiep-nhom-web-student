@@ -86,10 +86,10 @@ export default function IMiniVariantDrawer({
   // Hàm lấy ra kích thước của toolbar drawer paper hiện tại rồi cập nhật giá trị
   const updateDrawerWidth = () => {
     const rectPaperDrawer = IMiniVariantDrawerRef.current
-      .querySelector(".MuiDrawer-paper")
-      .getBoundingClientRect();
+      ?.querySelector(".MuiDrawer-paper")
+      ?.getBoundingClientRect();
 
-    handleSetWidthToolBarDrawer(rectPaperDrawer.width);
+    handleSetWidthToolBarDrawer(rectPaperDrawer?.width);
   };
 
   React.useEffect(() => {
