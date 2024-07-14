@@ -187,15 +187,39 @@
 }
 @media  only screen and (min-width: 46.25em) and (max-width:63.9375em){
 
+    .documentList{
+        display: none; 
+    }
+    .OnTapChiTiet { 
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        padding: 20px;
+        /* Thêm padding để nội dung không sát viền */
+        margin: 20px;
+        box-sizing: border-box;
+        /* Đảm bảo padding và border được tính vào chiều rộng */
+    }
+    .contentEditable {
+        width: 100%;
+        height: 600px;
+        padding: 10px;
+        margin-top: 20px;
+        box-sizing: border-box;
+        font-size: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        outline: none;
+        overflow: auto;
+        white-space: pre-wrap;
+        min-height: 150px;
+    }
+
     .img{
         max-width: 10%;
     }
-    .documentList{
-        width: 30%;
-    }
-    .OnTapChiTiet{
-        width: 70%;
-    }
+   
     .Buttonnho{
         width: 20%;
         height: 40px;

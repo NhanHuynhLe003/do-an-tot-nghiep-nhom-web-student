@@ -59,12 +59,17 @@ export default function TrangOnTapChiTiet() {
   function handleButtonClick() {
     setButtun(true);
   }
-  /////////////ĐÃ SỮA
+  /////////////mãng +1////////////////////////////////
   function handleNoteChange() {
     setCurrentNoteIndex(prevIndex => (prevIndex + 1) % noteList.length);
     setButtun(false);
   }
-  ////////////////////  
+  // chỉ hiển thị ngày, xóa data time của sever//////////
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  }
+  //////////////////////////////
   return (
     <div className={style.TrangOnTap}>
       <div className={style.documentList} >
@@ -94,8 +99,8 @@ export default function TrangOnTapChiTiet() {
           <div className={style.dateContainer}>
             <p className={style.h2}>Date</p>
             {/* <span className={style.date}>{selectedNote.ngay}</span> */}
-            <span className={style.date}>{noteList[currentNoteIndex] && noteList[currentNoteIndex].createdOn.toString()}</span>
-
+            {/* <span className={style.date}>{noteList[currentNoteIndex] && noteList[currentNoteIndex].createdOn.toString()}</span> */}
+            <span className={style.date}>{noteList[currentNoteIndex] && formatDate(noteList[currentNoteIndex].createdOn.toString())}</span>
           </div>
         </div>
         <div className={style.fonderdate}>
