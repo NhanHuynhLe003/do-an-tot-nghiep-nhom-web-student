@@ -17,8 +17,16 @@ import AccountInfo from "./components/account-info";
 import style from "./header-book.module.css";
 import { useUpdateCv } from "../../../hooks/apis/cv/useUpdateCv";
 import { toast } from "react-toastify";
+import { useSendCvToStudent } from "../../../hooks/apis/cv/useSendCvToStudent";
 
 export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
+  const {
+    mutate: sendCvToStudent,
+    data: sendCvToStudentData,
+    isLoading: isLoadingSendCvToStudent,
+    error: errorSendCvToStudent,
+  } = useSendCvToStudent();
+
   const menuToolBarRef = useRef(null);
   const [isHoverToolBar, setIsHoverToolBar] = React.useState(false);
 
@@ -34,9 +42,56 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
     console.log("Public CV");
   }, []);
 
-  const handleSendCvToStudent = useCallback((e) => {
-    console.log("Send CV to Student");
-  }, []);
+  const handleSendCvToStudent = () => {
+    const dataCv = { ...cvUserList[0] };
+    const cvPayload = {
+      ...dataCv,
+      userId: dataCv?.cvUserId,
+      boards: dataCv?.boards?.map((board, boardIndex) => {
+        return {
+          ...board,
+
+          position: { top: boardIndex * 80, left: 0 },
+          listDataItem: board?.listDataItem?.map((item, index) => {
+            const newItem = { ...item };
+
+            // newItem._id = item?.id;
+
+            delete newItem.id;
+            delete newItem.component;
+
+            return newItem;
+          }),
+        };
+      }),
+    };
+
+    //(*) xóa _id để tránh trùng với id được tạo ra của mongodb
+    delete cvPayload._id;
+
+    const loadingId = toast.loading("Đang gửi CV cho Sinh Viên...", {
+      position: "top-center",
+      autoClose: 2000,
+    });
+
+    sendCvToStudent(
+      {
+        cvId: dataCv.cvId,
+        userId: cvPayload.userId,
+        studentClass: "DTTT21MT",
+        cvData: cvPayload,
+      },
+      {
+        onSuccess: (data, variables, context) => {
+          toast.dismiss(loadingId);
+          toast.success("Gửi CV cho Sinh Viên thành công", {
+            position: "top-center",
+            autoClose: 2000,
+          });
+        },
+      }
+    );
+  };
 
   const handleSaveCv = useCallback(
     (e) => {
@@ -67,8 +122,6 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
             };
           }),
         };
-
-        console.log("PAYLOAD BEFORE UPDATE:::", cvPayload);
 
         // delete cvPayload?.cvUserId;
 
@@ -200,7 +253,7 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
               onClick={handleSendCvToStudent}
               type="submit"
               color="success"
-              variant="outlined"
+              variant="contained"
               size="small"
               sx={{
                 height: "100%",
