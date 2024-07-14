@@ -153,7 +153,7 @@ const routes = [
     path: "/chi-tiet-ghi-chu",
     component: TrangGhiChuChiTiet, // là các page
     layout: MainLayout, //
-    isAuth: true,
+    // isAuth: true,
   },
   {
     path: "/on-tap-chi-tiet",

@@ -1,6 +1,41 @@
 .GhiChuChiTiet {
-    width: 97%;
+    width: 99%;
     height: 100%;
     margin: auto;
-    padding-top: 10px;
+    padding-top: 5px;
+}
+.header{
+    width: 100%;
+    border: none;
+    margin-bottom: 5px;
+    color: #3f3f3f;
+    font-size: 17px;
+    font-weight: bold;
+}
+.Button{
+    width: 100px;
+    height: 35px;
+    border-radius: 5px;
+    border: none;
+    background-color: #5496FA;
+    color: #ffffff;
+    float: right;
+    margin-bottom: 5px;
+   
+}
+.Button:hover{
+    background-color: #0056b3;
+}
+.ButtonLuu{
+    width: 150px;
+    height: 35px;
+    border-radius: 5px;
+    border: none;
+    background-color: #5496FA;
+    color: #ffffff;
+    float: right;
+    margin-top: 5px;
+}
+.ButtonLuu:hover{
+    background-color: #0056b3;
 }
