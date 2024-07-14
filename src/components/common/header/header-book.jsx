@@ -103,6 +103,10 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
       // Chuyển hướng về trang login
       navigate("/login");
     }
+
+    if (mark.tag === "profile") {
+      navigate("/student/information");
+    }
   }
 
   function handleGetCartProductCount(count) {
@@ -182,7 +186,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
                   color: theme.colors.primary2,
                 }}
               >
-                <StyledBadge badgeContent={4} color="error">
+                <StyledBadge badgeContent={0} color="error">
                   <Notifications
                     sx={{
                       fontSize: "1.75rem",
@@ -192,7 +196,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
                 </StyledBadge>
               </Button>
             }
-            ComponentPopOver={<Box>Test</Box>}
+            ComponentPopOver={<Box>Không có thông báo</Box>}
           ></IPopOverBtn>
 
           <IPopOverBtn
@@ -225,7 +229,12 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
             <IMenuListFloat
               fnClickItem={handleClickMenuItem}
               menuListItems={listMenuItemFloat}
-              ListButtonContent={<AccountInfo></AccountInfo>}
+              ListButtonContent={
+                <AccountInfo
+                  nameUser={dataStudent?.name}
+                  img={dataStudent?.profileImage}
+                ></AccountInfo>
+              }
             ></IMenuListFloat>
           ) : (
             <Button

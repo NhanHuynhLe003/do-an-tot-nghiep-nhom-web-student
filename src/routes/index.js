@@ -24,6 +24,9 @@ import MyBookShelf from "../pages/BookPage/MyBookShelf";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import NotFoundPage from "../pages/NotFound";
 import StudentInformation from "../pages/Student/StudentInformation";
+import CvPage from "../pages/CvPage";
+import CvUserDetail from "../pages/CvPage/CvUserDetail";
+import AdminLogin from "../pages/Admin/Access/AdminLogin";
 
 const routes = [
   {
@@ -31,10 +34,29 @@ const routes = [
     component: Home,
   },
   {
+    path: "/cv/manage",
+    component: CvPage,
+    layout: MainLayout,
+    isAuth: true,
+  },
+  {
+    path: "/cv/manage/:id",
+    component: CvUserDetail,
+    layout: CvLayout,
+    isAuth: true,
+  },
+
+  //==============================ADMIN==============================
+  {
     path: "/admin",
     component: AdminMainPage, // là các page
     layout: MainLayout, // là các layout
     isAdmin: true,
+  },
+  {
+    path: "/admin/login",
+    component: AdminLogin, // là các page
+    layout: AccessLayout, // là các layout
   },
   {
     path: "/admin/book-manage",

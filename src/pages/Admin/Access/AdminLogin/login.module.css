@@ -1,0 +1,38 @@
+.formContainer {
+    border-radius: 0.7rem;
+    background-color: var(--color-white1);
+    width: 30%;
+    margin: 3rem auto;
+    padding: 2rem 4% 5rem 4%;
+    box-shadow: 0 0 20px 0 rgb(110, 110, 110);
+}
+
+.fieldInput label {
+    color: var(--color-primary2);
+    font-weight: 600;
+}
+
+
+@media screen and (max-width: 1200px) {
+
+    .formContainer {
+        width: 40%;
+        margin-top: 10rem;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .formContainer {
+        width: 50%;
+        margin-top: 2rem;
+    }
+
+}
+
+@media screen and (max-width: 576px) {
+    .formContainer {
+        width: 80%;
+        margin-top: 2rem;
+    }
+
+}
