@@ -8,16 +8,15 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { cloneDeep } from "lodash";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { sizeEditorDefault } from "../../constants";
+import { currentBoardInViewSelector } from "../../redux/selector";
 import CvSlice from "../../redux/slices/CvSlice";
 import theme from "../../theme";
 import style from "./textCvContainer.module.css";
-import { currentBoardInViewSelector } from "../../redux/selector";
-import { sizeEditorDefault } from "../../constants";
-import { useParams } from "react-router-dom";
 
 const textHeadings = [
   {
@@ -235,7 +234,7 @@ export default function TextCvContainer() {
       boardId: boardId,
       id: `${boardId}_${idDragItem}`,
       role: "ALL", //["ONLY_READ", "ONLY_WRITE", "ALL"]
-      type: "editor",
+      itemType: "editor",
       coordinate: {
         x: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.width,
         y: initCoordinate - TRANSLATE_NUM * sizeEditorDefault.height,
@@ -266,7 +265,10 @@ export default function TextCvContainer() {
           sizeEditorDefault.height / 2 -
           TRANSLATE_NUM * sizeEditorDefault.height,
       },
+      content: "<p>Nhập nội dung vào đây</p>",
       sizeItem: sizeEditorDefault,
+      color: "",
+      rotateDeg: 0,
       layer: 1,
     };
 

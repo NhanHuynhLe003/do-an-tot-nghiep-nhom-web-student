@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import styles from "./ItemDraggable.module.css";
-import classNames from "clsx";
+import clsx from "clsx";
 
 import { Handle } from "./Handle";
 import { Remove } from "./Remove";
@@ -59,7 +59,7 @@ export const ItemDraggable = React.memo(
         })
       ) : (
         <li
-          className={classNames(
+          className={clsx(
             styles.Wrapper,
             fadeIn && styles.fadeIn,
             sorting && styles.sorting,
@@ -84,7 +84,7 @@ export const ItemDraggable = React.memo(
           ref={ref}
         >
           <div
-            className={classNames(
+            className={clsx(
               styles.Item,
               dragging && styles.dragging,
               handle && styles.withHandle,

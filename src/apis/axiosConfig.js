@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useStudentLogout } from "../hooks/apis/access";
 
-const API_KEY = "0e79f8699c98990e7512faf97bc7e06ed1cee4138c1b7a85a31c8ca7a79f6fde323da76e9e2ea6c3fd9dbd47290f4519f7959ac85b16d53bafbe53a1ef17d8b6";
+
+
+
+const API_KEY = `63bb4e06ac590361d931aca398956efdd3aeeedcd00956c458ca2d14b07f7b3e2dd84cea891fd912d1e24ad65b5ed9b47086a726cd0df8c73f812c828d3fe726`;
+
 /*
   +---------------+      Request        +---------------+      Request      +---------------+        
   |               | ------------------> |               |-----------------> |               |
@@ -66,11 +71,32 @@ axiosInstance.interceptors.response.use(
 
     return response;
   },
-  (error) => {
+  async (error) => {
     if (error.code === "ERR_NETWORK") return;
     // Xử lý các lỗi chung như lỗi xác thực, tại đây có thể kết hợp react-toastify để hiển thị thông báo
-    //Xử lý toàn bộ lỗi ở đây ngoại trừ lỗi 410(GONE - Sử dụng để xác thực token khi access token hết hạn, tiến hành refresh token)
-    if (error.response?.status !== 410) {
+
+    if (error.response?.status === 401) {
+      //Xử lý lỗi 401 Unauthorized
+      const errorMessage = error.response?.data?.message;
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 2500,
+        draggable: true,
+      });
+      await setTimeout(async () => {
+        //gọi API logout
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("studentData");
+
+        //Chuyển hướng về trang login
+        window.location.reload();
+        // window.location.href = "/login";
+      }, 3000);
+    } else if (error.response?.status === 410) {
+      //Xử lý lỗi GONE (410) khi refresh token hết hạn
+    } else {
+      //Xử lý toàn bộ lỗi ở đây ngoại trừ lỗi 401
       const errorMessage = error.response?.data?.message || error?.message;
       toast.error(errorMessage);
     }

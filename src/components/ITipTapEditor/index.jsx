@@ -39,14 +39,19 @@ export default function ITipTapEditor({
     ToolTipTaps.UNDO,
     ToolTipTaps.REDO,
   ],
+  getHTMLContent = (content) => {
+    console.log(content);
+  },
   //Size này được truyền từ IWRAPPER VÀO
   size = { ...sizeEditorDefault },
+  getSizeEditorWhenChangeContent = (size) => {},
 }) {
   //Truyen data len thanh toolbar tren header
   const dispatch = useDispatch();
   const selectorSizeEditor = useSelector(sizeEditorSelector);
 
   const [showToolBar, setShowToolBar] = React.useState(false);
+  const [isChangingContent, setIsChangingContent] = React.useState(false);
 
   //Lấy ra size khi change editor từ redux
 
@@ -58,7 +63,11 @@ export default function ITipTapEditor({
     //Lắng nghe khi text thay đổi
     onUpdate: ({ editor }) => {
       // const htmlConvertText = editor.getHTML();
+      const htmlContent = editor.getHTML();
 
+      setIsChangingContent(true);
+
+      getHTMLContent(htmlContent);
       dispatch(CvSlice.actions.setTextEditorChange(editor.getHTML()));
     },
     onFocus: ({ editor }) => {
@@ -71,6 +80,14 @@ export default function ITipTapEditor({
       có thể khi ITipTapEditor và IMenuBar kết nối thì useEditor thiết lập 2 component này chung ID,
       nên cả 2 mới connect với nhau được. 
       */
+
+      const widthEditor = editor.view.dom.offsetWidth;
+      const heightEditor = editor.view.dom.offsetHeight;
+
+      getSizeEditorWhenChangeContent({
+        width: widthEditor,
+        height: heightEditor,
+      });
 
       dispatch(CvSlice.actions.setEditorContent(editorTipTap));
       dispatch(CvSlice.actions.setIdEditor(id));
@@ -93,6 +110,14 @@ export default function ITipTapEditor({
 
     // Xóa id khi blur ra khỏi editor
     onBlur: ({ editor }) => {
+      setIsChangingContent(false);
+      const widthEditor = editor.view.dom.offsetWidth;
+      const heightEditor = editor.view.dom.offsetHeight;
+
+      getSizeEditorWhenChangeContent({
+        width: widthEditor,
+        height: heightEditor,
+      });
       dispatch(CvSlice.actions.setIdEditor(-1));
     },
   });
@@ -115,8 +140,8 @@ export default function ITipTapEditor({
       sx={{
         // Điều chỉnh kích thước cho component editor bên trong
         "& .ITipTapEditor___EditorContentWrapper .ProseMirror": {
-          width: size.width,
-          height: size.height,
+          width: !isChangingContent ? size.width : "auto",
+          height: !isChangingContent ? size.height : "auto",
         },
       }}
     >
