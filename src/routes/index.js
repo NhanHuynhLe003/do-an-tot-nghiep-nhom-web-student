@@ -21,6 +21,7 @@ import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
+import Thungrac from "../pages/GhiChu/TrangRecycleBin";
 
 const routes = [
   {
@@ -137,6 +138,11 @@ const routes = [
   {
     path: "/trang-chinh",
     component: TrangChinh,
+    layout: MainLayout,
+  },
+  {
+    path: "/trang-thungrac",
+    component: Thungrac,
     layout: MainLayout,
   },
 ];

@@ -42,6 +42,7 @@ export const ItemDraggable = React.memo(
         };
       }, [dragOverlay]);
 
+      console.log("VALUE_ITEM:::", value);
       return renderItem ? (
         renderItem({
           dragOverlay: Boolean(dragOverlay),
@@ -97,14 +98,21 @@ export const ItemDraggable = React.memo(
             {...props}
             tabIndex={!handle ? 0 : undefined}
           >
-            {value}
+            <div key={value.id} className={style["note-item"]}>
+            <div className={style["notes-header"]}>
+              <button onClick={() => console.log(value.id)}>x</button>
+            </div>
+            <h2>{value?.title}</h2>
+            <p>{value?.content}</p>
+          </div>
+            
 
-            <span className={styles.Actions}>
+            {/* <span className={styles.Actions}>
               {onRemove ? (
                 <Remove className={styles.Remove} onClick={onRemove} />
               ) : null}
               {handle ? <Handle {...handleProps} {...listeners} /> : null}
-            </span>
+            </span> */}
           </div>
         </li>
       );

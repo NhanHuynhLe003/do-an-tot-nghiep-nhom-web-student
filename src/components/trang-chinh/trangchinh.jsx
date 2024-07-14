@@ -1,5 +1,6 @@
 import React from "react";
 export default function CardNote({title = "Title", content = "content"}){
+   
     return(
         <div style={{
             display:"flex",

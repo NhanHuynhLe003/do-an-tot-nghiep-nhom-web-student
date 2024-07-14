@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const API_KEY = `640dec9df23fbf3255079f3f7d375a9ea119dd0779a60538bf81b18aff28512ad44b4a911a78a53ead753401ad7eabbc0864472e10d4ae55667ddc6a3bedcafd`;
+const API_KEY = "0e79f8699c98990e7512faf97bc7e06ed1cee4138c1b7a85a31c8ca7a79f6fde323da76e9e2ea6c3fd9dbd47290f4519f7959ac85b16d53bafbe53a1ef17d8b6";
 /*
   +---------------+      Request        +---------------+      Request      +---------------+        
   |               | ------------------> |               |-----------------> |               |

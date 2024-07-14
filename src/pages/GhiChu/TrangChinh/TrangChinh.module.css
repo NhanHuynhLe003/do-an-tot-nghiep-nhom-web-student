@@ -1,50 +1,50 @@
+/* Cấu trúc container chính */
 .app-container {
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 600px) {
   .app-container {
     display: grid;
     grid-template-columns: 200px 1fr;
     gap: 20px;
     margin-top: 20px;
+    margin-left: 100px;
   }
 }
 
+/* Lưới chứa các ghi chú */
 .note-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-auto-rows: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
+/* Kiểu dáng cho các mục ghi chú */
 .note-item {
   display: flex;
   flex-direction: column;
   border: 1px solid #ccc;
   padding: 10px;
-  border-radius: 8px;
-  /* Border radius tương tự như card */
-  background-color: white;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-  /* Box shadow tương tự như card */
-  cursor: pointer;
   width: 200px;
   height: 200px;
   box-sizing: border-box;
-  transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
-  /* Thêm transition tương tự */
+  position: relative;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Thêm hiệu ứng chuyển đổi màu và nổi lên */
+  overflow: hidden; /* Ẩn phần tràn ra */
 }
 
+/* Thêm hiệu ứng thay đổi màu và nổi lên khi di chuột vào */
 .note-item:hover {
-  transform: translateY(-5px);
-  /* Hiệu ứng transform tương tự */
-  background-color: #268fff;
-  /* Màu nền hover tương tự */
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-  /* Shadow hover tương tự */
+  background-color: #007aff; /* Màu nền mới khi di chuột vào */
+  transform: translateY(-10px); /* Nổi lên cao */
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.25); /* Tăng bóng đổ */
 }
 
+/* Header của ghi chú */
 .notes-header {
   display: flex;
   justify-content: flex-end;
@@ -58,16 +58,54 @@
   max-width: fit-content;
 }
 
+/* Kiểu dáng cho phần tiêu đề */
+.note-item h2 {
+  font-size: 26px;
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-bottom: 10px;
+  line-height: 1.3;
+  overflow: hidden; /* Ẩn phần tràn ra */
+  text-overflow: ellipsis; /* Thêm dấu chấm lửng khi tràn */
+  white-space: nowrap; /* Không xuống dòng */
+}
+
+/* Kiểu dáng cho nội dung */
+.note-item p {
+  line-height: 1.5;
+  overflow: hidden; /* Ẩn phần tràn ra */
+  text-overflow: ellipsis; /* Thêm dấu chấm lửng khi tràn */
+  display: -webkit-box; /* Hỗ trợ trình duyệt webkit */
+  -webkit-box-orient: vertical; /* Thiết lập box orientation */
+  -webkit-line-clamp: 3; /* Số dòng tối đa trước khi thêm dấu chấm lửng */
+}
+
+/* Kiểu dáng cho các liên kết */
+.note-item a {
+  display: inline-block;
+  text-transform: capitalize;
+  margin-top: 20px;
+  font-weight: 500;
+}
+
+/* Tiêu đề ghi chú */
 h2 {
   margin: 0;
 }
 
+/* Form để thêm ghi chú mới */
 .note-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-left: 20px;
+  margin-left: -15px;
   margin-right: 20px;
+}
+
+
+/* Kiểu dáng cho textarea và input */
+textarea {
+  width: 100%;
 }
 
 textarea,
@@ -76,26 +114,108 @@ input {
   border: 1px solid black;
   padding: 10px;
   font-size: 16px;
-  resize: none; /* Prevents resizing */
+  resize: none; /* Ngăn chặn thay đổi kích thước */
 }
 
+/* Kiểu dáng cho nút lưu */
 .note-form button {
   border-radius: 5px;
-  background-color: #6eaaeb;
+  background-color: #007aff;
   border: none;
   padding: 10px;
   font-size: 16px;
   color: white;
 }
-
+ 
+/* Hiệu ứng hover cho nút lưu */
 .note-form button:hover {
   background-color: #007aff;
   cursor: pointer;
 }
 
+/* Hiệu ứng hover cho nút lưu (phần saveButton) */
 .saveButton:hover {
-  transform: translateY(-5px); /* Hiệu ứng transform tương tự */
-  background-color: #268fff; /* Màu nền hover tương tự */
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); /* Shadow hover tương tự */
+  background-color: #6eaaeb;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
 }
+
+/* REPOnSIVE */
+@media (max-width: 600px) {
+  .note-grid {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .note-item {
+    width: 90%;
+    height: auto;
+  }
+
+  .note-form {
+    margin: 10px;
+    padding: 10px;
+  }
+
+  textarea {
+    font-size: 14px;
+    padding: 8px;
+    height: 50px;
+  }
+  input {
+    font-size: 14px;
+    padding: 8px;
+  }
+  .note-form button {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .note-item h2 {
+    font-size: 22px;
+  }
+
+  .note-item p {
+    font-size: 14px;
+  }
+}
+
+.deleteicon {
+  position: fixed;
+  bottom: 50px; /* điều chỉnh vị trí theo yêu cầu */
+  left: 390px; /* điều chỉnh vị trí theo yêu cầu */
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.deleteicon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+  .deleteicon {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 768px) {
+  .deleteicon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .deleteicon {
+    width: 25px;
+    height: 25px;
+  }
+}
+
 
