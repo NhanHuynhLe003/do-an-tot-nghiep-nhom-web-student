@@ -1,0 +1,52 @@
+.formContainer {
+    border-radius: 0.7rem;
+    background-color: var(--color-white1);
+    width: 44%;
+    margin: 2rem auto;
+    padding: 2rem 2% 2rem 2%;
+    box-shadow: 0 0 20px 0 rgb(110, 110, 110);
+}
+
+.fieldcontainer {}
+
+.fieldInput {
+    width: 46%;
+}
+
+.fieldInput label {
+    color: var(--color-primary2);
+    font-weight: 600;
+}
+
+
+@media screen and (max-width: 1200px) {
+
+    .formContainer {
+        width: 40%;
+        margin-top: 10rem;
+    }
+
+    .fieldInput {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .formContainer {
+        width: 50%;
+        margin-top: 2rem;
+    }
+
+    .fieldInput {
+        width: 100%;
+    }
+
+}
+
+@media screen and (max-width: 576px) {
+    .formContainer {
+        width: 80%;
+        margin-top: 2rem;
+    }
+
+}

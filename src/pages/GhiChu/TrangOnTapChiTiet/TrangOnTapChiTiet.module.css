@@ -6,7 +6,7 @@
     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.25);
     /* chỉnh 3D nhìn cho đẹp xíu */
     width: 25%;
-  
+
     padding: 20px;
     /* Thêm padding để nội dung không sát viền */
     box-sizing: border-box;
@@ -17,7 +17,7 @@
     background-color: #fff;
     border-radius: 10px;
 
-    
+
 }
 
 
@@ -28,7 +28,7 @@
 .notecard {
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
     width: 95%;
-    
+
     padding: 10px;
     /* Thêm padding để nội dung không sát viền */
     box-sizing: border-box;
@@ -36,11 +36,13 @@
     margin: 10px;
     transition: all 0.2s linear;
 }
+
 .notecard:hover {
     transform: scale(1.1);
 }
-.notecard:hover > .card :not(:hover) {
-    filter : blur(10px)
+
+.notecard:hover>.card :not(:hover) {
+    filter: blur(10px)
 }
 
 .titlenote {
@@ -52,7 +54,7 @@
 }
 
 
-.OnTapChiTiet { 
+.OnTapChiTiet {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.25);
@@ -96,7 +98,7 @@
 
 .contentEditable {
     width: 100%;
-    height: 400px;
+    min-height: 40vh;
     padding: 10px;
     margin-top: 20px;
     box-sizing: border-box;
@@ -134,25 +136,32 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    
+
 }
+
 /* khoa dep chai */
 /* qua dep luon */
 .Buttonnho:hover {
     /* dùng chuyển màu khi đưa trỏ vào nút nhấn*/
-    background-color: #13DDFA;
+    background-color: #0056b3;
 }
-.buttonKQ{
+
+.ButtonHT:hover {
+    background-color: #0056b3;
+}
+
+.buttonKQ {
     text-align: center;
     bottom: 0;
     width: 100%;
-   
+
     padding: 10px;
     background-color: #fff;
     text-align: center;
-   
+
 }
-.ButtonHT{
+
+.ButtonHT {
     width: 130px;
     height: 35px;
     background-color: #5496FA;
@@ -163,28 +172,69 @@
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    
-}
-@media  only screen and (max-width: 46.1875em) {
-.documentList{
-    display: none;
-    
-}
-.OnTapChiTiet{
-    width: 100%;
-}
-.img{
-    max-width: 15%;
-}
-.Buttonnho{
-    width: 20%;
-    height: 60px;
-}
-    
-}
-@media  only screen and (min-width: 46.25em) and (max-width:63.9375em){
 
-    .img{
+}
+
+@media only screen and (max-width: 46.1875em) {
+    .documentList {
+        display: none;
+
+    }
+
+    .OnTapChiTiet {
+        width: 100%;
+    }
+
+    .img {
+        max-width: 15%;
+    }
+
+    .Buttonnho {
+        width: 20%;
+        height: 60px;
+    }
+
+}
+
+@media only screen and (min-width: 46.25em) and (max-width:63.9375em) {
+
+    .documentList {
+        display: none;
+    }
+
+    .OnTapChiTiet {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        padding: 20px;
+        /* Thêm padding để nội dung không sát viền */
+        margin: 20px;
+        box-sizing: border-box;
+        /* Đảm bảo padding và border được tính vào chiều rộng */
+    }
+
+    .contentEditable {
+        width: 100%;
+        height: 600px;
+        padding: 10px;
+        margin-top: 20px;
+        box-sizing: border-box;
+        font-size: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        outline: none;
+        overflow: auto;
+        white-space: pre-wrap;
+        min-height: 150px;
+    }
+
+    .img {
         max-width: 10%;
+    }
+
+    .Buttonnho {
+        width: 20%;
+        height: 40px;
     }
 }

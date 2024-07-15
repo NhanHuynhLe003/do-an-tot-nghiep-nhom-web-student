@@ -2,7 +2,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useStudentLogout } from "../hooks/apis/access";
 
-const API_KEY = `63bb4e06ac590361d931aca398956efdd3aeeedcd00956c458ca2d14b07f7b3e2dd84cea891fd912d1e24ad65b5ed9b47086a726cd0df8c73f812c828d3fe726`;
+const API_KEY = process.env.REACT_APP_API_KEY;
+
 /*
   +---------------+      Request        +---------------+      Request      +---------------+        
   |               | ------------------> |               |-----------------> |               |
