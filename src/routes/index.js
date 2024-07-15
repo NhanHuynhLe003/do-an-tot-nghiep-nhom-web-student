@@ -27,6 +27,8 @@ import StudentInformation from "../pages/Student/StudentInformation";
 import CvPage from "../pages/CvPage";
 import CvUserDetail from "../pages/CvPage/CvUserDetail";
 import AdminLogin from "../pages/Admin/Access/AdminLogin";
+import AdminUserManagePage from "../pages/Admin/AdminUserManagePage";
+import AdminSignUp from "../pages/Admin/Access/AdminSignUp";
 
 const routes = [
   {
@@ -103,6 +105,18 @@ const routes = [
     path: "/admin/cv-manage/:id",
     component: CvAdminPageDetail,
     layout: CvLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/user-manage",
+    component: AdminUserManagePage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/user/sign-up",
+    component: AdminSignUp,
+    layout: AccessLayout,
     isAdmin: true,
   },
   //===========================LOGIN===========================
