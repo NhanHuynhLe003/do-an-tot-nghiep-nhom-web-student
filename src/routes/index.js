@@ -29,6 +29,7 @@ import CvUserDetail from "../pages/CvPage/CvUserDetail";
 import AdminLogin from "../pages/Admin/Access/AdminLogin";
 import AdminUserManagePage from "../pages/Admin/AdminUserManagePage";
 import AdminSignUp from "../pages/Admin/Access/AdminSignUp";
+import AdminNoteManagePage from "../pages/Admin/AdminNoteManagePage";
 
 const routes = [
   {
@@ -117,6 +118,12 @@ const routes = [
     path: "/admin/user/sign-up",
     component: AdminSignUp,
     layout: AccessLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/note-manage",
+    component: AdminNoteManagePage,
+    layout: MainLayout,
     isAdmin: true,
   },
   //===========================LOGIN===========================

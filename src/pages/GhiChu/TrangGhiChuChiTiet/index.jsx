@@ -19,12 +19,18 @@ import React, { useRef, useState } from "react";
 import style from "./TrangGhiChuChiTiet.module.css";
 
 import { ClozeButton } from "./components/ClozeButton";
+import { useTaoNoteGoc } from "../../../hooks/apis/notes/useTaoNoteGoc";
+import { useTaoNoteCon } from "../../../hooks/apis/notes/useTaoNoteCon";
+import { toast } from "react-toastify";
 
 export default function TrangGhiChuChiTiet() {
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const [html, setHTML] = useState("");
   const [tieude, setTieuDe] = useState("");
+
+  const { mutate: taoNoteGoc, data: dulieuNoteGoc } = useTaoNoteGoc();
+  const { mutate: taoNoteCon } = useTaoNoteCon();
 
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -75,7 +81,10 @@ export default function TrangGhiChuChiTiet() {
     //       .join("")})`
     // );
 
+    //lấy ra tất các cloze
     const listCloze = html.match(regex);
+
+    console.log("MATCHES:::", matches);
 
     // Tạo các cloze nhỏ hơn
     matches.forEach((m, index) => {
@@ -88,8 +97,11 @@ export default function TrangGhiChuChiTiet() {
         }
         return match;
       });
+
       versions.push(clozeHtml);
     });
+
+    console.log("VERSIONS:::", versions); //versions là chứa các cloze lần lượt ... vd, ABCD12345 => [(...)12345 , ABCD(...)45, ABCD12(...)]
 
     // Ẩn Toàn Bộ
     // versions.push(allClozeHtml);
@@ -101,11 +113,24 @@ export default function TrangGhiChuChiTiet() {
   };
 
   async function handleSave() {
-    // Chuyển đổi các nội dung BlockNote thành mảng chứa các đoạn cloze
+    if (!tieude) {
+      // neu tieu de khong ton tai
+      toast.error("Vui lòng nhập tiêu đề", {
+        position: "top-center",
+      });
+
+      return; //return để không chạy xuống các đoạn code bên dưới
+    }
+
+    // Chuyển đổi các nội dung BlockNote thành mảng chứa các đoạn cloze, result la obj tra ve
     const result = replaceString(html);
 
     const clozes = result.clozes;
+
     const listNoteCloze = result.listNoteCloze;
+
+    console.log("CLONE CLOZES:::", clozes);
+    console.log("LIST NOTE CLOZE:::", listNoteCloze);
 
     /**
      "note_userId": "667f828ffcfca52f68326155",
@@ -115,31 +140,48 @@ export default function TrangGhiChuChiTiet() {
     "clozes": ["ABCD", "4567", "789"]
      */
 
-    for (let i = 0; i < listNoteCloze.length; i++) {
-      const note_cloze = listNoteCloze[i];
+    const payloadNoteGoc = {
+      note_userId: studentData._id, //id cua nguoi dung
+      note_title: tieude, // tieu de
+      note_content: html, // noi dung
+      note_cloze: html, //note cloze và note content đang là tạo note gốc nên sẽ không ẩn(cloze)
+      clozes: clozes, // mảng chứa nội dung ẩn
+    };
 
-      //Dữ liệu để đẩy lên server
-      const payload = {
-        note_userId: studentData._id,
-        note_title: tieude,
-        note_content: html,
-        note_cloze: note_cloze,
-        clozes: clozes,
-      };
-    }
-    console.log("Result:::");
-  }
+    //Tao Note Goc
+    taoNoteGoc(payloadNoteGoc, {
+      //sau khi đã đẩy note gốc lên server thành công dữ liệu sẽ hiển thị trong onSuccess
+      onSuccess: (data, variables, context) => {
+        // data là dữ liệu của noteGoc trả về sau khi upload thành công
 
-  const inputRef = useRef(null);
+        // sau khi tạo note cha thành công thì tra ve _id cua note cha, sử dụng để gán vào cho các parentId
+        //Note con
+        for (let i = 0; i < listNoteCloze.length; i++) {
+          //lọc qua từng note_cloze dạng (...) lần lượt , nó ko ẩn hết chỉ ẩn lần lượt
+          const note_cloze = listNoteCloze[i];
 
-  const handleSelection = () => {
-    const startSelection = inputRef.current.selectionStart;
-    const endSelection = inputRef.current.selectionEnd;
-    console.log({
-      startSelection,
-      endSelection,
+          //Dữ liệu để đẩy lên server
+          const payload = {
+            note_userId: studentData._id,
+            note_title: tieude,
+            note_content: html,
+            note_cloze: note_cloze,
+            clozes: clozes,
+            note_parentId: data?.metadata?._id, // lấy thông qua _id từ note cha
+          };
+
+          //Tạo Note Con
+          taoNoteCon(payload); // đẩy dữ liệu note con lần lượt lên server.
+        }
+      },
     });
-  };
+
+    console.log("Dữ liệu ghi chú gốc:::", dulieuNoteGoc?.metadata?._id);
+
+    toast.success("Tạo ghi chú thành công", {
+      position: "top-center",
+    });
+  }
 
   return (
     <div className={style.GhiChuChiTiet}>
