@@ -2,7 +2,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useStudentLogout } from "../hooks/apis/access";
 
-const API_KEY = `24e75a1da875783962d9c8f881602565dfafebcd1b6b8c8d1456e291b9e2b2f6820df9c3559669969034239a7e023094844aa5bd999154a9ca2003d83437e630`;
+
+const API_KEY = `63bb4e06ac590361d931aca398956efdd3aeeedcd00956c458ca2d14b07f7b3e2dd84cea891fd912d1e24ad65b5ed9b47086a726cd0df8c73f812c828d3fe726`;
+
 /*
   +---------------+      Request        +---------------+      Request      +---------------+        
   |               | ------------------> |               |-----------------> |               |
