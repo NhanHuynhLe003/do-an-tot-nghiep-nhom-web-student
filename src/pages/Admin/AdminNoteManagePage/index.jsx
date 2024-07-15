@@ -22,7 +22,7 @@ import { format } from "date-fns";
 import { useGetAllStudentByAdmin } from "../../../hooks/apis/students/useGetAllStudentByAdmin";
 import { useNavigate } from "react-router-dom";
 
-const AdminUserManagePage = () => {
+export default function AdminNoteManagePage() {
   const [users, setUsers] = useState([]);
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
@@ -34,46 +34,48 @@ const AdminUserManagePage = () => {
   const { data: studentData, isLoading: studentIsLoading } =
     useGetAllStudentByAdmin();
 
-  useEffect(() => {
-    if (studentData && studentData.data && studentData.data.metadata?.result) {
-      const convertStudentDataTableDisplay =
-        studentData.data.metadata?.result.map((student) => {
-          return {
-            id: student._id,
-            name: student.name,
-            email: student.email,
-            classStudent: student.classStudent,
-            bookReaded: student.books_readed?.length,
-            dateOfbirth: format(new Date(student.date_of_birth), "dd/MM/yyyy"),
-            role:
-              student.roles[0] === process.env.REACT_APP_STUDENT_ROLE
-                ? "Student"
-                : "Admin",
-            status: student.status,
-          };
-        });
-
-      console.log(
-        "convertStudentDataTableDisplay",
-        convertStudentDataTableDisplay
-      );
-
-      setUsers(convertStudentDataTableDisplay);
-    }
-  }, [studentData]);
-
   // useEffect(() => {
-  //   // Mock 20 users
-  //   const generatedUsers = Array.from({ length: 20 }, (_, id) => ({
-  //     id,
-  //     name: "USER " + id,
-  //     email: "user" + id + "@example.com",
-  //     classStudent: `DTTT${id % 4}A`,
-  //     bookReaded: Math.floor(Math.random() * 100),
-  //     dateOfbirth: format(new Date(2003, 0, 1), "dd/MM/yyyy"),
-  //   }));
-  //   setUsers(generatedUsers);
-  // }, []);
+  //   if (studentData && studentData.data && studentData.data.metadata?.result) {
+  //     const convertStudentDataTableDisplay =
+  //       studentData.data.metadata?.result.map((student) => {
+  //         return {
+  //           id: student._id,
+  //           name: student.name,
+  //           email: student.email,
+  //           classStudent: student.classStudent,
+  //           bookReaded: student.books_readed?.length,
+  //           dateOfbirth: format(new Date(student.date_of_birth), "dd/MM/yyyy"),
+  //           role:
+  //             student.roles[0] === process.env.REACT_APP_STUDENT_ROLE
+  //               ? "Student"
+  //               : "Admin",
+  //           status: student.status,
+  //         };
+  //       });
+
+  //     console.log(
+  //       "convertStudentDataTableDisplay",
+  //       convertStudentDataTableDisplay
+  //     );
+
+  //     setUsers(convertStudentDataTableDisplay);
+  //   }
+  // }, [studentData]);
+
+  useEffect(() => {
+    // Mock 20 users
+    const generatedUsers = Array.from({ length: 20 }, (_, id) => ({
+      id,
+      name: "USER " + id,
+      email: "user" + id + "@example.com",
+      classStudent: `DTTT${id % 4}A`,
+      bookReaded: Math.floor(Math.random() * 100),
+      dateOfbirth: format(new Date(2003, 0, 1), "dd/MM/yyyy"),
+      role: id % 2 === 0 ? "user" : "admin",
+      status: id % 2 === 0 ? "active" : "inactive",
+    }));
+    setUsers(generatedUsers);
+  }, []);
 
   useEffect(() => {
     // Fetch user data from API
@@ -285,6 +287,4 @@ const AdminUserManagePage = () => {
       </div>
     </div>
   );
-};
-
-export default AdminUserManagePage;
+}

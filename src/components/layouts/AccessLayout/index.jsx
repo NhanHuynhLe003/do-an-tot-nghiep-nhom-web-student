@@ -6,9 +6,13 @@ export default function AccessLayout({ children }) {
     <Box
       sx={{
         width: "100%",
-        height: "100vh",
+        minHeight: "100vh",
         position: "relative",
         overflow: "hidden",
+
+        "@media (max-width: 1200px)": {
+          overflowY: "auto",
+        },
       }}
     >
       <Box
@@ -48,6 +52,7 @@ export default function AccessLayout({ children }) {
           },
           "@media (max-width: 1200px)": {
             background: `linear-gradient(to bottom right, #6154FA 40%, #5fd2eb 100%)`,
+            height: "fit-content",
           },
         }}
       >
