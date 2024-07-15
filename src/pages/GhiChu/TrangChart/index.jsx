@@ -34,8 +34,8 @@ const barData = {
         {
             label: 'Dữ liệu 1', // Nhãn chú giải
             data: [65, 59, 80, 81, 56, 55, 40], // Dữ liệu trục Y
-            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Màu nền của cột
-            borderColor: 'rgba(75, 192, 192, 1)', // Màu viền của cột
+            backgroundColor: '#5496FA', // Màu nền của cột
+            borderColor: '#0056b3', // Màu viền của cột
             borderWidth: 1, // Độ rộng của viền
         },
     ],
@@ -99,24 +99,23 @@ const pieOptions = {
     },
 };
 
-// Khai báo dữ liệu và cấu hình cho biểu đồ đường là sóng sin
-const sineData = {
-    labels: Array.from({ length: 30 }, (_, i) => i), // Tạo mảng gồm 30 phần tử từ 0 đến 29
+// Khai báo dữ liệu và cấu hình cho biểu đồ đường
+const lineData = {
+    labels: Array.from({ length: 30 }, (_, i) => `Ngày ${i + 1}`), // Tạo mảng gồm 30 phần tử từ Ngày 1 đến Ngày 30
     datasets: [
         {
-            label: 'Sóng Sin',
-            data: Array.from({ length: 30 }, (_, i) => Math.sin((i / 3) * Math.PI)), // Tính giá trị sin cho từng phần tử
-            borderColor: 'rgba(255, 99, 132, 1)', // Màu viền của đường
-            backgroundColor: 'rgba(255, 99, 132, 0.2)', // Màu nền của đường
+            label: 'Số bài học hoàn thành mỗi ngày',
+            data: [3, 5, 2, 4, 6, 7, 8, 3, 4, 2, 5, 7, 6, 4, 3, 8, 7, 5, 6, 3, 4, 5, 7, 8, 6, 5, 4, 7, 10, 3], // Dữ liệu cứng
+            borderColor: '#5496FA', // Màu viền của đường
+            backgroundColor: '#0056b3', // Màu nền của đường
             fill: false, // Không tô màu nền
             tension: 0.2, // Độ căng của đường
         },
     ],
 };
 
-
-// Cấu hình cho biểu đồ đường là sóng sin
-const sineOptions = {
+// Cấu hình cho biểu đồ đường
+const lineOptions = {
     responsive: true,
     plugins: {
         legend: {
@@ -124,7 +123,7 @@ const sineOptions = {
         },
         title: {
             display: true,
-            text: 'Biểu đồ đường của Chart.js với sóng sin',
+            text: 'Biểu đồ đường  với số note hoàn thành mỗi ngày trong tháng',
         },
     },
 };
@@ -142,8 +141,8 @@ export default function TrangChart() {
                 </div>
             </div>
             <div className={style.bot}>
-                <div className={style.chartsin}>
-                    <Line data={sineData} options={sineOptions} className={style.sinchart} /> 
+                <div className={style.chart}>
+                    <Line data={lineData} options={lineOptions} className={style.sinchart} /> 
                 </div>
             </div>
         </div>
