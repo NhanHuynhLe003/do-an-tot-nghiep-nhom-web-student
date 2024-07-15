@@ -176,10 +176,10 @@ export default function MyBookShelf() {
                   <Typography
                     component={"h5"}
                     sx={{
-                      fontSize: "0.7rem",
+                      fontSize: "1rem",
                       color: "var(--color-primary2)",
                       opacity: 0.5,
-                      mt: "0.5rem",
+                      mt: "0.35rem",
                     }}
                   >
                     Author
@@ -215,16 +215,19 @@ export default function MyBookShelf() {
                     }}
                   />
                 </div>
+                <br />
+
                 <SubmitDialog
                   styleBtnShowInfo={{
-                    color: "var(--color-primary2)",
                     backgroundColor: "#fff",
                     boxShadow: "none",
+                    width: "100%",
 
                     padding: "0.25rem 0rem",
                     "&:hover": {
-                      color: "var(--color-primary2)",
-                      backgroundColor: "#fff",
+                      color: "#fff",
+                      border: "none",
+                      backgroundColor: "var(--color-primary1)",
                       boxShadow: "0 0 10px rgba(0,0,0,0.1)",
                     },
                   }}
@@ -314,7 +317,7 @@ export default function MyBookShelf() {
                   <Typography
                     component={"h5"}
                     sx={{
-                      fontSize: "0.7rem",
+                      fontSize: "0.8rem",
                       color: "var(--color-primary2)",
                       opacity: 0.5,
                       mt: "0.5rem",

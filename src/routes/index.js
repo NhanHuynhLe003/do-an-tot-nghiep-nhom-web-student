@@ -19,15 +19,18 @@ import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategor
 import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
-import BookCheckout from "../pages/BookPage/BookCheckout";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
 import Thungrac from "../pages/GhiChu/TrangRecycleBin";
+import BookCheckout from "../pages/BookPage/BookCheckout";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import NotFoundPage from "../pages/NotFound";
 import StudentInformation from "../pages/Student/StudentInformation";
 import CvPage from "../pages/CvPage";
 import CvUserDetail from "../pages/CvPage/CvUserDetail";
 import AdminLogin from "../pages/Admin/Access/AdminLogin";
+import AdminUserManagePage from "../pages/Admin/AdminUserManagePage";
+import AdminSignUp from "../pages/Admin/Access/AdminSignUp";
+import AdminNoteManagePage from "../pages/Admin/AdminNoteManagePage";
 
 
 const routes = [
@@ -105,6 +108,24 @@ const routes = [
     path: "/admin/cv-manage/:id",
     component: CvAdminPageDetail,
     layout: CvLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/user-manage",
+    component: AdminUserManagePage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/user/sign-up",
+    component: AdminSignUp,
+    layout: AccessLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/note-manage",
+    component: AdminNoteManagePage,
+    layout: MainLayout,
     isAdmin: true,
   },
   //===========================LOGIN===========================
