@@ -63,10 +63,11 @@ export default function AdminNoteManagePage() {
   // }, [studentData]);
 
   useEffect(() => {
-    // Mock 20 users
+    // Tạo dữ liệu tạm thời để hiển thị, tạo ngẫu nhiên 1 mảng chứa 20 phần tử
     const generatedUsers = Array.from({ length: 20 }, (_, id) => ({
       id,
       name: "USER " + id,
+      mssv: "03082111" + id,
       email: "user" + id + "@example.com",
       classStudent: `DTTT${id % 4}A`,
       bookReaded: Math.floor(Math.random() * 100),
@@ -75,14 +76,6 @@ export default function AdminNoteManagePage() {
       status: id % 2 === 0 ? "active" : "inactive",
     }));
     setUsers(generatedUsers);
-  }, []);
-
-  useEffect(() => {
-    // Fetch user data from API
-    fetch("/api/users")
-      .then((response) => response.json())
-      .then((data) => setUsers(data))
-      .catch((error) => console.error("Error fetching user data:", error));
   }, []);
 
   const handleSelectAllClick = (event) => {
@@ -113,6 +106,7 @@ export default function AdminNoteManagePage() {
     setSelected(newSelected);
   };
 
+  //Sau khi tạo dữ liệu tạm thời thì hiển thị ra màn hình
   const handleAddNewStudent = () => {
     navigate("/admin/user/sign-up");
   };
@@ -205,6 +199,7 @@ export default function AdminNoteManagePage() {
               </TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
+              <TableCell>MSSV</TableCell>
               <TableCell>Class Student</TableCell>
               <TableCell>Books Read</TableCell>
               <TableCell>Date of Birth</TableCell>
@@ -229,6 +224,7 @@ export default function AdminNoteManagePage() {
                   </TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.mssv}</TableCell>
                   <TableCell>{user.classStudent}</TableCell>
                   <TableCell>{user.bookReaded}</TableCell>
                   <TableCell>{user.dateOfbirth}</TableCell>
