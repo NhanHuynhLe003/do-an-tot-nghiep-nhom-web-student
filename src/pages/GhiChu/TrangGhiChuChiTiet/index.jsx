@@ -15,7 +15,7 @@ import {
   UnnestBlockButton,
   useCreateBlockNote,
 } from "@blocknote/react";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import style from "./TrangGhiChuChiTiet.module.css";
 
 
@@ -35,7 +35,7 @@ export default function TrangGhiChuChiTiet() {
   const [hideCount, setHideCount] = useState(0);
   const [previousContents, setPreviousContents] = useState([]);
   const editor = useCreateBlockNote();
-  
+
   const initialHTML = "";
   const transformData = (data) => {
     const regex = /\[\d\]\(\d+\)/g;
@@ -44,7 +44,7 @@ export default function TrangGhiChuChiTiet() {
     });
     return result
   };
- 
+
   useEffect(() => {
     // Log nội dung HTML để kiểm tra khi "html" thay đổi
     console.log("HTML:::", transformData(" " + html));
@@ -218,7 +218,7 @@ export default function TrangGhiChuChiTiet() {
           editor={editor}
           formattingToolbar={false}
           onChange={onChange}
-          // editable={false} //Ngăn ko cho sửa nội dung
+        // editable={false} //Ngăn ko cho sửa nội dung
         >
           <FormattingToolbarController
             formattingToolbar={() => (
