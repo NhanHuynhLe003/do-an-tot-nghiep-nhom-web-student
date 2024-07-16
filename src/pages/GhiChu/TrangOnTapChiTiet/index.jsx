@@ -4,8 +4,9 @@ import style from "./TrangOnTapChiTiet.module.css";
 import { useGetNhungNoteHomNay } from "../../../hooks/apis/notes/useGetNhungNoteHomNay.js";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
+import { useGetNoteChinhCuaUser } from "../../../hooks/apis/notes/useGetNoteChinhCuaUser.js";
 
-const notes = [
+const notes1 = [
   {
     tieude: "Note 1",
     nd: "khoa dep trai qua di.",
@@ -32,21 +33,34 @@ export default function TrangOnTapChiTiet() {
   const editor = useCreateBlockNote();
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   const [noteList, setNoteList] = useState([]);
+
+  //Danh sach note goc
+  const [notes, setNotes] = useState(notes1); // Danh sách ghi chú
+
   ///ĐÃ SỮA
   const [currentNoteIndex, setCurrentNoteIndex] = useState(0); // Chỉ số của ghi chú hiện tại
-  //////////
+  const [page, setPage] = useState(1);
+  const [limitNote, setLimitNote] = useState(20); // số note giới hạn lấy về, có thể thêm nút xem thêm ở phía cuối sau đó tăng giới hạn này lên để lấy thêm nhiều note nữa bên dưới
+  const [noteParentIdChild, setNoteParentIdChild] = useState(null); // id của note cha, dùng để lấy note con
+
+  const {
+    data: danhSachNoteChinh, //du lieu server tra ve sau khi lay data thong qua api
+  } = useGetNoteChinhCuaUser({
+    note_userId: studentData._id, // user cua id dang nhap hien tai
+    skip: 0,
+    limit: limitNote,
+  });
+
   const {
     data: dataNotesServerTraVe, //du lieu server tra ve sau khi lay data thong qua api
     isLoading,
     error,
   } = useGetNhungNoteHomNay({
     note_userId: studentData._id, // user cua id dang nhap hien tai
-    note_parentId: "669563aae4f18e881472cd65", // la id cua note chinh(ko chua cac duc lo)
+    note_parentId: noteParentIdChild, // la id cua note chinh(ko chua cac duc lo)
   });
 
   useEffect(() => {
-    console.log("ID STudent:::", studentData);
-    console.log("dataNotesServerTraVe", dataNotesServerTraVe);
     if (
       dataNotesServerTraVe &&
       dataNotesServerTraVe.data &&
@@ -57,6 +71,28 @@ export default function TrangOnTapChiTiet() {
       setNoteList(danhSachDuLieuMoi);
     }
   }, [dataNotesServerTraVe]);
+
+  useEffect(() => {
+    if (
+      danhSachNoteChinh &&
+      danhSachNoteChinh.data &&
+      danhSachNoteChinh.data.metadata
+    ) {
+      //Nếu dữ liệu đã có mới chạy vào hàm này
+      const danhSachDuLieuMoi = danhSachNoteChinh.data.metadata?.data;
+      console.log("danhSachDuLieuMoi", danhSachDuLieuMoi);
+      const chuyenDoiDeHienThiNoteChinh = danhSachDuLieuMoi.map((note) => {
+        return {
+          id: note._id,
+          tieude: note.note_title,
+          nd: note.note_content,
+          ngay: note.createdOn,
+        };
+      });
+
+      setNotes(chuyenDoiDeHienThiNoteChinh);
+    }
+  }, [danhSachNoteChinh]);
 
   useEffect(() => {
     async function loadInitialHTML() {
@@ -73,6 +109,19 @@ export default function TrangOnTapChiTiet() {
 
   const [selectedNote, setSelectedNote] = useState(notes[0]); // Ghi chú mặc định
   const [shButtun, setButtun] = useState(false);
+
+  async function xuLyNhanNutChonNoteChinh(note) {
+    setSelectedNote(note);
+    setNoteParentIdChild(note.id);
+  }
+
+  // Ham chuyen doi html sang plain text, để hiển thị nội dung ngắn gọn
+  function htmlToPlainText(htmlString) {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = htmlString;
+    return tempDiv.textContent.trim() || tempDiv.innerText.trim() || "";
+  }
+
   async function handleButtonClick() {
     setButtun(true);
 
@@ -100,17 +149,25 @@ export default function TrangOnTapChiTiet() {
       <div className={style.documentList}>
         <h5 className={style.tieude}>Documents</h5>
         {/* Danh Sach Note Goc */}
-        {notes.map((note, index) => (
-          <div key={index} onClick={() => setSelectedNote(note)}>
-            <div className={style.notecard}>
-              <h6 className={style.titlenote}>{note.tieude}</h6>
-              <span className={style.ndnote}>
-                {/* Kiểm tra độ dài của nội dung và cắt bớt nếu cần */}
-                {note.nd.length > 30 ? note.nd.slice(0, 30) + "..." : note.nd}
-              </span>
+        {notes &&
+          notes.map((note, index) => (
+            <div
+              key={note.id || index}
+              onClick={() => xuLyNhanNutChonNoteChinh(note)}
+              style={{
+                backgroundColor:
+                  note.id === noteParentIdChild ? "#ccc" : "#fff",
+              }}
+            >
+              <div className={style.notecard}>
+                <h6 className={style.titlenote}>{note.tieude}</h6>
+                <span className={style.ndnote}>
+                  {/* Kiểm tra độ dài của nội dung và cắt bớt nếu cần */}
+                  {htmlToPlainText(note.nd)}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
       <div className={style.OnTapChiTiet}>
         {/* <h2>{selectedNote.tieude}</h2> */}
