@@ -4,6 +4,9 @@ export const noteKeys = {
 };
 
 export const NoteKeys = {
-    GET_NHUNG_NOTE_HOM_NAY: "GET_NHUNG_NOTE_HOM_NAY",
-}
+
+ 
+  GET_NHUNG_NOTE_HOM_NAY: "GET_NHUNG_NOTE_HOM_NAY",
+  GET_NOTE_CHINH_CUA_USER: "GET_NOTE_CHINH_CUA_USER",
+};
 
