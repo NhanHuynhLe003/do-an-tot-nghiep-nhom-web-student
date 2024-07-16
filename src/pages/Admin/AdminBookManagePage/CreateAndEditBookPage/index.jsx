@@ -26,6 +26,8 @@ export default function CreateBookPage({
   mode = "create",
   defaultValueEdit = {},
 }) {
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
+
   const {
     mutate: createBook, // Hàm này sẽ gọi API createBook, send request lên server
     data: responseData,
@@ -167,7 +169,7 @@ export default function CreateBookPage({
         message: "Đang upload ảnh sách...",
       });
       const response = await axiosInstance.post(
-        "/v1/api/upload/d-img?nameStorage=books",
+        `/v1/api/upload/d-img?nameStorage=books&userId=${studentData?._id}`,
         formData,
         {
           headers: {
