@@ -90,10 +90,12 @@ export default function TrangGhiChuChiTiet() {
     matches.forEach((m, index) => {
       const clozeHtml = html.replace(regex, (match, text, offset) => {
         if (offset === m.index) {
-          return `(${text
-            .split("")
-            .map(() => ".")
-            .join("")})`;
+          // return `(${text
+          //   .split("")
+          //   .map(() => "..")
+          //   .join("")})`;
+
+          return    `<input style="width:${text.length*9}px; padding:0; outline: none; border-top:none;border-left:none;border-right:none; "/>`
         }
         return match;
       });
