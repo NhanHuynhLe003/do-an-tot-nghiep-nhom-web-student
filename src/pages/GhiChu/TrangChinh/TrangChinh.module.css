@@ -93,6 +93,8 @@ h2 {
 
 .note-form{
   text-align: right;
+  margin-left: 20px;
+  
 }
 /* Kiểu dáng cho nút lưu */
 .note-form button {
@@ -103,15 +105,20 @@ h2 {
   font-size: 16px;
   width: 150px;
   color: white;
+
   
 }
- 
+
 /* Hiệu ứng hover cho nút lưu */
 .note-form button:hover {
   background-color: #007aff;
   cursor: pointer;
 }
 
+.saveButton{
+  margin-right: 20px;
+  top: 10px;
+}
 /* Hiệu ứng hover cho nút lưu (phần saveButton) */
 .saveButton:hover {
 
@@ -120,50 +127,12 @@ h2 {
 }
 
 /* REPOnSIVE */
-@media (max-width: 600px) {
-  .note-grid {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
 
-  .note-item {
-    width: 90%;
-    height: auto;
-  }
-
-  .note-form {
-    margin: 10px;
-    padding: 10px;
-  }
-
-  textarea {
-    font-size: 14px;
-    padding: 8px;
-    height: 50px;
-  }
-  input {
-    font-size: 14px;
-    padding: 8px;
-  }
-  .note-form button {
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  .note-item h2 {
-    font-size: 22px;
-  }
-
-  .note-item p {
-    font-size: 14px;
-  }
-}
 
 .deleteicon {
   position: fixed;
   bottom: 50px; /* điều chỉnh vị trí theo yêu cầu */
-  left: 390px; /* điều chỉnh vị trí theo yêu cầu */
+  right: 100px; /* điều chỉnh vị trí theo yêu cầu */
   display: inline-block;
   width: 40px;
   height: 40px;
@@ -177,28 +146,47 @@ h2 {
 }
 
 /* Media Queries */
+
+
+/* Media Queries for Responsive Design */
 @media (max-width: 1200px) {
-  .deleteicon {
-    width: 35px;
-    height: 35px;
+  .note-item {
+    width: 30%; /* Adjust width for medium screens */
+  }
+ 
+}
+
+@media (max-width: 992px) {
+  .note-item {
+    width: 45%; /* Adjust width for small screens */
   }
 }
 
 @media (max-width: 768px) {
-  .deleteicon {
-    width: 30px;
-    height: 30px;
+  .note-item {
+    width: 100%; /* Adjust width for very small screens */
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
+  .note-item {
+    width: 100%; /* Adjust width for mobile devices */
+  }
+
+  .note-form button {
+    width: 100%; /* Make the save button full width on mobile devices */
+  }
+
   .deleteicon {
-    width: 25px;
-    height: 25px;
+    bottom: 20px; /* Adjust position for mobile devices */
+    right: 20px; /* Adjust position for mobile devices */
+  }
+  .note-form{
+    text-align: right;
+    margin-left: 0;
+    bottom: 10px;
   }
 }
-
-
 
 
 

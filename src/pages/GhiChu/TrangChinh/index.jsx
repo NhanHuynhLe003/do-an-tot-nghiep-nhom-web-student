@@ -1,24 +1,27 @@
-import React, { useState } from "react";
-import style from "./TrangChinh.module.css";
-import AppKeoTha from "./components/AppKeoTha";
-import { Sortable } from "./components/Sortable";
-import { GridContainer } from "./components/Grid/GridContainer";
 import { rectSortingStrategy } from "@dnd-kit/sortable";
-import { RiDeleteBin5Fill } from "react-icons/ri";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import style from "./TrangChinh.module.css";
+import { GridContainer } from "./components/Grid/GridContainer";
+import { Sortable } from "./components/Sortable";
 
 export default function TrangChinh() {
+  const navigate = useNavigate();
   const [notes, setNotes] = useState([
     {
       id: 1,
-      content: "Nội dung của Note 1",
+      title: "NOTE 1",
+      content: "Chưa Có Nội Dung",
     },
     {
       id: 2,
-      content: "Nội dung của Note 2",
+      title: "NOTE 2",
+      content: "Chưa Có Nội Dung",
     },
     {
       id: 3,
-      content: "Nội dung của Note 3",
+      title: "NOTE 3",
+      content: "Chưa Có Nội Dung",
     },
   ]);
 
@@ -26,7 +29,8 @@ export default function TrangChinh() {
     e.preventDefault();
     const newNote = {
       id: notes.length + 1,
-      content: "Nội dung mới",
+      title: `NOTE ${notes.length + 1}`,
+      content: "Chưa Có Nội Dung",
     };
     setNotes([...notes, newNote]);
   };
@@ -34,7 +38,9 @@ export default function TrangChinh() {
   const handleDeleteNote = (id) => {
     setNotes(notes.filter((note) => note.id !== id));
   };
-
+  const handleImageClick = () => {
+    navigate("/trang-chinh/thung-rac"); // Navigate to the TrangRecycleBin page
+  };
   return (
     <div>
       <form className={style["note-form"]} onSubmit={handleAddNote}>
@@ -47,6 +53,7 @@ export default function TrangChinh() {
               <div className={style["notes-header"]}>
                 <button onClick={() => handleDeleteNote(note.id)} className={style.saveButton}>x</button>
               </div>
+              <h2>{note.title}</h2>
               <p>{note.content}</p>
             </div>
           ))}
@@ -62,9 +69,17 @@ export default function TrangChinh() {
             height: 140,
           })}
         ></Sortable>
+        
         <div className={style.deleteicon}>
-          <img src="https://png.pngtree.com/png-vector/20220826/ourlarge/pngtree-trashcan-dustbin-flat-junk-vector-png-image_33478412.png" alt="anhdetele" />
+          <img
+            src="https://png.pngtree.com/png-vector/20220826/ourlarge/pngtree-trashcan-dustbin-flat-junk-vector-png-image_33478412.png"
+            alt="anhdetele"
+            onClick={handleImageClick}
+          />
+
+
         </div>
+        
       </div>
     </div>
   );

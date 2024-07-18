@@ -1,5 +1,8 @@
 import React, { useState, useRef } from 'react';
+
 import styles from "./TrangRecycleBin.module.css";
+
+
 const notesData = [
     { id: 1, content: 'Nội dung chi tiết của tờ note 1.' },
     { id: 2, content: 'Nội dung chi tiết của tờ note 2.' },
@@ -55,20 +58,20 @@ export default function Thungrac() {
 
     return (
         <div className={styles.tong}>
-          
+            
             {notesData.map((note, index) => (
                 !isDeleted[index] && (
-                    <div 
+                    <div
                         key={note.id}
-                        className={styles.note} 
+                        className={styles.note}
                         onMouseDown={() => handleMouseDown(index)}
                         onMouseUp={handleMouseUp}
                         onMouseLeave={handleMouseUp} // Clear the timer if the mouse leaves the element
                     >
-                        <input 
-                            type="checkbox" 
-                            checked={selectedNotes.includes(index)} 
-                            onChange={() => handleCheckboxChange(index)} 
+                        <input
+                            type="checkbox"
+                            checked={selectedNotes.includes(index)}
+                            onChange={() => handleCheckboxChange(index)}
                         />
                         <p>Đây là tờ note của bạn.</p>
                         {isContentVisible[index] && (
@@ -82,9 +85,10 @@ export default function Thungrac() {
                 )
             ))}
             <div className={styles.btn2}>
-            <button className={styles.clickbtn} onClick={handleRestore}>Khôi Phục</button>
-            <button className={styles.clickbtn} onClick={handleDelete}>Xóa Vĩnh Viễn</button>
+                <button className={styles.clickbtn} onClick={handleRestore}>Khôi Phục</button>
+                <button className={styles.clickbtn} onClick={handleDelete}>Xóa Vĩnh Viễn</button>
             </div>
         </div>
+        
     );
 }
