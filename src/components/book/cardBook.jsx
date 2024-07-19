@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { useAddBookToCartStudent } from "../../hooks/apis/cart";
 import style from "./cardBook.module.css";
+import { useNavigate } from "react-router-dom";
 
 export default function CardBook({
   idBook,
@@ -20,6 +21,7 @@ export default function CardBook({
   isHiddenWhenOutOfStock = true,
 }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const cardRef = useRef(null);
   const [widthCard, setWidthCard] = useState(0);
 
@@ -89,7 +91,9 @@ export default function CardBook({
     });
   }
   function handleAddToWishlist() {}
-  function handleClickViewDetail() {}
+  function handleClickViewDetail() {
+    navigate(`/book/${idBook}`);
+  }
   function handleBorrowBookNow() {}
 
   if (isHiddenWhenOutOfStock && bookQuantity === 0) return <></>;

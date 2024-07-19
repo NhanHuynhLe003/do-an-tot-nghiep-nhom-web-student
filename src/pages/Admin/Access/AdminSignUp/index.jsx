@@ -250,7 +250,13 @@ export default function AdminSignUp() {
             />
           </Box>
           <Box className={clsx(css.fieldInput, css.passwordField)}>
-            <FormControl fullWidth size="small">
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{
+                mt: 4,
+              }}
+            >
               <InputLabel id="role-label">Vai trò</InputLabel>
               <Controller
                 name="role"
@@ -276,22 +282,14 @@ export default function AdminSignUp() {
           </Box>
 
           <Box className={clsx(css.fieldInput, css.passwordField)}>
-            {/* <label htmlFor="classStudent">Lớp học</label>
-            <Select
-              size="small"
+            <FormControl
               fullWidth
-              control={control}
-              name="classStudent"
-              id="classStudent"
-              defaultValue={listStudentClass[0]?.name}
+              size="small"
+              sx={{
+                mt: 4,
+                ml: 0.5,
+              }}
             >
-              {listStudentClass &&
-                listStudentClass.map((item) => (
-                  <MenuItem value={item.name}>{item.name}</MenuItem>
-                ))}
-            </Select> */}
-
-            <FormControl fullWidth size="small">
               <InputLabel id="classStudent-label">Lớp học</InputLabel>
               <Controller
                 name="classStudent"
