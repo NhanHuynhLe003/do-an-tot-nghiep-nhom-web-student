@@ -30,7 +30,7 @@ const notes1 = [
 ];
 
 export default function TrangOnTapChiTiet() {
-  const editor = useCreateBlockNote();
+  // const editor = useCreateBlockNote();
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   const [noteList, setNoteList] = useState([]);
 
@@ -100,15 +100,18 @@ export default function TrangOnTapChiTiet() {
       const noteCloze = noteList[currentNoteIndex]?.note_cloze;
       if (noteCloze) {
         //Chuyển đổi string dạng html sang block note
-        const blocks = await editor.tryParseHTMLToBlocks(noteCloze);
-        editor.replaceBlocks(editor.document, blocks);
+        console.log("noteCloze:::", noteCloze)
+        setCurrentHtml(noteCloze);
+        // const blocks = await editor.tryParseHTMLToBlocks(noteCloze);
+        // editor.replaceBlocks(editor.document, blocks);
       }
     }
     loadInitialHTML();
-  }, [editor, currentNoteIndex, noteList]); //Use Effect sẽ chạy lại mỗi khi 1 trong 3 giá trị này có sự thay đổi
+  }, [ currentNoteIndex, noteList]); //Use Effect sẽ chạy lại mỗi khi 1 trong 3 giá trị này có sự thay đổi
 
   const [selectedNote, setSelectedNote] = useState(notes[0]); // Ghi chú mặc định
   const [shButtun, setButtun] = useState(false);
+  const [currentHtml, setCurrentHtml] = useState();
 
   async function xuLyNhanNutChonNoteChinh(note) {
     setSelectedNote(note);
@@ -129,8 +132,10 @@ export default function TrangOnTapChiTiet() {
     const NOTECONTENT = noteList[currentNoteIndex]?.note_content;
     if (NOTECONTENT) {
       //Chuyển đổi string dạng html sang block note
-      const blocks = await editor.tryParseHTMLToBlocks(NOTECONTENT);
-      editor.replaceBlocks(editor.document, blocks);
+      
+      
+      // const blocks = await editor.tryParseHTMLToBlocks(NOTECONTENT);
+      // editor.replaceBlocks(editor.document, blocks);
     }
   }
   /////////////mãng +1////////////////////////////////
@@ -156,15 +161,16 @@ export default function TrangOnTapChiTiet() {
               onClick={() => xuLyNhanNutChonNoteChinh(note)}
               style={{
                 backgroundColor:
-                  note.id === noteParentIdChild ? "#ccc" : "#fff",
+                  note.id === noteParentIdChild ? "#fff" : "#fff",
+                  
               }}
             >
               <div className={style.notecard}>
                 <h6 className={style.titlenote}>{note.tieude}</h6>
-                <span className={style.ndnote}>
-                  {/* Kiểm tra độ dài của nội dung và cắt bớt nếu cần */}
-                  {htmlToPlainText(note.nd)}
-                </span>
+                {/* <span className={style.ndnote}>
+                  Kiểm tra độ dài của nội dung và cắt bớt nếu cần
+                  {htmlToPlainText (note.nd.length > 30 ? note.nd.slice(0, 30) + "..." : note.nd)}
+                </span> */}
               </div>
             </div>
           ))}
@@ -205,9 +211,16 @@ export default function TrangOnTapChiTiet() {
           {selectedNote.nd}
         </div> */}
 
-        <div className={style.contentEditable}>
+        {/* <div className={style.contentEditable}>
           <BlockNoteView editor={editor} editable={false} />
+          <div dangerouslySetInnerHTML={{__html: currentHtml}}></div>
+        </div> */}
+        <div className={style.contentEditable}>
+          <div dangerouslySetInnerHTML={{__html: currentHtml}}></div>
         </div>
+         {/* <div className={style.contentEditable}>
+            {noteList[currentNoteIndex] && !shButtun ? noteList[currentNoteIndex]?.note_cloze : noteList[currentNoteIndex]?.note_content}
+          </div> */}
         {!shButtun && (
           <div className={style.buttonKQ}>
             <button onClick={handleButtonClick} className={style.ButtonHT}>
@@ -218,18 +231,10 @@ export default function TrangOnTapChiTiet() {
         )}
         {shButtun && (
           <div className={style.buttonlon}>
-            <button className={style.Buttonnho} onClick={handleNoteChange}>
-              1 day
-            </button>
-            <button className={style.Buttonnho} onClick={handleNoteChange}>
-              2 days
-            </button>
-            <button className={style.Buttonnho} onClick={handleNoteChange}>
-              3 days
-            </button>
-            <button className={style.Buttonnho} onClick={handleNoteChange}>
-              4 days
-            </button>
+            <button className={style.Buttonnho} onClick={handleNoteChange}>1 day</button>
+            <button className={style.Buttonnho} onClick={handleNoteChange}>2 days</button>
+            <button className={style.Buttonnho} onClick={handleNoteChange}>3 day</button>
+            <button className={style.Buttonnho} onClick={handleNoteChange}>4 days</button>
           </div>
         )}
       </div>
