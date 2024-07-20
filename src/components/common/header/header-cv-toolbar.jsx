@@ -224,6 +224,7 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
                   ToolTipTaps.HEADING2,
                   ToolTipTaps.HEADING3,
                   ToolTipTaps.CODE_BLOCK,
+                  ToolTipTaps.ORDERED_LIST,
                 ]}
               />
             </Box>

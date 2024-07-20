@@ -6,13 +6,13 @@ export const headerListBooks = [
   {
     field: "BookImage",
     headerName: "Image",
-    width: 150,
+    width: 90,
     renderCell: (params) => (
       // Giup render html trong cell
       <img
         src={params.value}
         alt="Book"
-        style={{ width: 60, padding: "5px 0" }}
+        style={{ width: 50, padding: "5px 0", height: "auto" }}
       />
     ),
   },
@@ -30,6 +30,11 @@ export const headerListBooks = [
           color="primary"
           sx={{ mr: "1rem" }}
           title="Sửa Sách"
+          onClick={() =>
+            window.location.replace(
+              `/admin/book-manage/create-book/${params.row.id}`
+            )
+          }
         >
           <PiNotePencilBold></PiNotePencilBold>
         </Button>
