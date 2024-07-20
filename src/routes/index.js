@@ -20,6 +20,7 @@ import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
+import Thungrac from "../pages/GhiChu/TrangChinh/TrangRecycleBin";
 import BookCheckout from "../pages/BookPage/BookCheckout";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import NotFoundPage from "../pages/NotFound";
@@ -30,6 +31,7 @@ import AdminLogin from "../pages/Admin/Access/AdminLogin";
 import AdminUserManagePage from "../pages/Admin/AdminUserManagePage";
 import AdminSignUp from "../pages/Admin/Access/AdminSignUp";
 import AdminNoteManagePage from "../pages/Admin/AdminNoteManagePage";
+import ThongTin from "../pages/GhiChu/ThongTin";
 import AdminMultiSignUp from "../pages/Admin/Access/AdminMultiSignUp";
 
 const routes = [
@@ -181,7 +183,7 @@ const routes = [
     path: "/ghi-chu",
     component: TrangChinh, // là các page
     layout: MainLayout, //
-    isAuth: true,
+    //isAuth: true,
   },
   {
     path: "/chi-tiet-ghi-chu",
@@ -201,12 +203,22 @@ const routes = [
     layout: MainLayout,
     // isAuth: true,
   },
+{
+  path: "/trang-chinh/thung-rac",
+  component: Thungrac,
+  layout: MainLayout,
+},
 
   //==================TRANG CHINH===================
   {
     path: "/trang-chinh",
     component: TrangChinh,
-    layout: EmptyLayout,
+    layout: MainLayout,
+  },
+  {
+    path: "/thong-tin",
+    component: ThongTin,
+    layout: MainLayout,
   },
 
   //===========================Student Information===========================
