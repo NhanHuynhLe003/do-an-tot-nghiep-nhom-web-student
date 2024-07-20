@@ -12,10 +12,12 @@ export default function IDndImage({ styleValue, src, imgName, size }) {
       }}
     >
       <img
+        className="dragImageItem"
         style={{
           width: "100%",
           height: "100%",
         }}
+        crossOrigin="anonymous" //Fix lỗi CORS cho phép upload mọi ảnh lên s3
         loading="lazy"
         src={src}
         alt={"img-" + imgName}

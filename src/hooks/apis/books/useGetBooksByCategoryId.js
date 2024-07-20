@@ -5,7 +5,7 @@ import { QueryFunction } from "../queryGetFunction";
 export const useGetBooksByCategoryId = (payload = {}, options = {}) => {
   const categoryId = payload.categoryId;
   return QueryFunction(
-    BookKeys.GET_BOOKS_BY_CATEGORY_ID,
+    [BookKeys.GET_BOOKS_BY_CATEGORY_ID, categoryId],
     async () =>
       await axiosInstance.get(`/v1/api/book/category/${categoryId}`, {
         ...options,

@@ -3,7 +3,7 @@ import { BsCart2 } from "react-icons/bs";
 import { FaRegHeart } from "react-icons/fa";
 import { MdOutlineShoppingBag } from "react-icons/md";
 import { RxShare1 } from "react-icons/rx";
-import { commentList, dataListBooks, ratingBooks } from "../../../data/arrays";
+import { commentList } from "../../../data/arrays";
 import style from "./book_detail.module.css";
 
 import {
@@ -18,14 +18,15 @@ import {
   Typography,
 } from "@mui/material";
 import clsx from "clsx";
-import { Link } from "react-router-dom";
-import ListBookView from "../../../components/book/listBookView";
+import { Link, useParams } from "react-router-dom";
+import FreeModeCarousel from "../../../components/ICarousel/FreeModeCarousel";
+import CardBook from "../../../components/book/cardBook";
 import CommentBook from "../../../components/bookDetail/commentBook";
 import TextShowMore from "../../../components/bookDetail/textShowMore";
-import { useGetBooksByCategoryId } from "../../../hooks/apis/books/useGetBooksByCategoryId";
-import { roundNumber } from "../../../utils";
 import { useWindowSize } from "../../../hooks";
-import { BREAK_POINTS } from "../../../constants";
+import { useGetBookPublishDetailById } from "../../../hooks/apis/books/useGetBookPublishDetailById";
+import { useGetBooksByCategoryId } from "../../../hooks/apis/books/useGetBooksByCategoryId";
+import { convertISO, roundNumber } from "../../../utils";
 export default function BookDetailPage({
   img,
   title = "book title",
@@ -36,17 +37,6 @@ export default function BookDetailPage({
   quis? Molestias, quibusdam! Iusto similique doloribus dolorum
   laborum quia in totam nihil delectus magnam voluptas, molestias
   deserunt pariatur culpa autem nemo voluptatem eius vel tenetur!
-  Quod facere illum cupiditate aliquam veniam modi dolor. Cum
-  voluptatibus eum reprehenderit eos saepe sequi at quis, nostrum
-  voluptas adipisci sapiente iusto fugit? Fuga voluptates at
-  nesciunt quo ad ex sunt, sapiente consectetur? Corrupti distinctio
-  nostrum aliquid! Natus. Perferendis minus omnis veritatis quod
-  quasi quis magnam voluptatibus fugit aspernatur vitae! Mollitia
-  non numquam obcaecati vel, earum, officia eveniet molestiae
-  dolorem magni qui optio aliquid eligendi quas delectus commodi.
-  Fugit, temporibus sed error nesciunt maiores esse et iste quam
-  amet asperiores corporis quos, quis mollitia perspiciatis ipsam
-  nemo, provident repudiandae. Officia voluptas nesciunt
   consequuntur! Iure quis facilis ratione. Ea?`,
   publisher = "Nhà xuất bản Tổng hợp thành phố Hồ Chí Minh",
   yearPublic = "2024",
@@ -72,19 +62,53 @@ export default function BookDetailPage({
     { content: "Tự Truyện", tag: "self-help" },
   ],
 }) {
-  const { width, height } = useWindowSize();
+  const { bookId } = useParams();
+
+  const { width: windowWidth, height } = useWindowSize();
 
   const [currentBtnComment, setCurrentBtnComment] = React.useState(0);
   // Sử dụng useState để quản lý số lượng comment đã hiển thị
   const [visibleCount, setVisibleCount] = useState(7);
   const [showLoadingCmt, setShowLoadingCmt] = useState(false);
   const [booksRelated, setBooksRelated] = useState([]);
+  const [bookDetail, setBookDetail] = useState({});
+  const [currentCategory, setCurrentCategory] = useState(
+    "667bb9c1f159a0af59debd15"
+  );
+
+  const {
+    data: bookPublishDetail,
+    isLoading: isLoadingBookPublishDetail,
+    error: errorBookPublishDetail,
+  } = useGetBookPublishDetailById({ bookId: bookId });
 
   const {
     data: bookListCategory,
     isLoading: isLoadingData,
     error: errorData,
-  } = useGetBooksByCategoryId({ categoryId: "667bb9d4f159a0af59debd19" });
+  } = useGetBooksByCategoryId({
+    categoryId: currentCategory,
+  });
+
+  useEffect(() => {
+    console.log("bookPublishDetail", bookPublishDetail);
+    if (
+      bookPublishDetail &&
+      bookPublishDetail.data &&
+      bookPublishDetail.data.metadata
+    ) {
+      const dataBook = bookPublishDetail.data.metadata;
+      console.log("dataBook", dataBook);
+      if (
+        dataBook &&
+        dataBook.categoryBookList &&
+        dataBook.categoryBookList.length > 0
+      ) {
+        setCurrentCategory(dataBook.categoryBookList[0]._id);
+      }
+      setBookDetail(dataBook);
+    }
+  }, [bookPublishDetail]);
 
   //================FUNCTION HANDLER=================
 
@@ -107,10 +131,24 @@ export default function BookDetailPage({
       bookListCategory.data &&
       bookListCategory.data.metadata
     ) {
-      const dataRelatedBooks = bookListCategory.data.metadata;
+      const dataRelatedBooks = bookListCategory.data.metadata.map((book) => ({
+        id: book?._id,
+        bookQuantity: book.book_quantity,
+        component: (
+          <CardBook
+            isHiddenWhenOutOfStock={true}
+            idBook={book?._id}
+            img={book?.book_thumb}
+            title={book?.book_name}
+            rating={book?.book_ratingsAverage}
+            bookQuantity={book?.book_quantity}
+          ></CardBook>
+        ),
+      }));
+
       setBooksRelated(dataRelatedBooks);
     }
-  }, [bookListCategory]);
+  }, [bookListCategory, bookId]);
 
   const paginationCustomize = {
     clickable: true,
@@ -119,6 +157,41 @@ export default function BookDetailPage({
       return `<span class="${className} book-quotes-pagination"> </span>`;
     },
   };
+
+  if (errorBookPublishDetail)
+    return (
+      <Stack
+        width={"100%"}
+        minHeight={"80vh"}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <Typography
+          component={"h1"}
+          variant={"h3"}
+          textAlign={"center"}
+          fontWeight={"bold"}
+          sx={{
+            color: "var(--color-primary2)",
+            opacity: 0.7,
+          }}
+        >
+          Sách không tồn tại
+        </Typography>
+      </Stack>
+    );
+
+  if (isLoadingBookPublishDetail || isLoadingData)
+    return (
+      <Stack
+        width={"100%"}
+        minHeight={"80vh"}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <CircularProgress size={48}></CircularProgress>
+      </Stack>
+    );
 
   return (
     <Stack direction={"column"}>
@@ -156,7 +229,10 @@ export default function BookDetailPage({
           }}
         >
           <Box className={style.imgBookContainer}>
-            <img src="/imgs/books/book_1.png" alt="anh-chi-tiet-sach" />
+            <img
+              src={`${bookDetail?.book_thumb}`}
+              alt={`anh-sach-${bookDetail?.book_name}`}
+            />
           </Box>
         </Grid>
 
@@ -165,20 +241,23 @@ export default function BookDetailPage({
           item
           direction={"column"}
           className={style.bookInformation}
-          md={8}
+          md={7}
           sm={7}
           xs={12}
         >
           <Typography
             component={"h1"}
-            variant="h4"
+            variant="h3"
             className={style.titleBook}
             fontWeight={500}
             mt={6}
             mb={2}
-            textAlign={{ xs: "center", sm: "left" }}
+            textAlign={{ xs: "center", sm: "left", fontSize: "2.75rem" }}
+            sx={{
+              mb: 4,
+            }}
           >
-            {title}
+            {bookDetail?.book_name}
           </Typography>
           <Stack
             direction={"row"}
@@ -202,11 +281,11 @@ export default function BookDetailPage({
                   color: "var(--color-primary2)",
                 }}
               >
-                {roundNumber(rating).toFixed(1)}
+                {roundNumber(bookDetail?.book_ratingsAverage || 4.5).toFixed(1)}
               </Box>
               <Rating
                 name="read-only"
-                value={roundNumber(rating)}
+                value={roundNumber(bookDetail?.book_ratingsAverage || 4.5)}
                 readOnly
                 precision={0.5}
               />
@@ -234,7 +313,7 @@ export default function BookDetailPage({
                 Tác giả
               </Typography>
               <Typography component={"p"} className={style.contentTextInfo}>
-                {author}
+                {bookDetail?.book_author}
               </Typography>
             </Stack>
 
@@ -244,16 +323,16 @@ export default function BookDetailPage({
                 Thể Loại
               </Typography>
               <Typography component={"p"}>
-                {categories.map((cate, index) => (
+                {bookDetail?.categoryBookList?.map((genre, index) => (
                   <Link
-                    key={cate.tag}
-                    to={"/"}
+                    key={genre?._id}
+                    to={"/book"}
                     className={clsx(
                       style.cateItemListContent,
                       style.contentTextInfo
                     )}
                   >
-                    {cate.content}
+                    {genre?.name}
                   </Link>
                 ))}
               </Typography>
@@ -268,7 +347,7 @@ export default function BookDetailPage({
                 component={"p"}
                 className={clsx(style.contentTextInfo, style.publisher)}
               >
-                {publisher}
+                {bookDetail?.book_publisher}
               </Typography>
             </Stack>
 
@@ -277,8 +356,15 @@ export default function BookDetailPage({
               <Typography component={"p"} className={clsx(style.blurText)}>
                 Năm Phát Hành
               </Typography>
-              <Typography component={"p"} className={style.contentTextInfo}>
-                {yearPublic}
+              <Typography
+                component={"p"}
+                className={style.contentTextInfo}
+                textAlign={"center"}
+              >
+                {convertISO(
+                  bookDetail?.book_publish_date || new Date().toISOString(),
+                  "yyyy"
+                ) || "unknown"}
               </Typography>
             </Stack>
             <Divider></Divider>
@@ -364,7 +450,10 @@ export default function BookDetailPage({
             </Stack>
 
             {/* Mô tả sách */}
-            <TextShowMore text={description} textAlign="left"></TextShowMore>
+            <TextShowMore
+              text={bookDetail?.book_desc || ""}
+              textAlign="left"
+            ></TextShowMore>
           </Stack>
 
           {/* Comment Select Control */}
@@ -446,13 +535,29 @@ export default function BookDetailPage({
         >
           Sách liên quan
         </Typography>
-        <ListBookView
-          paginationCustomize={paginationCustomize}
-          dataList={booksRelated}
-          classNameSwiper={"book-recommend-carousel"}
-          spacebetween={width < BREAK_POINTS.xs ? 5 : 20}
-          slideCardPerView={width < BREAK_POINTS.xs ? 2.6 : 4.6}
-        ></ListBookView>
+        {booksRelated && booksRelated?.length <= 0 ? (
+          <Typography
+            component={"h2"}
+            variant="h5"
+            textAlign={"center"}
+            sx={{
+              opacity: 0.6,
+              textTransform: "capitalize",
+            }}
+          >
+            Không có sách liên quan
+          </Typography>
+        ) : (
+          <FreeModeCarousel
+            spaceBetween={30}
+            isHiddenWhenOutOfStock={true}
+            isLoadingData={isLoadingData}
+            dataList={booksRelated}
+            paginationCustomize={paginationCustomize}
+            classNameSwiper={"Detail_Book_Swiper"}
+            slidesPerView={windowWidth > 600 ? 4.4 : 2.6}
+          ></FreeModeCarousel>
+        )}
       </Stack>
     </Stack>
   );

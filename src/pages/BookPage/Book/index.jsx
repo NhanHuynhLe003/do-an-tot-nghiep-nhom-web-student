@@ -26,28 +26,15 @@ import { BREAK_POINTS } from "../../../constants";
 export default function Book() {
   const { width, height } = useWindowSize();
 
-  const {
-    data: dataListNewestBook,
-    error: errListNewestBook,
-    isLoading: loadingListNewestBook,
-  } = useGetListNewestBook();
+  const { data: dataListNewestBook } = useGetListNewestBook();
 
-  const {
-    data: dataListRecomendBooks,
-    error: errRecomendBooks,
-    isLoading: loadingRecomendBooks,
-  } = useGetListRecommendBooks();
+  const { data: dataListRecomendBooks } = useGetListRecommendBooks();
 
-  const {
-    data: dataListCategories,
-    error: errCategories,
-    isLoading: loadingCategories,
-  } = useGetCategoriesPublished();
+  const { data: dataListCategories } = useGetCategoriesPublished();
 
   const flagDataFirst = useRef(true);
 
   // Lấy ra kích thước màn hình hiện tại, để responsive
-  const sizeScreen = useWindowSize();
   const [categoryBooks, setCategoryBooks] = useState({});
   const [listCategories, setListCategories] = useState([]);
   const [listBookCateInView, setListBookCateInView] = useState([]);

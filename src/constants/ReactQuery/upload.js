@@ -1,0 +1,4 @@
+export const UploadKeys = {
+  GET_IMAGES_BY_USER_ID_AND_NAME_STORAGE:
+    "GET_IMAGES_BY_USER_ID_AND_NAME_STORAGE",
+};
