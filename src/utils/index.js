@@ -1,4 +1,4 @@
-import { format, parse, differenceInWeeks } from "date-fns";
+import { format, parse, differenceInWeeks, parseISO } from "date-fns";
 import slugify from "slugify";
 
 /**
@@ -60,6 +60,11 @@ function calculateDistanceByCoordinate({ x1, y1, x2, y2 }) {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
 
+function convertISO(isoDate, formatType = "dd-MM-yyyy") {
+  const date = parseISO(isoDate);
+  return format(date, formatType);
+}
+
 function debounce(func, delay) {
   let timeoutId;
   return (...args) => {
@@ -87,4 +92,5 @@ export {
   calculateTimeDifference,
   debounce,
   createSlug,
+  convertISO,
 };

@@ -93,21 +93,12 @@ export default function AdminBookOrderPage() {
     classBorrowBook: listClassBookOrder[0].value,
   });
 
-  const {
-    data: dataOrders,
-    isLoading: isLoadingOrders,
-    error: errorOrders,
-  } = useGetAllOrderByAdmin({
+  const { data: dataOrders } = useGetAllOrderByAdmin({
     skip: (currentPagePagination - 1) * limitPage.current,
     limit: limitPage.current,
   });
 
-  const {
-    mutate: acceptOrderBook,
-    data: acceptOrderBookData,
-    isLoading: isLoadingAcceptOrderBook,
-    error: errorAcceptOrderBook,
-  } = useAcceptOrderByAdmin();
+  const { mutate: acceptOrderBook } = useAcceptOrderByAdmin();
 
   useEffect(() => {
     const convertOrderDataList = dataOrders?.data?.metadata?.map(

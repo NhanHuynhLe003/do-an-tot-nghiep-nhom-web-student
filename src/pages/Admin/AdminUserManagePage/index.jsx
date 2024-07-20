@@ -21,6 +21,7 @@ import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import { format } from "date-fns";
 import { useGetAllStudentByAdmin } from "../../../hooks/apis/students/useGetAllStudentByAdmin";
 import { useNavigate } from "react-router-dom";
+import ModalTable from "./components/ModalTable";
 
 const AdminUserManagePage = () => {
   const [users, setUsers] = useState([]);
@@ -89,6 +90,10 @@ const AdminUserManagePage = () => {
     } else {
       setSelected([]);
     }
+  };
+
+  const handeAddMultiStudent = () => {
+    navigate("/admin/multi-sign-up");
   };
 
   const handleSelectClick = (id) => {
@@ -168,14 +173,16 @@ const AdminUserManagePage = () => {
             }}
             onClick={handleAddNewStudent}
           >
-            Thêm Sinh Viên
+            Thêm Người Dùng
           </Button>
-          <Button variant="contained" color="success">
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handeAddMultiStudent}
+          >
             Thêm Danh Sách Sinh Viên
           </Button>
-          <Button variant="contained" color="warning">
-            Danh Sách Lớp
-          </Button>
+          <ModalTable></ModalTable>
         </Stack>
         <TextField
           size="small"

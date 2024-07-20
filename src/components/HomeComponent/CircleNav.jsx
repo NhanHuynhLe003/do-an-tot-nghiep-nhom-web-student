@@ -1,21 +1,20 @@
-import { Box } from "@mui/material";
-import React, { useState } from "react";
-import style from "./CircleNav.module.css";
 import { AddCircle } from "@mui/icons-material";
 import clsx from "clsx";
-import { Link, useNavigate } from "react-router-dom";
-import { FaHome, FaUser } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaUser } from "react-icons/fa";
 import { GiBookshelf } from "react-icons/gi";
-import { RiBarChartFill } from "react-icons/ri";
 import { PiNotePencilBold } from "react-icons/pi";
-import cvIcon from "../../assets/icons/cv-icon.png";
+import { RiBarChartFill } from "react-icons/ri";
 import Lottie from "react-lottie";
-import animationBookShelf from "../../assets/animations/animation-bookshelf.json";
-import animationUserLogin from "../../assets/animations/animation-user-login-jump.json";
+import { Link, useNavigate } from "react-router-dom";
 import animationBarChart from "../../assets/animations/animation-bar-chart.json";
-import animationNotePen from "../../assets/animations/animation-note-pen.json";
+import animationBookShelf from "../../assets/animations/animation-bookshelf.json";
 import animationCvTemplate from "../../assets/animations/animation-cv-template.json";
+import animationNotePen from "../../assets/animations/animation-note-pen.json";
+import animationUserLogin from "../../assets/animations/animation-user-login-jump.json";
+import cvIcon from "../../assets/icons/cv-icon.png";
 import PageLoader from "../pageLoader";
+import style from "./CircleNav.module.css";
 
 export default function CircleNav({ isOpenToggle = false }) {
   //Dieu huong

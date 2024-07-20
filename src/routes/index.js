@@ -30,6 +30,7 @@ import AdminLogin from "../pages/Admin/Access/AdminLogin";
 import AdminUserManagePage from "../pages/Admin/AdminUserManagePage";
 import AdminSignUp from "../pages/Admin/Access/AdminSignUp";
 import AdminNoteManagePage from "../pages/Admin/AdminNoteManagePage";
+import AdminMultiSignUp from "../pages/Admin/Access/AdminMultiSignUp";
 
 const routes = [
   {
@@ -69,6 +70,12 @@ const routes = [
   },
   {
     path: "/admin/book-manage/create-book",
+    component: CreateAndEditBookPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/book-manage/create-book/:id",
     component: CreateAndEditBookPage,
     layout: MainLayout,
     isAdmin: true,
@@ -123,6 +130,12 @@ const routes = [
   {
     path: "/admin/note-manage",
     component: AdminNoteManagePage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
+  {
+    path: "/admin/multi-sign-up",
+    component: AdminMultiSignUp,
     layout: MainLayout,
     isAdmin: true,
   },
