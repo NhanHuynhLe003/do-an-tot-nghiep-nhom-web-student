@@ -42,7 +42,12 @@ export default function TrangOnTapChiTiet() {
   const [page, setPage] = useState(1);
   const [limitNote, setLimitNote] = useState(20); // số note giới hạn lấy về, có thể thêm nút xem thêm ở phía cuối sau đó tăng giới hạn này lên để lấy thêm nhiều note nữa bên dưới
   const [noteParentIdChild, setNoteParentIdChild] = useState(null); // id của note cha, dùng để lấy note con
-
+  ///////////////////////////////
+  const [visibleNotesCount, setVisibleNotesCount] = useState(10); 
+///////////////////////////////
+  //////////////////
+  
+  //////////////////
   const {
     data: danhSachNoteChinh, //du lieu server tra ve sau khi lay data thong qua api
   } = useGetNoteChinhCuaUser({
@@ -149,6 +154,10 @@ export default function TrangOnTapChiTiet() {
     return date.toISOString().split("T")[0];
   };
   //////////////////////////////
+  const loadMoreNotes = () => {
+    setVisibleNotesCount((prevCount) => prevCount + 10); // Tăng thêm 10 ghi chú mỗi lần nhấn
+  };
+  /////////////////////////////
   return (
     <div className={style.TrangOnTap} id="TrangOnTapChiTiet">
       <div className={style.documentList}>
@@ -174,6 +183,13 @@ export default function TrangOnTapChiTiet() {
               </div>
             </div>
           ))}
+          {/*  */}
+        {notes.length > visibleNotesCount && (
+          <div className={style.ButtonHTT}>
+            <button onClick={loadMoreNotes}>Hiển Thị Thêm</button>
+          </div>
+        )}
+        {/*  */}
       </div>
       <div className={style.OnTapChiTiet}>
         {/* <h2>{selectedNote.tieude}</h2> */}

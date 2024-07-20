@@ -16,8 +16,23 @@
     overflow-y: auto;
     background-color: #fff;
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
 
+}
+.ButtonHTT {
+    display: flex;
+    justify-content: center; /* Căn giữa button */
+    margin-top: auto; /* Đẩy button xuống cuối */
+}
 
+.ButtonHTT button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 
