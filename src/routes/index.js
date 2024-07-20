@@ -74,6 +74,12 @@ const routes = [
     layout: MainLayout,
     isAdmin: true,
   },
+  {
+    path: "/admin/book-manage/create-book/:id",
+    component: CreateAndEditBookPage,
+    layout: MainLayout,
+    isAdmin: true,
+  },
 
   {
     path: "/admin/book-manage/trash",

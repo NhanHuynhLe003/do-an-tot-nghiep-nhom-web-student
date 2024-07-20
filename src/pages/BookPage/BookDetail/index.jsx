@@ -72,6 +72,9 @@ export default function BookDetailPage({
   const [showLoadingCmt, setShowLoadingCmt] = useState(false);
   const [booksRelated, setBooksRelated] = useState([]);
   const [bookDetail, setBookDetail] = useState({});
+  const [currentCategory, setCurrentCategory] = useState(
+    "667bb9c1f159a0af59debd15"
+  );
 
   const {
     data: bookPublishDetail,
@@ -83,7 +86,9 @@ export default function BookDetailPage({
     data: bookListCategory,
     isLoading: isLoadingData,
     error: errorData,
-  } = useGetBooksByCategoryId({ categoryId: "667bb9d4f159a0af59debd19" });
+  } = useGetBooksByCategoryId({
+    categoryId: currentCategory,
+  });
 
   useEffect(() => {
     console.log("bookPublishDetail", bookPublishDetail);
@@ -93,7 +98,14 @@ export default function BookDetailPage({
       bookPublishDetail.data.metadata
     ) {
       const dataBook = bookPublishDetail.data.metadata;
-      console.log("dataBook", dataBook?.author);
+      console.log("dataBook", dataBook);
+      if (
+        dataBook &&
+        dataBook.categoryBookList &&
+        dataBook.categoryBookList.length > 0
+      ) {
+        setCurrentCategory(dataBook.categoryBookList[0]._id);
+      }
       setBookDetail(dataBook);
     }
   }, [bookPublishDetail]);
@@ -119,11 +131,7 @@ export default function BookDetailPage({
       bookListCategory.data &&
       bookListCategory.data.metadata
     ) {
-      let listBookCateFilter = bookListCategory.data.metadata.filter(
-        (book) => book?._id?.toString() !== bookId.toString()
-      );
-
-      const dataRelatedBooks = listBookCateFilter.map((book) => ({
+      const dataRelatedBooks = bookListCategory.data.metadata.map((book) => ({
         id: book?._id,
         bookQuantity: book.book_quantity,
         component: (
@@ -528,7 +536,15 @@ export default function BookDetailPage({
           Sách liên quan
         </Typography>
         {booksRelated && booksRelated?.length <= 0 ? (
-          <Typography component={"h2"} variant="h4">
+          <Typography
+            component={"h2"}
+            variant="h5"
+            textAlign={"center"}
+            sx={{
+              opacity: 0.6,
+              textTransform: "capitalize",
+            }}
+          >
             Không có sách liên quan
           </Typography>
         ) : (

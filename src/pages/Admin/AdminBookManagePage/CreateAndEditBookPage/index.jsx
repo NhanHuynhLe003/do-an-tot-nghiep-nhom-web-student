@@ -14,6 +14,8 @@ import IBreadcrumbs from "../../../../components/IBreadcrumbs";
 import { listCategory } from "../../../../data/arrays";
 import useAdminCreateBook from "../../../../hooks/apis/books/useAdminCreateBook";
 import { useGetCategoriesPublished } from "../../../../hooks/apis/category";
+import { useParams } from "react-router-dom";
+import { useGetBookPublishDetailById } from "../../../../hooks/apis/books/useGetBookPublishDetailById";
 /**
  * @description Trang tạo mới hoặc edit sách
  * @param {*} param
@@ -22,10 +24,15 @@ import { useGetCategoriesPublished } from "../../../../hooks/apis/category";
  *
  * @returns
  */
-export default function CreateBookPage({
-  mode = "create",
-  defaultValueEdit = {},
-}) {
+export default function CreateBookPage() {
+  const [mode, setMode] = useState("create");
+  const [defaultValueEdit, setDefaultValueEdit] = useState({});
+  const params = useParams();
+
+  const { data: dataBookPublishDetail, isLoading: isLoadingBookPublishDetail } =
+    useGetBookPublishDetailById({
+      bookId: params?.id,
+    });
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const {
@@ -137,6 +144,34 @@ export default function CreateBookPage({
         : defaultValueEdit,
     resolver: yupResolver(validationSchema),
   });
+
+  useEffect(() => {
+    console.log("Params:", params);
+    if (
+      params?.id &&
+      dataBookPublishDetail &&
+      dataBookPublishDetail.data &&
+      dataBookPublishDetail.data.metadata
+    ) {
+      console.log("[Mode Update:::]");
+      setMode("update");
+      reset({
+        thumbnailUrlId: dataBookPublishDetail.data.metadata.book_thumb_id,
+        thumbnailUrl: dataBookPublishDetail.data.metadata.book_thumb,
+        bookQuantity: dataBookPublishDetail.data.metadata.book_quantity,
+        nameBook: dataBookPublishDetail.data.metadata.book_name,
+        nameAuthor: dataBookPublishDetail.data.metadata.book_author,
+        namePublisher: dataBookPublishDetail.data.metadata.book_publisher,
+        nameCategory: dataBookPublishDetail.data.metadata.book_genre,
+        datePublish: new Date(
+          dataBookPublishDetail.data.metadata.book_publish_date
+        ),
+        authorDescription: dataBookPublishDetail.data.metadata.book_author_desc,
+        bookDescription: dataBookPublishDetail.data.metadata.book_desc,
+        isPublicBook: dataBookPublishDetail.data.metadata.book_isPublic,
+      });
+    }
+  }, [params, dataBookPublishDetail]);
 
   /**
    * @description Xử lý khi người dùng chọn ảnh và upload
