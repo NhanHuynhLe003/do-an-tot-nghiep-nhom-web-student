@@ -81,13 +81,17 @@ export default function AdminBookManagePage() {
     debounce((value) => {
       console.log("Search Book:", value);
       setBookSearch(value);
-    }, 500),
+    }, 700),
     [debounce]
   );
 
   function handleSearchBook(event) {
     setSearchControl(event.target.value);
     debounceSearch(event.target.value);
+  }
+
+  function handleAddCategory() {
+    navigate("/admin/book-manage/category");
   }
 
   if (isLoadingListBook)
@@ -108,7 +112,19 @@ export default function AdminBookManagePage() {
 
   return (
     <Stack id="AdminBookManagePage">
-      <Typography component="h1" variant="h4" fontWeight={500} pl={4} pt={2}>
+      <Typography
+        component="h1"
+        variant="h4"
+        fontWeight={500}
+        pl={4}
+        pt={2}
+        sx={{
+          color: "var(--color-primary2)",
+          opacity: 0.6,
+          mt: 2,
+          mb: 4,
+        }}
+      >
         Kho Sách
       </Typography>
 
@@ -121,6 +137,13 @@ export default function AdminBookManagePage() {
       >
         <Box mb={3} width={"20rem"}>
           <input
+            style={{
+              padding: "0.5rem 0.75rem",
+              border: "none",
+              outline: "none",
+              borderRadius: 16,
+              boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+            }}
             value={searchControl}
             placeholder="Tìm kiếm sách...."
             onChange={handleSearchBook}
@@ -143,7 +166,9 @@ export default function AdminBookManagePage() {
               fncHandleClickAccept={handleClickDeleteAll}
             />
           )}
-          <Button variant="outlined">Tạo Danh Mục</Button>
+          <Button variant="outlined" onClick={handleAddCategory}>
+            Tạo Danh Mục
+          </Button>
           <Button
             variant="outlined"
             color="success"
