@@ -33,11 +33,10 @@ export default function CvAdminPageDetail() {
   const listCvUsers = useSelector(listCvUserSelector);
   const boardCvConvertToDisplay = useRef([]);
 
-  const {
-    data: cvDataDetail,
-    error: errorCvDetail,
-    isLoading: isLoadingCvDetail,
-  } = useGetCvById({ cvId: currentCvPageId, userId: studentData?._id });
+  const { data: cvDataDetail } = useGetCvById({
+    cvId: currentCvPageId,
+    userId: studentData?._id,
+  });
 
   const [listBoardCv, setListBoardCv] = useState([]);
   const [getApiFirstTime, setGetApiFirstTime] = useState(true);

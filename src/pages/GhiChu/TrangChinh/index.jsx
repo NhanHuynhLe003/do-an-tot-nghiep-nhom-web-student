@@ -1,64 +1,131 @@
-import { rectSortingStrategy } from "@dnd-kit/sortable";
-import React, { useState } from "react";
+import { Button, debounce } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import { useGetNoteChinhCuaUser } from "../../../hooks/apis/notes/useGetNoteChinhCuaUser";
 import style from "./TrangChinh.module.css";
-import { GridContainer } from "./components/Grid/GridContainer";
-import { Sortable } from "./components/Sortable";
+import { useDeleteNote } from "../../../hooks/apis/notes/useDeleteNote";
+import { toast } from "react-toastify";
 
 export default function TrangChinh() {
+  const [notes, setNotes] = useState([]);
+  const [ndTimKiem, setNdTimKiem] = useState("");
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
+
+  const { data: danhSachNoteChinh } = useGetNoteChinhCuaUser({
+    note_userId: studentData?._id,
+    search: ndTimKiem,
+  });
+
+  const { mutate: deleteNote } = useDeleteNote();
+
   const navigate = useNavigate();
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      title: "NOTE 1",
-      content: "Chưa Có Nội Dung",
-    },
-    {
-      id: 2,
-      title: "NOTE 2",
-      content: "Chưa Có Nội Dung",
-    },
-    {
-      id: 3,
-      title: "NOTE 3",
-      content: "Chưa Có Nội Dung",
-    },
-  ]);
+
+  const handleChangeInput = debounce((e) => {
+    setNdTimKiem(e.target.value);
+  }, 700);
 
   const handleAddNote = (e) => {
-    e.preventDefault();
-    const newNote = {
-      id: notes.length + 1,
-      title: `NOTE ${notes.length + 1}`,
-      content: "Chưa Có Nội Dung",
-    };
-    setNotes([...notes, newNote]);
+    navigate("/chi-tiet-ghi-chu");
   };
 
   const handleDeleteNote = (id) => {
-    setNotes(notes.filter((note) => note.id !== id));
+    const payload = {
+      noteId: id,
+      userId: studentData?._id,
+    };
+    deleteNote(payload, {
+      onSuccess: () => {
+        if (notes.length === 1) {
+          setNotes([]);
+        }
+        toast.success("Xóa Note Thành Công");
+      },
+    });
   };
   const handleImageClick = () => {
     navigate("/trang-chinh/thung-rac"); // Navigate to the TrangRecycleBin page
   };
+
+  useEffect(() => {
+    console.log("DATA THAY DOI:::", danhSachNoteChinh);
+
+    const noteData =
+      danhSachNoteChinh?.data?.metadata?.data?.map((note) => ({
+        id: note._id,
+        title: note.note_title,
+        content: note.note_content,
+      })) || [];
+
+    setNotes(noteData);
+  }, [danhSachNoteChinh]);
+
   return (
     <div>
-      <form className={style["note-form"]} onSubmit={handleAddNote}>
-        <button type="submit" className={style.saveButton}> LƯU</button>
-      </form>
-      <div className={style['app-container']}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "20px",
+          padding: "1rem 20px",
+        }}
+      >
+        <input
+          onChange={handleChangeInput}
+          style={{
+            width: "15rem",
+
+            padding: "0.5rem 0.75rem",
+            borderRadius: "24px",
+            border: "1px solid #ccc",
+          }}
+          placeholder="Tìm kiếm note..."
+        ></input>
+        <Button type="button" variant="contained" onClick={handleAddNote}>
+          <FaPlus />
+          Thêm Note
+        </Button>
+      </div>
+
+      <div className={style["app-container"]}>
         <div className={style["note-grid"]}>
-          {notes.map((note) => (
-            <div key={note.id} className={style["note-item"]}>
-              <div className={style["notes-header"]}>
-                <button onClick={() => handleDeleteNote(note.id)} className={style.saveButton}>x</button>
-              </div>
-              <h2>{note.title}</h2>
-              <p>{note.content}</p>
+          {notes && notes.length <= 0 ? (
+            <div
+              style={{
+                width: "100%",
+              }}
+            >
+              <h2
+                style={{
+                  textAlign: "center",
+                  color: "#ccc",
+                }}
+              >
+                Chưa có note nào
+              </h2>
             </div>
-          ))}
+          ) : (
+            notes.map((note) => (
+              <div key={note.id} className={style["note-item"]}>
+                <div className={style["notes-header"]}>
+                  <button
+                    onClick={() => handleDeleteNote(note.id)}
+                    className={style.saveButton}
+                  >
+                    x
+                  </button>
+                </div>
+                <h2>{note.title}</h2>
+                <p
+                  className={style.noidungNote}
+                  dangerouslySetInnerHTML={{ __html: note.content }}
+                ></p>
+              </div>
+            ))
+          )}
         </div>
         <br />
+
         {/* <Sortable
           items={notes}
           adjustScale={true}
@@ -70,16 +137,14 @@ export default function TrangChinh() {
           })}
         ></Sortable> */}
         
+
         <div className={style.deleteicon}>
           <img
             src="https://png.pngtree.com/png-vector/20220826/ourlarge/pngtree-trashcan-dustbin-flat-junk-vector-png-image_33478412.png"
             alt="anhdetele"
             onClick={handleImageClick}
           />
-
-
         </div>
-        
       </div>
     </div>
   );

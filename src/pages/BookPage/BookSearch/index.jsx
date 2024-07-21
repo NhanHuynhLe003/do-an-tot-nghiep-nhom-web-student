@@ -1,47 +1,54 @@
-import { Button, Grid, Pagination, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  Pagination,
+  Stack,
+  Typography,
+} from "@mui/material";
 import clsx from "clsx";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import CardBook from "../../../components/book/cardBook";
 import ButtonSortType from "../../../components/bookSearch/buttonSortType";
 import IMenuListFloat from "../../../components/IMenuListFloat";
-import {
-  listCategoryType,
-  listSortType,
-  listStatusType,
-} from "../../../data/arrays";
+import { listSortType, listStatusType } from "../../../data/arrays";
 import { useGetListSearchBook } from "../../../hooks/apis/books/useGetListSearchBook";
 import { useGetCategoriesPublished } from "../../../hooks/apis/category";
 import style from "./bookSearch.module.css";
 
 export default function BookSearchPage() {
-  const [payloadFilter, setPayloadFilter] = useState({});
-  const {
-    data: bookFilterData,
-    isLoading: isLoadingBookFilter,
-    error: errorBookFilter,
-  } = useGetListSearchBook(payloadFilter);
+  // State quản lý bộ lọc sách
+  const [payloadFilter, setPayloadFilter] = useState({
+    sortType: "all",
+    categoryId: "all",
+    instockType: "all",
+    skip: 0,
+    limit: 20,
+  });
 
-  const {
-    data: categoryData,
-    isLoading: isLoadingCategory,
-    error: errorCategory,
-  } = useGetCategoriesPublished();
+  // Lấy dữ liệu sách dựa trên bộ lọc
+  const { data: bookFilterData, isLoading: isLoadingBookFilter } =
+    useGetListSearchBook(payloadFilter);
 
+  // Lấy danh sách thể loại sách
+  const { data: categoryData } = useGetCategoriesPublished();
+
+  // State quản lý danh sách sách và danh mục
   const [booksFilter, setBooksFilter] = useState([]);
   const [listCategory, setListCategory] = useState([]);
 
+  // Cập nhật danh sách sách khi dữ liệu sách thay đổi
   useEffect(() => {
-    console.log("bookFilterData::::", bookFilterData?.data?.metadata);
-    if (bookFilterData) {
-      setBooksFilter(bookFilterData?.data?.metadata);
+    if (bookFilterData?.data?.metadata) {
+      setBooksFilter(bookFilterData.data.metadata);
     }
   }, [bookFilterData]);
 
+  // Cập nhật danh mục khi dữ liệu danh mục thay đổi
   useEffect(() => {
-    console.log("categoryData::::", categoryData?.data?.metadata);
-    if (categoryData && categoryData?.data && categoryData?.data?.metadata) {
-      const cateList = categoryData?.data?.metadata.map((item) => ({
+    if (categoryData?.data?.metadata) {
+      const cateList = categoryData.data.metadata.map((item) => ({
         id: item._id,
         content: item.name,
         tag: item.tag,
@@ -55,10 +62,10 @@ export default function BookSearchPage() {
     }
   }, [categoryData]);
 
-  // thêm query trang hiện tại của pagination vào url
-
+  // State quản lý trang hiện tại
   const [currentPage, setCurrentPage] = useState(1);
 
+  // State quản lý nội dung lựa chọn cho bộ lọc
   const [selectContent, setSelectContent] = useState({
     sortType: "Sắp Xếp",
     categoryType: "Thể Loại",
@@ -66,133 +73,77 @@ export default function BookSearchPage() {
     ratingType: "Đánh Giá",
   });
 
-  function handleClickSortType(item) {
-    setSelectContent({
-      ...selectContent,
-      sortType: item.content,
-    });
-  }
+  // Hàm xử lý khi chọn loại sắp xếp
+  const handleClickSortType = (item) =>
+    setSelectContent((prev) => ({ ...prev, sortType: item.content }));
+  // Hàm xử lý khi chọn thể loại
+  const handleClickCategory = (item) =>
+    setSelectContent((prev) => ({ ...prev, categoryType: item.content }));
+  // Hàm xử lý khi chọn tình trạng
+  const handleClickStatus = (item) =>
+    setSelectContent((prev) => ({ ...prev, statusType: item.content }));
 
-  function handleClickCategory(item) {
-    setSelectContent({
-      ...selectContent,
-      categoryType: item.content,
-    });
-  }
-
-  function handleClickStatus(item) {
-    setSelectContent({
-      ...selectContent,
-      statusType: item.content,
-    });
-  }
-
-  function handleChangePagination(event, page) {
+  // Hàm xử lý khi thay đổi trang
+  const handleChangePagination = (event, page) => {
     setCurrentPage(page);
-  }
+    setPayloadFilter((prev) => ({
+      ...prev,
+      skip: (page - 1) * prev.limit, // Cập nhật skip theo trang hiện tại
+    }));
+  };
 
-  function handleFilter() {
-    console.log("selectContent", selectContent);
-    if (selectContent.sortType) {
-      switch (selectContent.sortType.toLocaleLowerCase()) {
-        case "sắp xếp":
-          console.log("sort");
-          setPayloadFilter({
-            ...payloadFilter,
-            sortType: "all",
-          });
-          break;
+  // Hàm xử lý khi lọc sách
+  const handleFilter = () => {
+    // Hàm chuyển đổi loại sắp xếp
+    const getSortType = (type) => {
+      switch (type.toLocaleLowerCase()) {
         case "mới nhất":
-          console.log("newest");
-          setPayloadFilter({
-            ...payloadFilter,
-            sortType: "newest",
-          });
-          break;
+          return "newest";
         case "xem nhiều":
-          console.log("read");
-          setPayloadFilter({
-            ...payloadFilter,
-            sortType: "read",
-          });
-          break;
+          return "read";
         case "đánh giá":
-          console.log("rating");
-          setPayloadFilter({
-            ...payloadFilter,
-            sortType: "rating",
-          });
-          break;
+          return "rating";
         default:
-          // Code xử lý mặc định nếu không có case nào khớp
-          setPayloadFilter({
-            ...payloadFilter,
-            sortType: "all",
-          });
-          break;
+          return "all";
       }
-    }
+    };
 
-    if (selectContent.categoryType) {
-      if (selectContent.categoryType.toLocaleLowerCase !== "thể loại") {
-        setPayloadFilter({
-          ...payloadFilter,
-          categoryId: listCategory.find(
-            (cate) => cate.content === selectContent.categoryType
-          ).id,
-        });
-      } else {
-        setPayloadFilter({
-          ...payloadFilter,
-          categoryId: "all",
-        });
-      }
-    }
+    // Cập nhật bộ lọc theo nội dung lựa chọn
+    const newSortType = getSortType(selectContent.sortType);
+    const newCategoryId =
+      listCategory.find((cate) => cate.content === selectContent.categoryType)
+        ?.id || "all";
+    const newInstockType =
+      selectContent.statusType.toLocaleLowerCase() === "còn sách"
+        ? "instock"
+        : "all";
 
-    if (selectContent.statusType) {
-      console.log("statusType", selectContent.statusType);
-    }
-
-    if (selectContent.statusType) {
-      switch (selectContent.statusType.toLocaleLowerCase()) {
-        case "tình trạng":
-          console.log("all");
-          setPayloadFilter({
-            ...payloadFilter,
-            instockType: "all",
-          });
-          break;
-        case "còn hàng":
-          console.log("instock");
-          setPayloadFilter({
-            ...payloadFilter,
-            instockType: "instock",
-          });
-          break;
-
-        default:
-          // Code xử lý mặc định nếu không có case nào khớp
-          setPayloadFilter({
-            ...payloadFilter,
-            instockType: "all",
-          });
-          break;
-      }
-    }
-  }
+    setPayloadFilter({
+      ...payloadFilter,
+      sortType: newSortType,
+      categoryId: newCategoryId,
+      instockType: newInstockType,
+      skip: 0, // Reset lại skip khi lọc
+    });
+    setCurrentPage(1); // Reset lại trang hiện tại
+  };
 
   if (isLoadingBookFilter) {
-    return <div>Loading...</div>;
+    return (
+      <Stack
+        width={"100%"}
+        minHeight={"80vh"}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <CircularProgress fontSize={40}></CircularProgress>
+      </Stack>
+    );
   }
+
   return (
     <Stack className={clsx(style.bookSearchPage)}>
-      <Typography
-        component={"h1"}
-        variant="h6"
-        style={{
-          opacity: 0,
-        }}
-      >
+      <Typography component={"h1"} variant="h6" style={{ opacity: 0 }}>
         Trang Tìm Kiếm Sách
       </Typography>
 
@@ -209,35 +160,30 @@ export default function BookSearchPage() {
         <IMenuListFloat
           fnClickItem={handleClickSortType}
           ListButtonContent={
-            <ButtonSortType content={selectContent.sortType}></ButtonSortType>
+            <ButtonSortType content={selectContent.sortType} />
           }
           menuListItems={listSortType}
           itemSelected={selectContent.sortType}
-        ></IMenuListFloat>
-
+        />
         {/* Sắp xếp thể loại */}
         <IMenuListFloat
           fnClickItem={handleClickCategory}
           ListButtonContent={
-            <ButtonSortType
-              content={selectContent.categoryType}
-            ></ButtonSortType>
+            <ButtonSortType content={selectContent.categoryType} />
           }
           menuListItems={listCategory}
           itemSelected={selectContent.categoryType}
-        ></IMenuListFloat>
-
+        />
         {/* Sắp xếp theo trạng thái */}
         <IMenuListFloat
           fnClickItem={handleClickStatus}
           ListButtonContent={
-            <ButtonSortType content={selectContent.statusType}></ButtonSortType>
+            <ButtonSortType content={selectContent.statusType} />
           }
           menuListItems={listStatusType}
           itemSelected={selectContent.statusType}
-        ></IMenuListFloat>
-
-        {/* Nut Loc */}
+        />
+        {/* Nút Lọc */}
         <Button
           className={style.filterButton}
           onClick={handleFilter}
@@ -249,24 +195,34 @@ export default function BookSearchPage() {
             padding: { sm: "0.5rem 1rem", xs: "0.3rem 0.8rem" },
             fontSize: { sm: "0.8rem", xs: "0.6em" },
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-            "&:hover": {
-              color: "var(--color-primary1)",
-            },
+            "&:hover": { color: "var(--color-primary1)" },
           }}
         >
           Lọc Sách
         </Button>
       </Stack>
 
-      {/* Danh sách cac quyển sách */}
+      {/* Danh sách các quyển sách */}
       <Grid
         container
         className={style.section2}
         spacing={{ md: 6, xs: 3 }}
         px={{ sm: 6, xs: 2 }}
       >
-        {booksFilter?.result &&
-          booksFilter?.result.map((book) => (
+        {booksFilter?.result?.length <= 0 ? (
+          <Typography
+            width={"100%"}
+            textAlign={"center"}
+            color={"var(--color-primary2)"}
+            component={"h2"}
+            variant="h4"
+            fontWeight={500}
+            sx={{ opacity: 0.7, mt: 8, textTransform: "capitalize" }}
+          >
+            Không tìm thấy sách
+          </Typography>
+        ) : (
+          booksFilter?.result?.map((book) => (
             <Grid key={book?._id} item xs={6} sm={4} md={3}>
               <CardBook
                 idBook={book?._id}
@@ -280,25 +236,21 @@ export default function BookSearchPage() {
                   new Date(book?.book_publish_date),
                   "dd-MM-yyyy"
                 )}
-              ></CardBook>
+              />
             </Grid>
-          ))}
-
+          ))
+        )}
         <Grid
           className="pagination-book-search"
           item
           sm={12}
           xs={12}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            mb: 6,
-            mt: 2,
-          }}
+          sx={{ display: "flex", justifyContent: "center", mb: 6, mt: 2 }}
         >
           <Pagination
             onChange={handleChangePagination}
-            count={10}
+            count={Math.ceil((booksFilter?.total || 0) / payloadFilter.limit)} // Tổng số trang
+            page={currentPage} // Trang hiện tại
             color="primary"
           />
         </Grid>

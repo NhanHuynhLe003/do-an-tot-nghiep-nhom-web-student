@@ -1,16 +1,61 @@
-import { Search } from "@mui/icons-material";
-import { Box, Button, Input, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { debounce } from "lodash";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SubmitDialog from "../../../components/IDialog/SubmitDialog";
 import ITable from "../../../components/ITable/ITable";
-import { dataListBooks, headerListBooks } from "../../../data/arrays";
+import { headerListBooks } from "../../../data/arrays";
+import { useGetAllBookNotDeletedByAdmin } from "../../../hooks/apis/books/useGetAllBookNotDeletedByAdmin";
 
 export default function AdminBookManagePage() {
   // nevigate
   const navigate = useNavigate();
 
   const [listRowSelected, setListRowSelected] = useState([]);
+  const [listBook, setListBook] = useState([]);
+  const [bookSearch, setBookSearch] = useState(""); // Lấy search để fetch api
+  const [searchControl, setSearchControl] = useState(""); // Cập nhật dữ liệu search lập tức để hiển thị
+  const [paginate, setPaginate] = useState({
+    skip: 0,
+    limit: 20,
+  });
+
+  const { data: listBookData, isLoading: isLoadingListBook } =
+    useGetAllBookNotDeletedByAdmin({
+      search: bookSearch,
+      skip: paginate.skip,
+      limit: paginate.limit,
+    });
+
+  useEffect(() => {
+    if (listBookData && listBookData.data && listBookData.data.metadata) {
+      /**
+        id: 1,
+        BookImage: "https://via.placeholder.com/150",
+        BookName: "Book 1",
+        BookCate: "Category 1",
+        BookQuantity: 10,
+       */
+      const displayListBook = listBookData.data.metadata?.result.map((book) => {
+        return {
+          ...book,
+          id: book._id,
+          BookImage: book.book_thumb,
+          BookName: book.book_name,
+          BookCate: book.book_genre.join(", "),
+          BookQuantity: book.book_quantity,
+        };
+      });
+
+      setListBook(displayListBook);
+    }
+  }, [listBookData]);
 
   //=============fnc================
   function getListRowSelected(params) {
@@ -32,9 +77,54 @@ export default function AdminBookManagePage() {
     navigate("/admin/book-manage/trash");
   }
 
+  const debounceSearch = useCallback(
+    debounce((value) => {
+      console.log("Search Book:", value);
+      setBookSearch(value);
+    }, 700),
+    [debounce]
+  );
+
+  function handleSearchBook(event) {
+    setSearchControl(event.target.value);
+    debounceSearch(event.target.value);
+  }
+
+  function handleAddCategory() {
+    navigate("/admin/book-manage/category");
+  }
+
+  if (isLoadingListBook)
+    return (
+      <Stack
+        width={"100%"}
+        minHeight={"80vh"}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <CircularProgress
+          sx={{
+            fontSize: 32,
+          }}
+        ></CircularProgress>
+      </Stack>
+    );
+
   return (
     <Stack id="AdminBookManagePage">
-      <Typography component="h1" variant="h4" fontWeight={500} pl={4} pt={2}>
+      <Typography
+        component="h1"
+        variant="h4"
+        fontWeight={500}
+        pl={4}
+        pt={2}
+        sx={{
+          color: "var(--color-primary2)",
+          opacity: 0.6,
+          mt: 2,
+          mb: 4,
+        }}
+      >
         Kho Sách
       </Typography>
 
@@ -46,18 +136,25 @@ export default function AdminBookManagePage() {
         justifyContent={"space-between"}
       >
         <Box mb={3} width={"20rem"}>
-          <Input
-            endAdornment={<Search></Search>}
+          <input
+            style={{
+              padding: "0.5rem 0.75rem",
+              border: "none",
+              outline: "none",
+              borderRadius: 16,
+              boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+            }}
+            value={searchControl}
             placeholder="Tìm kiếm sách...."
-            fullWidth
-          ></Input>
+            onChange={handleSearchBook}
+          />
         </Box>
 
         <Stack direction={"row"} justifyContent={"right"} gap={2} mb={3}>
           {listRowSelected.length > 1 && (
             <SubmitDialog
               buttonShowInfo={{
-                variant: "contained",
+                variant: "outlined",
                 color: "error",
                 title: "Xóa Tất Cả",
               }}
@@ -67,16 +164,28 @@ export default function AdminBookManagePage() {
                   "Bạn có chắc chắn xóa tất cả sách đã chọn chứ",
               }}
               fncHandleClickAccept={handleClickDeleteAll}
-            ></SubmitDialog>
+            />
           )}
-          <Button variant="contained">Tạo Danh Mục</Button>
-          <Button variant="contained" onClick={handleClickCreateBookBtn}>
+          <Button variant="outlined" onClick={handleAddCategory}>
+            Tạo Danh Mục
+          </Button>
+          <Button
+            variant="outlined"
+            color="success"
+            onClick={handleClickCreateBookBtn}
+          >
             Thêm Sách
           </Button>
-          <Button variant="contained" onClick={handleClickTrashBtn}>
+          <Button
+            variant="outlined"
+            color="warning"
+            onClick={handleClickTrashBtn}
+          >
             Thùng Rác
           </Button>
-          <Button variant="contained">Sách Nháp</Button>
+          <Button variant="outlined" color="info">
+            Sách Nháp
+          </Button>
         </Stack>
       </Stack>
 
@@ -90,9 +199,12 @@ export default function AdminBookManagePage() {
       >
         <ITable
           fncGetListRowSelected={getListRowSelected}
-          dataList={dataListBooks}
+          dataList={listBook}
           headerList={headerListBooks}
-        ></ITable>
+          minHeightTable={90}
+          rowHeight={90}
+          pageSize={20}
+        />
       </Box>
     </Stack>
   );

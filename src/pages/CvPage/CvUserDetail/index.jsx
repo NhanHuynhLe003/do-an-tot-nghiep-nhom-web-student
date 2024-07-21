@@ -1,4 +1,6 @@
 import { Box, Button, Input, Stack } from "@mui/material";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
@@ -48,8 +50,6 @@ export default function CvUserDetail() {
 
   useEffect(() => {
     if (getApiFirstTime && cvDataDetail) {
-      console.log("cvDataDetail:::", cvDataDetail);
-
       const data = cvDataDetail?.data?.metadata;
       const cvDetailConvert = data && {
         ...data,
@@ -638,12 +638,43 @@ export default function CvUserDetail() {
     }, 500)
   );
 
-  // useEffect(() => {
-  //   if (listBoardRefs[0]?.cvWrapperRef?.current) {
-  //     const rect =
-  //       listBoardRefs[0]?.cvWrapperRef?.current.getBoundingClientRect();
-  //   }
-  // }, [listBoardRefs[0]?.cvWrapperRef?.current]);
+  const handleDownloadPDF = async () => {
+    // Load images through proxy
+    // Đưa về 100% để tránh lỗi ảnh
+    dispatch(CvSlice.actions.setZoomScale(1));
+    //Delay 1s để về 100% scale
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+
+    for (let index = 0; index < listBoardRefs.length; index++) {
+      const element = listBoardRefs[index].boardRef.current;
+
+      if (element) {
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          logging: true,
+          letterRendering: 1,
+          allowTaint: false,
+          useCORS: true,
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+        const imgWidth = pdfWidth;
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        if (index > 0) {
+          // Tạo trang mới nếu trang hiện tại không phải trang đầu tiên
+          pdf.addPage();
+        }
+        // Thêm hình ảnh vào PDF
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      }
+    }
+
+    pdf.save("document.pdf");
+  };
 
   return (
     <Box
@@ -667,6 +698,16 @@ export default function CvUserDetail() {
         },
       }}
     >
+      <Button
+        onClick={handleDownloadPDF}
+        type="button"
+        variant="outlined"
+        sx={{
+          fontSize: "1.25rem",
+        }}
+      >
+        Lưu CV PDF
+      </Button>
       {isExistCvPage ? (
         <Box
           // Phải dùng Box này chứa để các item bên trong có thể ăn theo flex của board_container_cv
@@ -809,7 +850,7 @@ export default function CvUserDetail() {
                       ]?.cvWrapperRef?.current?.getBoundingClientRect().left
                     }px`}
                     marginBottom={
-                      index === listBoardCvConvert.length - 1 ? 12 : 0
+                      index === listCvUsers[0]?.boards?.length - 1 ? 12 : 0
                     }
                     sx={{
                       "@media (max-width: 600px)": {

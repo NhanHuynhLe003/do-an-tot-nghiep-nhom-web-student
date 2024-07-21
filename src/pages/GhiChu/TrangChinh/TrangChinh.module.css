@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content:flex-start;
+  justify-content: flex-start;
   margin: 10px;
   gap: 20px;
   padding: 10px
@@ -20,14 +20,33 @@
   position: relative;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   border-radius: 8px;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Thêm hiệu ứng chuyển đổi màu và nổi lên */
-  overflow: hidden; /* Ẩn phần tràn ra */
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  /* Thêm hiệu ứng chuyển đổi màu và nổi lên */
+  overflow: hidden;
+
+  cursor: pointer;
+  /* Ẩn phần tràn ra */
+}
+
+.noidungNote {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  /* Số dòng muốn giới hạn */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  color: var(--color-primary2);
+  opacity: 0.5;
+  font-size: 0.85rem;
 }
 /* Thêm hiệu ứng thay đổi màu và nổi lên khi di chuột vào */
 .note-item:hover {
-  background-color: #007aff; /* Màu nền mới khi di chuột vào */
-  transform: translateY(-10px); /* Nổi lên cao */
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.25); /* Tăng bóng đổ */
+  background-color: #007aff;
+  /* Màu nền mới khi di chuột vào */
+  transform: translateY(-10px);
+  /* Nổi lên cao */
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.25);
+  /* Tăng bóng đổ */
 }
 /* Header của ghi chú */
 .notes-header {
@@ -35,7 +54,8 @@
   justify-content: flex-end;
 }
 .notes-header button {
-  font-size: 16px;
+  font-size: 24px;
+  padding: 0.25rem 0.7rem;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -48,18 +68,26 @@
   text-transform: capitalize;
   margin-bottom: 10px;
   line-height: 1.3;
-  overflow: hidden; /* Ẩn phần tràn ra */
-  text-overflow: ellipsis; /* Thêm dấu chấm lửng khi tràn */
-  white-space: nowrap; /* Không xuống dòng */
+  overflow: hidden;
+  /* Ẩn phần tràn ra */
+  text-overflow: ellipsis;
+  /* Thêm dấu chấm lửng khi tràn */
+  white-space: nowrap;
+  /* Không xuống dòng */
 }
 /* Kiểu dáng cho nội dung */
 .note-item p {
   line-height: 1.5;
-  overflow: hidden; /* Ẩn phần tràn ra */
-  text-overflow: ellipsis; /* Thêm dấu chấm lửng khi tràn */
-  display: -webkit-box; /* Hỗ trợ trình duyệt webkit */
-  -webkit-box-orient: vertical; /* Thiết lập box orientation */
-  -webkit-line-clamp: 3; /* Số dòng tối đa trước khi thêm dấu chấm lửng */
+  overflow: hidden;
+  /* Ẩn phần tràn ra */
+  text-overflow: ellipsis;
+  /* Thêm dấu chấm lửng khi tràn */
+  display: -webkit-box;
+  /* Hỗ trợ trình duyệt webkit */
+  -webkit-box-orient: vertical;
+  /* Thiết lập box orientation */
+  -webkit-line-clamp: 3;
+  /* Số dòng tối đa trước khi thêm dấu chấm lửng */
 }
 /* Kiểu dáng cho các liên kết */
 .note-item a {
@@ -72,10 +100,12 @@
 h2 {
   margin: 0;
 }
-.note-form{
+/* Form để thêm ghi chú mới */
+.note-form {
   text-align: right;
   margin-left: 20px;
 }
+
 /* Kiểu dáng cho nút lưu */
 .note-form button {
   border-radius: 5px;
@@ -91,22 +121,33 @@ h2 {
   background-color: #007aff;
   cursor: pointer;
 }
-.saveButton{
-  margin-right: 20px;
+
+.saveButton {
   top: 10px;
+  border-radius: 50%;
+  background-color: #fff;
+  color: var(--color-primary1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40;
+  height: 40;
+  transition: all 0.3s;
 }
+
 /* Hiệu ứng hover cho nút lưu (phần saveButton) */
 .saveButton:hover {
-  background-color: #6eaaeb;
+  background: red;
+  color: white;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
 }
 .deleteicon {
   position: fixed;
-  bottom: 50px; /* điều chỉnh vị trí theo yêu cầu */
-  right: 100px; /* điều chỉnh vị trí theo yêu cầu */
-  display: inline-block;
-  width: 40px;
-  height: 40px;
+  /* điều chỉnh vị trí theo yêu cầu */
+  /* điều chỉnh vị trí theo yêu cầu */
+  display: block;
+  width: 50px;
+  height: 50px;
   cursor: pointer;
 }
 .deleteicon img {
@@ -117,38 +158,42 @@ h2 {
 /* Media Queries for Responsive Design */
 @media (max-width: 1200px) {
   .note-item {
-    width: 30%; /* Adjust width for medium screens */
+    width: 30%;
+    /* Adjust width for medium screens */
   }
- 
+
 }
 @media (max-width: 992px) {
   .note-item {
-    width: 45%; /* Adjust width for small screens */
+    width: 45%;
+    /* Adjust width for small screens */
   }
 }
 
 @media (max-width: 768px) {
   .note-item {
-    width: 100%; /* Adjust width for very small screens */
+    width: 100%;
+    /* Adjust width for very small screens */
   }
 }
 @media (max-width: 576px) {
   .note-item {
-    width: 100%; /* Adjust width for mobile devices */
+    width: 100%;
+    /* Adjust width for mobile devices */
   }
   .note-form button {
-    width: 100%; /* Make the save button full width on mobile devices */
+    width: 100%;
+    /* Make the save button full width on mobile devices */
   }
   .deleteicon {
-    bottom: 50px; /* Adjust position for mobile devices */
-    right: 20px; /* Adjust position for mobile devices */
+    bottom: 20px;
+    /* Adjust position for mobile devices */
+    right: 20px;
+    /* Adjust position for mobile devices */
   }
-  .note-form{
+  .note-form {
     text-align: right;
     margin-left: 0;
     bottom: 10px;
   }
 }
-
-
-
