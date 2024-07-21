@@ -59,7 +59,7 @@ export default function TrangChinh() {
           ))}
         </div>
         <br />
-        <Sortable
+        {/* <Sortable
           items={notes}
           adjustScale={true}
           Container={(props) => <GridContainer {...props} columns={5} />}
@@ -68,7 +68,7 @@ export default function TrangChinh() {
             width: 140,
             height: 140,
           })}
-        ></Sortable>
+        ></Sortable> */}
         
         <div className={style.deleteicon}>
           <img
