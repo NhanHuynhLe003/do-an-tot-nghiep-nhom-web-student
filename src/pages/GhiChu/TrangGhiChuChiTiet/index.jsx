@@ -17,9 +17,6 @@ import {
 } from "@blocknote/react";
 import React, { useRef, useState, useEffect } from "react";
 import style from "./TrangGhiChuChiTiet.module.css";
-
-
-
 import { ClozeButton } from "./components/ClozeButton";
 import { useTaoNoteGoc } from "../../../hooks/apis/notes/useTaoNoteGoc";
 import { useTaoNoteCon } from "../../../hooks/apis/notes/useTaoNoteCon";
@@ -28,14 +25,11 @@ import { toast } from "react-toastify";
 
 export default function TrangGhiChuChiTiet() {
   const studentData = JSON.parse(localStorage.getItem("studentData"));
-
   const [html, setHTML] = useState("");
-
   const [textHiddenConvert, setTextHiddenConvert] = useState("")
   const [hideCount, setHideCount] = useState(0);
   const [previousContents, setPreviousContents] = useState([]);
   const editor = useCreateBlockNote();
-
   const initialHTML = "";
   const transformData = (data) => {
     const regex = /\[\d\]\(\d+\)/g;
@@ -45,16 +39,16 @@ export default function TrangGhiChuChiTiet() {
     return result
   };
 
+
   useEffect(() => {
     // Log nội dung HTML để kiểm tra khi "html" thay đổi
     console.log("HTML:::", transformData(" " + html));
   }, [html]);
 
-  const [tieude, setTieuDe] = useState("");
 
+  const [tieude, setTieuDe] = useState("");
   const { mutate: taoNoteGoc, data: dulieuNoteGoc } = useTaoNoteGoc();
   const { mutate: taoNoteCon } = useTaoNoteCon();
-
   const layTitle = (title) => {
     setTieuDe(title);
   };
@@ -63,26 +57,23 @@ export default function TrangGhiChuChiTiet() {
   const onChange = async () => {
     // Chuyển đổi nội dung BlockNote thành chuỗi HTML
     const htmlString = await editor.blocksToHTMLLossy(editor.document);
-
     setHTML(htmlString);
   };
+
 
   const replaceString = (html) => {
     // Điều kiện lọc
     const regex =
       /<span data-text-color="blue"><span data-background-color="blue">(.*?)<\/span><\/span>/g;
-
     // Tạo mảng lưu trữ các phiên bản
     let versions = [];
-
-
     // Lấy tất cả các khớp
     let matches = [];
     let match;
     while ((match = regex.exec(html)) !== null) {
       matches.push(match);
-
     }
+
 
     // let i = 1;
     // const noneClozeHtml = html.replace(
@@ -103,10 +94,12 @@ export default function TrangGhiChuChiTiet() {
     // );
 
     //lấy ra tất các cloze
+   
+   
     const listCloze = html.match(regex);
-
     console.log("MATCHES:::", matches);
-
+   
+   
     // Tạo các cloze nhỏ hơn
     matches.forEach((m, index) => {
       const clozeHtml = html.replace(regex, (match, text, offset) => {
@@ -118,10 +111,8 @@ export default function TrangGhiChuChiTiet() {
         }
         return match;
       });
-
       versions.push(clozeHtml);
     });
-
     console.log("VERSIONS:::", versions); //versions là chứa các cloze lần lượt ... vd, ABCD12345 => [(...)12345 , ABCD(...)45, ABCD12(...)]
 
     // Ẩn Toàn Bộ
@@ -139,17 +130,14 @@ export default function TrangGhiChuChiTiet() {
       toast.error("Vui lòng nhập tiêu đề", {
         position: "top-center",
       });
-
       return; //return để không chạy xuống các đoạn code bên dưới
     }
 
+
     // Chuyển đổi các nội dung BlockNote thành mảng chứa các đoạn cloze, result la obj tra ve
     const result = replaceString(html);
-
     const clozes = result.clozes;
-
     const listNoteCloze = result.listNoteCloze;
-
     console.log("CLONE CLOZES:::", clozes);
     console.log("LIST NOTE CLOZE:::", listNoteCloze);
 
@@ -174,13 +162,11 @@ export default function TrangGhiChuChiTiet() {
       //sau khi đã đẩy note gốc lên server thành công dữ liệu sẽ hiển thị trong onSuccess
       onSuccess: (data, variables, context) => {
         // data là dữ liệu của noteGoc trả về sau khi upload thành công
-
         // sau khi tạo note cha thành công thì tra ve _id cua note cha, sử dụng để gán vào cho các parentId
         //Note con
         for (let i = 0; i < listNoteCloze.length; i++) {
           //lọc qua từng note_cloze dạng (...) lần lượt , nó ko ẩn hết chỉ ẩn lần lượt
           const note_cloze = listNoteCloze[i];
-
           //Dữ liệu để đẩy lên server
           const payload = {
             note_userId: studentData._id,
@@ -190,15 +176,14 @@ export default function TrangGhiChuChiTiet() {
             clozes: clozes,
             note_parentId: data?.metadata?._id, // lấy thông qua _id từ note cha
           };
-
           //Tạo Note Con
           taoNoteCon(payload); // đẩy dữ liệu note con lần lượt lên server.
         }
       },
     });
 
-    console.log("Dữ liệu ghi chú gốc:::", dulieuNoteGoc?.metadata?._id);
 
+    console.log("Dữ liệu ghi chú gốc:::", dulieuNoteGoc?.metadata?._id);
     toast.success("Tạo ghi chú thành công", {
       position: "top-center",
     });
@@ -224,13 +209,10 @@ export default function TrangGhiChuChiTiet() {
             formattingToolbar={() => (
               <FormattingToolbar>
                 <BlockTypeSelect key={"blockTypeSelect"} />
-
                 {/* Extra button to toggle blue text & background */}
                 <ClozeButton key={"customButton"} />
-
-                <FileCaptionButton key={"fileCaptionButton"} />
+                <FileCaptionButton key={"fileCaptionButton"} />     
                 <FileReplaceButton key={"replaceFileButton"} />
-
                 <BasicTextStyleButton
                   basicTextStyle={"bold"}
                   key={"boldStyleButton"}
@@ -252,7 +234,6 @@ export default function TrangGhiChuChiTiet() {
                   key={"codeStyleButton"}
                   basicTextStyle={"code"}
                 />
-
                 <TextAlignButton
                   textAlignment={"left"}
                   key={"textAlignLeftButton"}
@@ -265,12 +246,9 @@ export default function TrangGhiChuChiTiet() {
                   textAlignment={"right"}
                   key={"textAlignRightButton"}
                 />
-
                 <ColorStyleButton key={"colorStyleButton"} />
-
                 <NestBlockButton key={"nestBlockButton"} />
                 <UnnestBlockButton key={"unnestBlockButton"} />
-
                 <CreateLinkButton key={"createLinkButton"} />
               </FormattingToolbar>
             )}

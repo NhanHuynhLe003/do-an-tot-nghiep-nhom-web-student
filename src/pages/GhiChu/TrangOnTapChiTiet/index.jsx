@@ -162,9 +162,10 @@ export default function TrangOnTapChiTiet() {
               <div className={style.notecard}>
                 <h6 className={style.titlenote}>{note.tieude}</h6>
                 <span className={style.ndnote}>
-                  {/* Kiểm tra độ dài của nội dung và cắt bớt nếu cần */}
-                  {htmlToPlainText(note.nd)}
+
+                  {htmlToPlainText(note.nd.length > 30 ? note.nd.slice(0, 30) + "..." : note.nd)}
                 </span>
+
               </div>
             </div>
           ))}

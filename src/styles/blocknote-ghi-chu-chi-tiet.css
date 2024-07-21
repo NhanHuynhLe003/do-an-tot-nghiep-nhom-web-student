@@ -5,4 +5,6 @@
 #TrangOnTapChiTiet .ProseMirror {
     min-height: 32vh;
     padding: 0;
+    overflow-y: auto;
+    outline: none;
 }
