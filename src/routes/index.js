@@ -133,7 +133,7 @@ const routes = [
     path: "/admin/note-manage",
     component: AdminNoteManagePage,
     layout: MainLayout,
-    isAdmin: true,
+    // isAdmin: true,
   },
   {
     path: "/admin/multi-sign-up",
