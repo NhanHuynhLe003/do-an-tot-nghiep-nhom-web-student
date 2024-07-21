@@ -25,7 +25,7 @@ const thumbsContainer = {
 
 const thumb = {
   borderRadius: 2,
-  width: "48%",
+  width: "44%",
   height: "auto",
   cursor: "grab",
 };

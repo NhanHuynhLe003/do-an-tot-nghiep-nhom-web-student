@@ -14,25 +14,27 @@ export function ClozeButton() {
 
   // Tracks whether the text & background are both blue.
   const [isSelected, setIsSelected] = useState(
-    editor.getActiveStyles().textColor === "blue" &&
-    editor.getActiveStyles().backgroundColor === "blue"
+
+    editor.getActiveStyles().textColor === "black" &&
+      editor.getActiveStyles().backgroundColor === "yellow"
   );
 
   // Updates state on content or selection change.
   useEditorContentOrSelectionChange(() => {
     setIsSelected(
-      editor.getActiveStyles().textColor === "blue" &&
-      editor.getActiveStyles().backgroundColor === "blue"
+
+      editor.getActiveStyles().textColor === "black" &&
+        editor.getActiveStyles().backgroundColor === "yellow"
     );
   }, editor);
 
   return (
     <Components.FormattingToolbar.Button
-      mainTooltip={"Blue Text & Background"}
+      mainTooltip={"Black Text & Yellow Background"}
       onClick={() => {
         editor.toggleStyles({
-          textColor: "blue",
-          backgroundColor: "blue",
+          textColor: "black",
+          backgroundColor: "yellow",
         });
       }}
       isSelected={isSelected}

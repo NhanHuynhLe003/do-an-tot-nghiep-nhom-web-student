@@ -6,23 +6,26 @@ export const useGetListSearchBook = (payload = {}, options = {}) => {
   return QueryFunction(
     [
       BookKeys.GET_LIST_SEARCH_BOOK,
-      payload?.sortType,
-      payload?.categoryId,
-      payload?.instockType,
-      payload?.search,
-      payload?.skip,
-      payload?.limit,
+      payload.sortType,
+      payload.categoryId,
+      payload.instockType,
+      payload.search,
+      payload.skip,
+      payload.limit,
     ],
-    async () =>
-      await axiosInstance.get(
-        `/v1/api/book/filter?sortType=${payload.sortType || "all"}&categoryId=${
-          payload.categoryId || "all"
-        }&instockType=${payload.instockType || "all"}&search=${
+    async () => {
+      console.log("DATA CHANGED::::::", payload);
+
+      return await axiosInstance.get(
+        `/v1/api/book/filter?sortType=${payload?.sortType}&categoryId=${
+          payload?.categoryId
+        }&instockType=${payload?.instockType}&search=${
           payload.search || ""
-        }&skip=${payload.skip || 0}&limit=${payload.limit || 0}`,
+        }&skip=${payload?.skip}&limit=${payload?.limit}`,
         {
           ...payload,
         }
-      )
+      );
+    }
   );
 };

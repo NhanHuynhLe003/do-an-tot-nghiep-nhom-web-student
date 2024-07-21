@@ -1,5 +1,13 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
+import axiosInstance from "../../../apis/axiosConfig";
+import { sizeImageDndDefault } from "../../../constants";
+import { currentBoardInViewSelector } from "../../../redux/selector";
+import CvSlice from "../../../redux/slices/CvSlice";
 import {
   dropzoneStyle,
   img,
@@ -7,22 +15,13 @@ import {
   thumbInner,
   thumbsContainer,
 } from "./styleUploadImage";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-import { currentBoardInViewSelector } from "../../../redux/selector";
-import CvSlice from "../../../redux/slices/CvSlice";
-import {
-  sizeEditorDefault,
-  sizeImageDndDefault,
-  sizeShapeElementDefault,
-} from "../../../constants";
-import axiosInstance from "../../../apis/axiosConfig";
-import { toast } from "react-toastify";
+import { useGetImagesByUserIdAndNameStorage } from "../../../hooks/apis/upload/useGetImagesByUserIdAndNameStorage";
+import { useUploadImageStatic } from "../../../hooks/apis/upload/useUploadImageStatic";
 
 const TRANSLATE_NUM = 0.5;
 const initCoordinate = 500;
 const IUploadImageDropZone = () => {
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
   const [images, setImages] = useState([]);
 
   //Lấy id của trang hiện tại tu url
@@ -30,6 +29,22 @@ const IUploadImageDropZone = () => {
   const dispatch = useDispatch();
   //Vị trí hiện tại của Board, dựa trên thanh scroll
   const currentBoardSelectorInView = useSelector(currentBoardInViewSelector);
+
+  const { data: dataImages } = useGetImagesByUserIdAndNameStorage({
+    userId: studentData?._id,
+    nameStorage: "cvs",
+  });
+
+  const { mutate: uploadImageStatic } = useUploadImageStatic();
+
+  useEffect(() => {
+    const imagesData = dataImages?.data?.metadata;
+    if (imagesData) {
+      // setImages();
+      setImages(imagesData);
+    }
+  }, [dataImages]);
+
   function handleClickAddImage({ imgName, src, styleValue }) {
     console.log("handleClickAddImage", imgName, src, styleValue);
     const cvId = idCurrentPageCv;
@@ -96,16 +111,19 @@ const IUploadImageDropZone = () => {
   }
 
   const onDrop = useCallback(async (acceptedFiles) => {
-    // Thêm list ảnh vào mảng images
-    setImages((prevImages) => [
-      ...prevImages,
-      ...acceptedFiles.map((file) =>
-        // Tạo link preview cho ảnh, nếu sau này upload api sẽ thay bằng link thực tế
-        Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        })
-      ),
-    ]);
+    acceptedFiles.forEach((file) => {
+      uploadImageStatic(
+        { nameStorage: "cvs", file: file },
+        {
+          onSuccess: (data, variables, context) => {
+            // listNewImageUpload.push(daa)
+            toast.success("Upload ảnh thành công", {
+              position: "top-center",
+            });
+          },
+        }
+      );
+    });
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -144,54 +162,35 @@ const IUploadImageDropZone = () => {
       </h1>
       {/* Khu vực chứa ảnh tạm đã thêm vào */}
       <div style={thumbsContainer}>
-        {images.map((file, index) => (
+        {images.map((img, index) => (
           <div
             className="Image_Upload_Container"
             key={index}
             style={thumb}
             ref={refImage}
             onClick={async () => {
-              const formData = new FormData();
-              const extension = file?.name.split(".").pop();
-              const newFileName = `${Date.now()}.${extension}`;
-              const renamedFile = new File([file], newFileName, {
-                type: file.type,
-              });
-
-              formData.append("uploadFileKey", renamedFile);
-
-              const imageUpload = await axiosInstance.post(
-                "/v1/api/upload/static/img?nameStorage=cvs",
-                formData,
-                {
-                  headers: {
-                    "Content-Type": "multipart/form-data",
-                  },
-                }
-              );
-              toast.success("Upload ảnh thành công", {});
-
-              console.log("IMAGE UPLOAD:::", imageUpload?.data?.metadata);
-
               //Lấy ra kích thươc item hiện tại
-              const currentFileName = file?.name.slice(
-                0,
-                file.name.indexOf(".")
-              );
 
               const sizeImage = refImage.current?.getBoundingClientRect();
               handleClickAddImage({
-                imgName: currentFileName || uuidv4(),
-                src: file.preview, //Lấy ảnh tạm trước upload ảnh thật sau
+                imgName: uuidv4(),
+                src: img?.signedUrl, //Lấy ảnh tạm trước upload ảnh thật sau
                 styleValue: {
-                  width: sizeImage.width || "100px",
+                  width: sizeImage.width || "60px",
                   height: sizeImage.height || "100px",
                 },
               });
             }}
           >
             <div style={thumbInner}>
-              <img src={file.preview} style={img} alt={`preview-${index}`} />
+              <img
+                src={img?.signedUrl}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                }}
+                alt={`preview-${index}`}
+              />
             </div>
           </div>
         ))}

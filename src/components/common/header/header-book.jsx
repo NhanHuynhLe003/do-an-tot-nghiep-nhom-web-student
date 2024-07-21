@@ -23,6 +23,7 @@ import { Notifications } from "@mui/icons-material";
 import IPopOverBtn from "../../IPopOverBtn";
 import CartBookOrder from "./components/cartBookOrder";
 import { useGetBooksInCart } from "../../../hooks/apis/cart";
+import { format } from "date-fns";
 
 const listMenuItemFloat = [
   {
@@ -72,12 +73,19 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
   } = useStudentLogout();
   const [searchBook, setSearchBook] = React.useState("");
   const [cartProductCount, setCartProductCount] = React.useState(0);
+  const [formattedDate, setFormattedDate] = useState("");
 
   useEffect(() => {
     const userAuth = JSON.parse(localStorage.getItem("studentData"));
     if (userAuth) {
       setIsLoggedIn(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const currentDate = new Date();
+    const formattedDate = format(currentDate, "d-MMM-yyyy").toUpperCase();
+    setFormattedDate(formattedDate);
   }, []);
 
   useEffect(() => {
@@ -166,14 +174,17 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
               color={theme.colors.primary1}
               fontSize={"1.25rem"}
             ></FaRegClock>
-            <p className={style.time}>09:00 AM</p>
+            <p className={style.time}>
+              {new Date().getHours() + ":" + new Date().getMinutes()}{" "}
+              {new Date().getHours() >= 12 ? "PM" : "AM"}
+            </p>
           </Box>
           <Box className={style.boxDate}>
             <FaRegCalendarAlt
               color={theme.colors.primary1}
               fontSize={"1.25rem"}
             ></FaRegCalendarAlt>
-            <p>4-Mar-2023</p>
+            <p>{formattedDate}</p>
           </Box>
         </Stack>
 

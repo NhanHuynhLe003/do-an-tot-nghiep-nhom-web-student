@@ -1,5 +1,4 @@
 import axiosInstance from "../../../apis/axiosConfig";
-import { CategoryKeys } from "../../../constants";
 import { NoteKeys } from "../../../constants/ReactQuery/note";
 
 import { QueryFunction } from "../queryGetFunction";
@@ -9,17 +8,11 @@ export const useGetNhungNoteHomNay = (payload = {}, options = {}) => {
   return QueryFunction(
     /*Khi các key có sự thay đổi thì sẽ gọi lại hàm lấy dữ liệu, nghĩa là ví dụ khi nhấn vào note
      chính có id:123 thì id note chính sẽ được gán cho payload.note_parentId và làm note_parentId thay đổi giá trị, hàm fetch sẽ được gọi lại*/
-    [
-      NoteKeys.GET_NHUNG_NOTE_HOM_NAY,
-      payload.note_userId,
-      payload.note_parentId,
-    ],
+    [NoteKeys.GET_NHUNG_NOTE_HOM_NAY, payload.note_userId],
     async () =>
-      await axiosInstance.get(
-        `/v1/api/note/today/${payload.note_userId}?note_parentId=${payload.note_parentId}`
-      ),
+      await axiosInstance.get(`/v1/api/note/today/${payload.note_userId}`),
     {
-      enabled: !!payload.note_userId && !!payload.note_parentId, // Hàm này chỉ được kích hoạt khi có note_userId và note_parentId
+      enabled: !!payload.note_userId, // Hàm này chỉ được kích hoạt khi có note_userId và note_parentId
     }
   );
 };

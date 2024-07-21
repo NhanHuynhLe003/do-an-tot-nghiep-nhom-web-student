@@ -64,46 +64,46 @@ export function Sortable({
   const handleRemove = removable
     ? (id) => setItems((items) => items.filter((item) => item !== id))
     : undefined;
-  const announcements = {
-    onDragStart({ active: { id } }) {
-      return `Picked up sortable item ${String(
-        id
-      )}. Sortable item ${id} is in position ${getPosition(id)} of ${
-        items.length
-      }`;
-    },
-    onDragOver({ active, over }) {
-      // In this specific use-case, the picked up item's `id` is always the same as the first `over` id.
-      // The first `onDragOver` event therefore doesn't need to be announced, because it is called
-      // immediately after the `onDragStart` announcement and is redundant.
-      if (isFirstAnnouncement.current === true) {
-        isFirstAnnouncement.current = false;
-        return;
-      }
+  // const announcements = {
+  //   onDragStart({ active: { id } }) {
+  //     return `Picked up sortable item ${String(
+  //       id
+  //     )}. Sortable item ${id} is in position ${getPosition(id)} of ${
+  //       items.length
+  //     }`;
+  //   },
+  //   onDragOver({ active, over }) {
+  //     // In this specific use-case, the picked up item's `id` is always the same as the first `over` id.
+  //     // The first `onDragOver` event therefore doesn't need to be announced, because it is called
+  //     // immediately after the `onDragStart` announcement and is redundant.
+  //     if (isFirstAnnouncement.current === true) {
+  //       isFirstAnnouncement.current = false;
+  //       return;
+  //     }
 
-      if (over) {
-        return `Sortable item ${
-          active.id
-        } was moved into position ${getPosition(over.id)} of ${items.length}`;
-      }
+  //     if (over) {
+  //       return `Sortable item ${
+  //         active.id
+  //       } was moved into position ${getPosition(over.id)} of ${items.length}`;
+  //     }
 
-      return;
-    },
-    onDragEnd({ active, over }) {
-      if (over) {
-        return `Sortable item ${
-          active.id
-        } was dropped at position ${getPosition(over.id)} of ${items.length}`;
-      }
+  //     return;
+  //   },
+  //   onDragEnd({ active, over }) {
+  //     if (over) {
+  //       return `Sortable item ${
+  //         active.id
+  //       } was dropped at position ${getPosition(over.id)} of ${items.length}`;
+  //     }
 
-      return;
-    },
-    onDragCancel({ active: { id } }) {
-      return `Sorting was cancelled. Sortable item ${id} was dropped and returned to position ${getPosition(
-        id
-      )} of ${items.length}.`;
-    },
-  };
+  //     return;
+  //   },
+  //   onDragCancel({ active: { id } }) {
+  //     return `Sorting was cancelled. Sortable item ${id} was dropped and returned to position ${getPosition(
+  //       id
+  //     )} of ${items.length}.`;
+  //   },
+  // };
 
   useEffect(() => {
     if (!activeId) {
@@ -113,10 +113,7 @@ export function Sortable({
 
   return (
     <DndContext
-      // accessibility={{
-      //   announcements,
-      //   screenReaderInstructions,
-      // }}
+
       sensors={sensors}
       collisionDetection={collisionDetection}
       onDragStart={({ active }) => {
@@ -124,14 +121,21 @@ export function Sortable({
           return;
         }
 
+        console.log('dragStart', active);
         setActiveId(active.id);
+      }}
+      onDragMove={({active, over}) => {
+        console.log("HANDLE MOVE::::",{ active, over });
+        
       }}
       onDragEnd={({ over }) => {
         setActiveId(null);
 
         if (over) {
           const overIndex = getIndex(over.id);
+          console.log("DA KEO QUA::::", overIndex);
           if (activeIndex !== overIndex) {
+             console.log('dragend', over);
             setItems((items) => reorderItems(items, activeIndex, overIndex));
           }
         }
@@ -141,13 +145,16 @@ export function Sortable({
       modifiers={modifiers}
     >
       <Wrapper style={style} center>
+        {/* truyền dữ liệu */}
         <SortableContext items={items} strategy={strategy}>
           <Container>
-            {items.map((value, index) => (
-              <SortableItem
-                key={value}
-                id={value}
+            {items.map((value, index) => {
+              console.log({value})
+              return<SortableItem
+                key={value.id}
+                id={value.id}
                 handle={handle}
+                value = {value}
                 index={index}
                 style={getItemStyles}
                 wrapperStyle={wrapperStyle}
@@ -158,7 +165,7 @@ export function Sortable({
                 useDragOverlay={useDragOverlay}
                 getNewIndex={getNewIndex}
               />
-            ))}
+})}
           </Container>
         </SortableContext>
       </Wrapper>

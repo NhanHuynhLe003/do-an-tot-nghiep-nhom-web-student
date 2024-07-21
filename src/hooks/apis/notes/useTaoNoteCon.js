@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "react-query";
 import axiosInstance from "../../../apis/axiosConfig";
-import { CheckoutOrderKeys } from "../../../constants";
 import { NoteKeys } from "../../../constants/ReactQuery/note";
 
 export const useTaoNoteCon = (payload, options = {}) => {

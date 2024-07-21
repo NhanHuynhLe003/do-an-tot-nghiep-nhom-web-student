@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { InputArea } from "../../../../components/form-support/input-area";
@@ -19,6 +19,8 @@ import { listCategory } from "../../../../data/arrays";
 import { useGetAllCategories } from "../../../../hooks/apis/category/useGetAllCategories";
 import styles from "./CreateCategoryPage.module.css";
 import { SwitchButton } from "../../../../components/form-support/switch-btn";
+import { useCreateCategory } from "../../../../hooks/apis/category/useCreateCategory";
+import { toast } from "react-toastify";
 
 // Validation schema using yup
 const validationSchema = yup.object().shape({
@@ -39,9 +41,22 @@ const CreateCategoryPage = ({
   onDelete,
   onEdit,
 }) => {
+  const { mutate: createCategory } = useCreateCategory();
+  const [isLoadingToast, setIsLoadingToast] = useState(false);
+  const toastRef = useRef(null);
   //GET LIST CATEGORIES
   const { data, isLoading, isError } = useGetAllCategories();
   const [allCategoriesData, setAllCategoriesData] = React.useState([]);
+
+  useEffect(() => {
+    if (isLoadingToast) {
+      toastRef.current = toast.loading("Đang xử lý...", {
+        position: "top-center",
+      });
+    } else {
+      toast.dismiss(toastRef.current);
+    }
+  }, [isLoadingToast]);
   //==============FORM CONTROL================
   const {
     control,
@@ -60,9 +75,34 @@ const CreateCategoryPage = ({
   });
 
   const onSubmit = (data) => {
+    setIsLoadingToast(true);
     switch (mode) {
       case "create":
         console.log("Creating category:", data);
+        // createCategory(data);
+        createCategory(
+          {
+            cate_name: data.categoryName,
+            cate_desc: data.categoryDescription,
+            is_published: data.isShowCategory,
+          },
+          {
+            onSuccess: (data) => {
+              setIsLoadingToast(false);
+              toast.success("Thêm danh mục thành công", {
+                position: "top-center",
+              });
+            },
+
+            onError: (error) => {
+              setIsLoadingToast(false);
+              console.error("Error creating category:", error);
+              toast.error("Thêm danh mục thất bại", {
+                position: "top-center",
+              });
+            },
+          }
+        );
         break;
       case "update":
         console.log("Updating category:", data);
@@ -79,7 +119,11 @@ const CreateCategoryPage = ({
   if (isLoading)
     return (
       <Stack width={"100%"} minHeight={"80vh"}>
-        <CircularProgress></CircularProgress>
+        <CircularProgress
+          sx={{
+            fontSize: 32,
+          }}
+        ></CircularProgress>
       </Stack>
     );
 

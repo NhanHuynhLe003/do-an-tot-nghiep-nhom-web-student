@@ -1,5 +1,4 @@
-// UserManagementTable.js
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -15,65 +14,35 @@ import {
   Stack,
   CircularProgress,
   Chip,
-} from "@mui/material";
-import { FaSearch } from "react-icons/fa";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-import { format } from "date-fns";
-import { useGetAllStudentByAdmin } from "../../../hooks/apis/students/useGetAllStudentByAdmin";
-import { useNavigate } from "react-router-dom";
+  MenuItem,
+} from '@mui/material';
+import { Visibility as VisibilityIcon } from '@mui/icons-material';
+import { useGetAllStudentByAdmin } from '../../../hooks/apis/students/useGetAllStudentByAdmin';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminNoteManagePage() {
   const [users, setUsers] = useState([]);
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [listStudentData, setListStudentData] = useState([]);
+  const [selectedClass, setSelectedClass] = useState('');
   const rowsPerPage = 20;
 
   const navigate = useNavigate();
 
-  const { data: studentData, isLoading: studentIsLoading } =
-    useGetAllStudentByAdmin();
-
-  // useEffect(() => {
-  //   if (studentData && studentData.data && studentData.data.metadata?.result) {
-  //     const convertStudentDataTableDisplay =
-  //       studentData.data.metadata?.result.map((student) => {
-  //         return {
-  //           id: student._id,
-  //           name: student.name,
-  //           email: student.email,
-  //           classStudent: student.classStudent,
-  //           bookReaded: student.books_readed?.length,
-  //           dateOfbirth: format(new Date(student.date_of_birth), "dd/MM/yyyy"),
-  //           role:
-  //             student.roles[0] === process.env.REACT_APP_STUDENT_ROLE
-  //               ? "Student"
-  //               : "Admin",
-  //           status: student.status,
-  //         };
-  //       });
-
-  //     console.log(
-  //       "convertStudentDataTableDisplay",
-  //       convertStudentDataTableDisplay
-  //     );
-
-  //     setUsers(convertStudentDataTableDisplay);
-  //   }
-  // }, [studentData]);
+  const { data: studentData, isLoading: studentIsLoading } = useGetAllStudentByAdmin();
 
   useEffect(() => {
-    // Tạo dữ liệu tạm thời để hiển thị, tạo ngẫu nhiên 1 mảng chứa 20 phần tử
-    const generatedUsers = Array.from({ length: 20 }, (_, id) => ({
+    // Tạo dữ liệu tạm thời để hiển thị, tạo ngẫu nhiên 1 mảng chứa 100 phần tử
+    const generatedUsers = Array.from({ length: 100 }, (_, id) => ({
       id,
-      name: "USER " + id,
-      mssv: "03082111" + id,
-      email: "user" + id + "@example.com",
+      name: 'USER ' + id,
+      mssv: '03082111' + id,
+      email: 'user' + id + '@example.com',
       classStudent: `DTTT${id % 4}A`,
-      bookReaded: Math.floor(Math.random() * 100),
-      dateOfbirth: format(new Date(2003, 0, 1), "dd/MM/yyyy"),
-      role: id % 2 === 0 ? "user" : "admin",
-      status: id % 2 === 0 ? "active" : "inactive",
+      number: Math.floor(Math.random() * 10) + 1, //Tạo dữ liệu tạm thời để hiển thị random 10
+      noteTitle: `Note title ${id}`,
+      status: id % 2 === 0 ? 'active' : 'inactive',
     }));
     setUsers(generatedUsers);
   }, []);
@@ -120,79 +89,52 @@ export default function AdminNoteManagePage() {
     setPage(newPage);
   };
 
+  const handleViewStudent = (id) => {
+    navigate(`/trang-chinh`);
+  };
+
   if (studentIsLoading) {
     return (
       <Stack
-        width={"100%"}
-        maxHeight={"80vh"}
-        justifyContent={"center"}
-        alignItems={"center"}
+        width={'100%'}
+        maxHeight={'80vh'}
+        justifyContent={'center'}
+        alignItems={'center'}
       >
-        <CircularProgress
-          sx={{
-            fontSize: 40,
-          }}
-        ></CircularProgress>
+        <CircularProgress sx={{ fontSize: 40 }} />
       </Stack>
     );
   }
 
+  // Lọc sinh viên theo lớp học được chọn
+  const filteredUsers = users.filter((user) =>
+    selectedClass === '' ? true : user.classStudent === selectedClass
+  );
+
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "16px",
-        }}
+      <TextField
+        select
+        label="Chọn Lớp học"
+        value={selectedClass}
+        onChange={(e) => setSelectedClass(e.target.value)}
+        fullWidth
+        style={{ marginBottom: '16px' }}
       >
-        <Stack
-          direction={"row"}
-          justifyContent={"center"}
-          alignItems={"center"}
-          gap={2}
-        >
-          {selected.length > 0 && (
-            <Button variant="contained" color="error" onClick={handleDeleteAll}>
-              Xóa tất cả
-            </Button>
-          )}
-          <Button
-            variant="contained"
-            sx={{
-              background: "var(--color-primary1)",
-            }}
-            onClick={handleAddNewStudent}
-          >
-            Thêm Sinh Viên
-          </Button>
-          <Button variant="contained" color="success">
-            Thêm Danh Sách Sinh Viên
-          </Button>
-          <Button variant="contained" color="warning">
-            Danh Sách Lớp
-          </Button>
-        </Stack>
-        <TextField
-          size="small"
-          label="Search"
-          variant="outlined"
-          InputProps={{
-            endAdornment: (
-              <FaSearch color="var(--color-primary2)" opacity={0.6} />
-            ),
-          }}
-        />
-      </div>
-      <TableContainer component={Paper} style={{ maxHeight: "60vh" }}>
+        <MenuItem value="">Tất cả lớp học</MenuItem>
+        <MenuItem value="DTTT0A">DTTT0A</MenuItem>
+        <MenuItem value="DTTT1A">DTTT1A</MenuItem>
+        <MenuItem value="DTTT2A">DTTT2A</MenuItem>
+        <MenuItem value="DTTT3A">DTTT3A</MenuItem>
+      </TextField>
+
+      <TableContainer component={Paper} style={{ maxHeight: '60vh' }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
-                  indeterminate={
-                    selected.length > 0 && selected.length < users.length
-                  }
+                  indeterminate={selected.length > 0 && selected.length < users.length}
                   checked={users.length > 0 && selected.length === users.length}
                   onChange={handleSelectAllClick}
                 />
@@ -201,21 +143,17 @@ export default function AdminNoteManagePage() {
               <TableCell>Email</TableCell>
               <TableCell>MSSV</TableCell>
               <TableCell>Class Student</TableCell>
-              <TableCell>Books Read</TableCell>
-              <TableCell>Date of Birth</TableCell>
-              <TableCell>Role</TableCell>
+              <TableCell>Number</TableCell>
+              <TableCell>Note Title</TableCell>
               <TableCell>Status</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users
+            {filteredUsers
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((user) => (
-                <TableRow
-                  key={user.id}
-                  selected={selected.indexOf(user.id) !== -1}
-                >
+                <TableRow key={user.id} selected={selected.indexOf(user.id) !== -1}>
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={selected.indexOf(user.id) !== -1}
@@ -226,25 +164,22 @@ export default function AdminNoteManagePage() {
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.mssv}</TableCell>
                   <TableCell>{user.classStudent}</TableCell>
-                  <TableCell>{user.bookReaded}</TableCell>
-                  <TableCell>{user.dateOfbirth}</TableCell>
-                  <TableCell>{user?.role}</TableCell>
+                  <TableCell sx={{ paddingRight: '24px', textAlign: 'center' }}>{user.number}</TableCell>
+                  <TableCell>{user.noteTitle}</TableCell>
                   <TableCell>
-                    {user.status === "active" ? (
-                      <Chip color="success" label={user.status}></Chip>
+                    {user.status === 'active' ? (
+                      <Chip color="success" label={user.status} />
                     ) : (
-                      <Chip color="error" label={user.status}></Chip>
+                      <Chip color="error" label={user.status} />
                     )}
                   </TableCell>
                   <TableCell align="center">
-                    <Stack direction={"row"} gap={1} alignItems={"center"}>
-                      <IconButton color="primary">
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="error">
-                        <DeleteIcon />
-                      </IconButton>
-                    </Stack>
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleViewStudent(user.id)}
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -253,12 +188,12 @@ export default function AdminNoteManagePage() {
       </TableContainer>
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "16px",
-          position: "sticky",
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: '16px',
+          position: 'sticky',
           bottom: 0,
-          backgroundColor: "white",
+          backgroundColor: 'white',
         }}
       >
         <Button
@@ -268,15 +203,18 @@ export default function AdminNoteManagePage() {
           Previous
         </Button>
         <span>
-          Page {page + 1} of {Math.ceil(users.length / rowsPerPage)}
+          Page {page + 1} of {Math.ceil(filteredUsers.length / rowsPerPage)}
         </span>
         <Button
           onClick={() =>
             handleChangePage(
-              Math.min(Math.ceil(users.length / rowsPerPage) - 1, page + 1)
+              Math.min(
+                Math.ceil(filteredUsers.length / rowsPerPage) - 1,
+                page + 1
+              )
             )
           }
-          disabled={page >= Math.ceil(users.length / rowsPerPage) - 1}
+          disabled={page >= Math.ceil(filteredUsers.length / rowsPerPage) - 1}
         >
           Next
         </Button>

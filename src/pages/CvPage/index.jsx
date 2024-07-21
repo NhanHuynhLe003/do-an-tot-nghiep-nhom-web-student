@@ -7,7 +7,7 @@ import { useGetCvsByUserId } from "../../hooks/apis/cv/useGetCvsByUserId";
 
 export default function CvPage() {
   const handleClickCvItem = (cvId) => {
-    window.location.replace(`/cv/manage/${cvId}`);
+    window.location.href = `/cv/manage/${cvId}`;
   };
 
   const studentData = JSON.parse(localStorage.getItem("studentData"));

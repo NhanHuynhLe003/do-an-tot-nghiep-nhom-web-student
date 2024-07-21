@@ -15,15 +15,18 @@ import {
   UnnestBlockButton,
   useCreateBlockNote,
 } from "@blocknote/react";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState } from "react";
 import style from "./TrangGhiChuChiTiet.module.css";
-import { ClozeButton } from "./components/ClozeButton";
-import { useTaoNoteGoc } from "../../../hooks/apis/notes/useTaoNoteGoc";
-import { useTaoNoteCon } from "../../../hooks/apis/notes/useTaoNoteCon";
+
 import { toast } from "react-toastify";
+import { useTaoNoteGoc } from "../../../hooks/apis/notes/useTaoNoteGoc";
+import { ClozeButton } from "./components/ClozeButton";
+import { useNavigate } from "react-router-dom";
 
 
 export default function TrangGhiChuChiTiet() {
+  const navigate = useNavigate();
+
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   const [html, setHTML] = useState("");
   const [textHiddenConvert, setTextHiddenConvert] = useState("")
@@ -48,7 +51,7 @@ export default function TrangGhiChuChiTiet() {
 
   const [tieude, setTieuDe] = useState("");
   const { mutate: taoNoteGoc, data: dulieuNoteGoc } = useTaoNoteGoc();
-  const { mutate: taoNoteCon } = useTaoNoteCon();
+
   const layTitle = (title) => {
     setTieuDe(title);
   };
@@ -60,67 +63,35 @@ export default function TrangGhiChuChiTiet() {
     setHTML(htmlString);
   };
 
-
-  const replaceString = (html) => {
-    // Điều kiện lọc
+  const replaceHtml = (html) => {
+    // Điều kiện lọc, lấy ra các highlight
     const regex =
-      /<span data-text-color="blue"><span data-background-color="blue">(.*?)<\/span><\/span>/g;
-    // Tạo mảng lưu trữ các phiên bản
-    let versions = [];
-    // Lấy tất cả các khớp
+      /<span data-text-color="black"><span data-background-color="yellow">(.*?)<\/span><\/span>/g;
+
+    // Lấy tất cả nội dung của regex
     let matches = [];
     let match;
     while ((match = regex.exec(html)) !== null) {
       matches.push(match);
     }
 
+    // Lấy danh sách kết quả => vd: [ABC]D12[34]5 => [ABC, 34]
+    const danhSachKetQua = matches.map((match) => match[1]);
 
-    // let i = 1;
-    // const noneClozeHtml = html.replace(
-    //   regex,
-    //   (match, text) => `[${i++}](${text})`
-    // );
-    // console.log("None Cloze HTML:::", noneClozeHtml);
+    console.log("Matches:::", matches);
 
-    // // Tạo phiên bản với tất cả dấu chấm
-    // let i2 = 1;
-    // const allClozeHtml = html.replace(
-    //   regex,
-    //   (match, text) =>
-    //     `[${i2++}](${text
-    //       .split("")
-    //       .map(() => ".")
-    //       .join("")})`
-    // );
 
-    //lấy ra tất các cloze
-   
-   
-    const listCloze = html.match(regex);
-    console.log("MATCHES:::", matches);
-   
-   
-    // Tạo các cloze nhỏ hơn
-    matches.forEach((m, index) => {
-      const clozeHtml = html.replace(regex, (match, text, offset) => {
-        if (offset === m.index) {
-          return `(${text
-            .split("")
-            .map(() => ".")
-            .join("")})`;
-        }
-        return match;
-      });
-      versions.push(clozeHtml);
-    });
-    console.log("VERSIONS:::", versions); //versions là chứa các cloze lần lượt ... vd, ABCD12345 => [(...)12345 , ABCD(...)45, ABCD12(...)]
-
-    // Ẩn Toàn Bộ
-    // versions.push(allClozeHtml);
+    const htmlReplace = html.replace(
+      regex,
+      (match, text) =>
+        `<input class="nhap-noi-dung" style="width:${
+          text.length * 9
+        }px; padding:0; outline: none; border-top:none;border-left:none;border-right:none; border-bottom: 1px dotted #000; "/>`
+    );
 
     return {
-      listNoteCloze: versions,
-      clozes: listCloze,
+      htmlReplace: htmlReplace,
+      listKetQua: danhSachKetQua,
     };
   };
 
@@ -135,57 +106,39 @@ export default function TrangGhiChuChiTiet() {
 
 
     // Chuyển đổi các nội dung BlockNote thành mảng chứa các đoạn cloze, result la obj tra ve
-    const result = replaceString(html);
-    const clozes = result.clozes;
-    const listNoteCloze = result.listNoteCloze;
-    console.log("CLONE CLOZES:::", clozes);
-    console.log("LIST NOTE CLOZE:::", listNoteCloze);
 
-    /**
-     "note_userId": "667f828ffcfca52f68326155",
-    "note_title": "Title Text 1",
-    "note_content": "Xin Chao 123 [1]ABCD, [2]4567 [3]789",
-    "note_cloze": "Xin Chao 123 [1]ABCD, [2]4567 [3]789",
-    "clozes": ["ABCD", "4567", "789"]
-     */
+    const result = replaceHtml(html);
+
+    const htmlDaThayThe = result.htmlReplace;
+    const danhSachKetQua = result.listKetQua;
+
 
     const payloadNoteGoc = {
       note_userId: studentData._id, //id cua nguoi dung
       note_title: tieude, // tieu de
       note_content: html, // noi dung
-      note_cloze: html, //note cloze và note content đang là tạo note gốc nên sẽ không ẩn(cloze)
-      clozes: clozes, // mảng chứa nội dung ẩn
+      note_cloze: htmlDaThayThe, //note cloze: chứa nội dung đã thay thế bằng ô input để nhập kết quả
+      clozes: danhSachKetQua, // mảng chứa nội dung ẩn
     };
 
-    //Tao Note Goc
     taoNoteGoc(payloadNoteGoc, {
-      //sau khi đã đẩy note gốc lên server thành công dữ liệu sẽ hiển thị trong onSuccess
-      onSuccess: (data, variables, context) => {
-        // data là dữ liệu của noteGoc trả về sau khi upload thành công
-        // sau khi tạo note cha thành công thì tra ve _id cua note cha, sử dụng để gán vào cho các parentId
-        //Note con
-        for (let i = 0; i < listNoteCloze.length; i++) {
-          //lọc qua từng note_cloze dạng (...) lần lượt , nó ko ẩn hết chỉ ẩn lần lượt
-          const note_cloze = listNoteCloze[i];
-          //Dữ liệu để đẩy lên server
-          const payload = {
-            note_userId: studentData._id,
-            note_title: tieude,
-            note_content: html,
-            note_cloze: note_cloze,
-            clozes: clozes,
-            note_parentId: data?.metadata?._id, // lấy thông qua _id từ note cha
-          };
-          //Tạo Note Con
-          taoNoteCon(payload); // đẩy dữ liệu note con lần lượt lên server.
-        }
+
+      onSuccess: async () => {
+        toast.success("Tạo ghi chú thành công", {
+          position: "top-center",
+        });
+        // Điều hướng về trang chính
+
+        // ĐỢi 2s rồi mới chuyển trang
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        window.location.href = "/trang-chinh";
       },
-    });
+      onError: (error) => {
+        toast.error("Tạo ghi chú thất bại", {
+          position: "top-center",
+        });
+      },
 
-
-    console.log("Dữ liệu ghi chú gốc:::", dulieuNoteGoc?.metadata?._id);
-    toast.success("Tạo ghi chú thành công", {
-      position: "top-center",
     });
   }
 
@@ -203,7 +156,9 @@ export default function TrangGhiChuChiTiet() {
           editor={editor}
           formattingToolbar={false}
           onChange={onChange}
-        // editable={false} //Ngăn ko cho sửa nội dung
+
+          data-theming-ghi-chu-chi-tiet
+          // editable={false} //Ngăn ko cho sửa nội dung
         >
           <FormattingToolbarController
             formattingToolbar={() => (
