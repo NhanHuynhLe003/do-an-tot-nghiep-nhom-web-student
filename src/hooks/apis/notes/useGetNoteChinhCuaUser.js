@@ -11,17 +11,15 @@ export const useGetNoteChinhCuaUser = (payload = {}, options = {}) => {
     [
       NoteKeys.GET_NOTE_CHINH_CUA_USER, // key lấy note chính của USER
       payload.note_userId,
+      payload.search,
       payload.skip,
       payload.limit,
     ],
     async () =>
       await axiosInstance.get(
-        `/v1/api/note/origin/${payload.note_userId}?skip=${
-          payload.page || 0
-        }&limit=${payload.limit || 20}`
-      ),
-    {
-      enabled: !!payload.note_userId, // Hàm này chỉ được kích hoạt khi có note_userId
-    }
+        `/v1/api/note/origin/${payload.note_userId}?search=${
+          payload.search || ""
+        }&skip=${payload.page || 0}&limit=${payload.limit || 20}`
+      )
   );
 };

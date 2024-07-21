@@ -31,9 +31,7 @@ export const headerListBooks = [
           sx={{ mr: "1rem" }}
           title="Sửa Sách"
           onClick={() =>
-            window.location.replace(
-              `/admin/book-manage/create-book/${params.row.id}`
-            )
+            (window.location.href = `/admin/book-manage/create-book/${params.row.id}`)
           }
         >
           <PiNotePencilBold></PiNotePencilBold>

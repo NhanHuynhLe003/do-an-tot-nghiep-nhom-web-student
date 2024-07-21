@@ -21,8 +21,11 @@ import style from "./TrangGhiChuChiTiet.module.css";
 import { toast } from "react-toastify";
 import { useTaoNoteGoc } from "../../../hooks/apis/notes/useTaoNoteGoc";
 import { ClozeButton } from "./components/ClozeButton";
+import { useNavigate } from "react-router-dom";
 
 export default function TrangGhiChuChiTiet() {
+  const navigate = useNavigate();
+
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const [html, setHTML] = useState("");
@@ -102,10 +105,15 @@ export default function TrangGhiChuChiTiet() {
     };
 
     taoNoteGoc(payloadNoteGoc, {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success("Tạo ghi chú thành công", {
           position: "top-center",
         });
+        // Điều hướng về trang chính
+
+        // ĐỢi 2s rồi mới chuyển trang
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        window.location.href = "/trang-chinh";
       },
       onError: (error) => {
         toast.error("Tạo ghi chú thất bại", {

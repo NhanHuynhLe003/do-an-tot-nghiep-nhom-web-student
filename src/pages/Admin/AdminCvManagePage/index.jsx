@@ -76,12 +76,16 @@ export default function AdminCvManagePage() {
             });
 
             // navigate(`/admin/cv-manage/${newIdCv}`);
-            window.location.replace(`/admin/cv-manage/${newIdCv}`);
+            window.location.href = `/admin/cv-manage/${newIdCv}`;
           },
         }
       );
     }
   }
+
+  const handleClickCv = (cvId) => {
+    window.location.href = `/admin/cv-manage/${cvId}`;
+  };
   return (
     <Box id="Admin Cv Manage Page">
       <Typography
@@ -109,14 +113,18 @@ export default function AdminCvManagePage() {
       >
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Stack direction={"row"} gap={"0.75rem"}>
-            <Button
-              size="large"
-              type="button"
-              variant="contained"
-              color="error"
-            >
-              Xóa CV đã chọn
-            </Button>
+            <input
+              style={{
+                padding: "0.5rem 0.75rem",
+                border: "none",
+                outline: "none",
+                borderRadius: 16,
+                boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+              }}
+              placeholder="Tìm kiếm CV...."
+            />
+          </Stack>
+          <Stack direction={"row"} gap={"1rem"}>
             <Button
               size="large"
               type="button"
@@ -125,8 +133,6 @@ export default function AdminCvManagePage() {
             >
               Thùng rác
             </Button>
-          </Stack>
-          <Stack>
             <Button
               onClick={handleCreatNewCvAndDirect}
               size="large"
@@ -151,6 +157,7 @@ export default function AdminCvManagePage() {
             cvData?.result.map((cv, index) => (
               <Stack
                 key={cv._id}
+                onClick={() => handleClickCv(cv._id)}
                 title={"Xem chi tiết CV"}
                 className={clsx("CV_CARD")}
                 direction={"column"}
@@ -184,7 +191,7 @@ export default function AdminCvManagePage() {
                   }}
                 >
                   <Typography fontWeight={"500"} my={1}>
-                    {cv?.title}
+                    {cv?.boards[0]?.name}
                   </Typography>
                   <Stack
                     direction={"row"}
@@ -199,7 +206,7 @@ export default function AdminCvManagePage() {
                         fontWeight: 500,
                       }}
                     >
-                      HUYNH LE NHAN
+                      {cv?.cvUserId?.name}
                     </Typography>
                     <Typography
                       sx={{
