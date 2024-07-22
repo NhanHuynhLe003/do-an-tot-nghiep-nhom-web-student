@@ -3,6 +3,7 @@ import {
   Badge,
   Box,
   Button,
+  CircularProgress,
   IconButton,
   InputBase,
   Paper,
@@ -24,6 +25,9 @@ import IPopOverBtn from "../../IPopOverBtn";
 import CartBookOrder from "./components/cartBookOrder";
 import { useGetBooksInCart } from "../../../hooks/apis/cart";
 import { format } from "date-fns";
+import { debounce } from "lodash";
+import { useFindBookByTextSearch } from "../../../hooks/apis/books/useFindBookByTextSearch";
+import BookSearchCard from "./components/bookSearchCard";
 
 const listMenuItemFloat = [
   {
@@ -52,28 +56,31 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
   const navigate = useNavigate();
   // Trigger API lấy danh sách sách trong giỏ hàng
 
-  const {
-    data: dataBooksInCartData,
-    isLoading: isBooksInCartLoading,
-    error: BooksInCartError,
-  } = useGetBooksInCart(
+  const [cartUser, setCartUser] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const { mutate: logout } = useStudentLogout();
+  const [searchBook, setSearchBook] = React.useState("");
+  const [formattedDate, setFormattedDate] = useState("");
+  const [booksSearchFound, setBooksSearchFound] = useState([]);
+
+  const { data: dataBooksInCartData } = useGetBooksInCart(
     { cartUserId: dataStudent?._id || null },
     {
       keepPreviousData: true,
     }
   );
 
-  const [cartUser, setCartUser] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const {
-    mutate: logout,
-    data: logoutResponse,
-    isLoading,
-    error,
-  } = useStudentLogout();
-  const [searchBook, setSearchBook] = React.useState("");
-  const [cartProductCount, setCartProductCount] = React.useState(0);
-  const [formattedDate, setFormattedDate] = useState("");
+  const { data: dataBooksSearch } = useFindBookByTextSearch({
+    textSearch: searchBook,
+  });
+
+  useEffect(() => {
+    const listBookSearchFound = dataBooksSearch?.data?.metadata;
+    console.log("listBookSearchFound:::", listBookSearchFound);
+    if (listBookSearchFound) {
+      setBooksSearchFound(listBookSearchFound);
+    }
+  }, [dataBooksSearch]);
 
   useEffect(() => {
     const userAuth = JSON.parse(localStorage.getItem("studentData"));
@@ -92,9 +99,10 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
     setCartUser(dataBooksInCartData?.data?.metadata);
   }, [dataBooksInCartData]);
 
-  function handleSearchBook(value) {
+  const handleSearchBook = debounce((value) => {
+    console.log("value", value);
     setSearchBook(value);
-  }
+  }, 700);
 
   function handleClickLoginNow() {
     navigate("/login");
@@ -118,7 +126,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
   }
 
   function handleGetCartProductCount(count) {
-    setCartProductCount(count);
+    console.log("count", count);
   }
 
   return (
@@ -137,36 +145,68 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
         className={style.headerContainer}
         justifyContent={"space-between"}
       >
-        <Paper
-          component="form"
+        <Stack
+          direction={"column"}
+          gap={"1rem"}
           sx={{
-            background: "transparent",
-            borderRadius: "5rem",
-            p: "2px 8px",
-            display: "flex",
-            alignItems: "center",
-            maxHeight: "2.5rem",
             width: "24%",
+            position: "relative",
           }}
         >
-          <InputBase
-            sx={{ ml: 1, flex: 1 }}
-            placeholder="Tìm kiếm sách, tác giả...."
-            inputProps={{ "aria-label": "search" }}
-            onChange={handleSearchBook}
-          />
-          <IconButton
-            type="button"
-            sx={{ p: "10px", color: theme.colors.primary1 }}
-            aria-label="search"
+          <Paper
+            component="form"
+            sx={{
+              background: "transparent",
+              borderRadius: "5rem",
+              p: "2px 8px",
+              display: "flex",
+              alignItems: "center",
+              maxHeight: "2.5rem",
+              width: "100%",
+            }}
           >
-            <SearchIcon
-              sx={{
-                color: theme,
-              }}
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="Tìm kiếm sách, tác giả...."
+              inputProps={{ "aria-label": "search" }}
+              onChange={(e) => handleSearchBook(e.target.value)}
             />
-          </IconButton>
-        </Paper>
+            <IconButton
+              type="button"
+              sx={{ p: "10px", color: theme.colors.primary1 }}
+              aria-label="search"
+            >
+              <SearchIcon
+                sx={{
+                  color: theme,
+                }}
+              />
+            </IconButton>
+          </Paper>
+          {/* List Nội dung tìm kiếm sách */}
+          <Paper
+            sx={{
+              position: "absolute",
+              top: "3rem",
+              left: 0,
+              width: "100%",
+            }}
+          >
+            {booksSearchFound ? (
+              booksSearchFound.map((book) => (
+                <BookSearchCard
+                  key={book._id}
+                  img={book.book_thumb}
+                  title={book.book_name}
+                  author={book.book_author}
+                  desc={book.book_desc}
+                />
+              ))
+            ) : (
+              <CircularProgress />
+            )}
+          </Paper>
+        </Stack>
 
         <Stack className={style.timeBox} direction={"row"} gap={"2rem"}>
           <Box className={style.boxHour}>
@@ -175,7 +215,10 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
               fontSize={"1.25rem"}
             ></FaRegClock>
             <p className={style.time}>
-              {new Date().getHours() + ":" + new Date().getMinutes()}{" "}
+              {new Date().getHours() +
+                ":" +
+                `${new Date().getMinutes() < 10 ? 0 : ""}` +
+                new Date().getMinutes()}{" "}
               {new Date().getHours() >= 12 ? "PM" : "AM"}
             </p>
           </Box>
