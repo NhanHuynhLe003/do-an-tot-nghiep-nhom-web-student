@@ -22,37 +22,45 @@ import theme from "../../../theme";
 import { shuffleArray } from "../../../utils";
 import style from "./book.module.css";
 import { BREAK_POINTS } from "../../../constants";
+import { useListRankStudentBooksReaded } from "../../../hooks/apis/students/useListRankStudentBooksReaded";
 
 export default function Book() {
   const { width, height } = useWindowSize();
-
+  const [limitRank, setLimitRank] = useState(5);
+  const [listTopUserRank, setListTopUserRank] = useState([]);
   const { data: dataListNewestBook } = useGetListNewestBook();
 
   const { data: dataListRecomendBooks } = useGetListRecommendBooks();
 
   const { data: dataListCategories } = useGetCategoriesPublished();
 
-  const flagDataFirst = useRef(true);
+  const { data: rankStudentReadedBooks } = useListRankStudentBooksReaded({
+    limit: limitRank,
+  });
 
   // Lấy ra kích thước màn hình hiện tại, để responsive
   const [categoryBooks, setCategoryBooks] = useState({});
-  const [listCategories, setListCategories] = useState([]);
-  const [listBookCateInView, setListBookCateInView] = useState([]);
-
   const mainPageRef = React.useRef(null);
   const listBookCateRef = React.useRef([]);
 
-  const { data, error, isLoading } = useGetListBooks();
-
-  const {
-    data: dataListSortBookReads,
-    error: errSortBookReads,
-    isLoading: loadingSortBookReads,
-  } = useGetListSortBookReads();
+  const { data: dataListSortBookReads, isLoading } = useGetListSortBookReads();
 
   useEffect(() => {
-    setListCategories(dataListCategories?.data?.metadata);
+    const rankStudent = rankStudentReadedBooks?.data?.metadata;
+    if (rankStudent) {
+      const topListRankStudent = rankStudent.map((student) => ({
+        id: student._id,
+        nameUser: student?.name,
+        booksReaded: student?.books_readed,
+        avatar: student?.profileImage,
+      }));
 
+      console.log("TOP STUDENT LIST RANK", topListRankStudent);
+      setListTopUserRank(topListRankStudent);
+    }
+  }, [rankStudentReadedBooks]);
+
+  useEffect(() => {
     dataListCategories?.data?.metadata.forEach(async (category, index) => {
       const listBookCategory = await axiosInstance.get(
         `/v1/api/book/category/${category._id}`
@@ -146,18 +154,16 @@ export default function Book() {
         </Typography>
         <Stack direction={"row"} gap={"1rem"} flexWrap={"wrap"}>
           {listTopUserRank ? (
-            listTopUserRank
-              .sort((a, b) => b.booksReaded - a.booksReaded) //Sắp xếp số lượng sách giảm dần
-              .map((user, index) => {
-                return (
-                  <CardUserRank
-                    key={user}
-                    img={user.avatar}
-                    userBookReaded={user.booksReaded}
-                    userName={user.nameUser}
-                  ></CardUserRank>
-                );
-              })
+            listTopUserRank.map((user, index) => {
+              return (
+                <CardUserRank
+                  key={user.id}
+                  img={user.avatar}
+                  userBookReaded={user.booksReaded?.length}
+                  userName={user.nameUser}
+                ></CardUserRank>
+              );
+            })
           ) : (
             <span>Chưa xếp hạng</span>
           )}
@@ -335,6 +341,10 @@ export default function Book() {
             </Stack>
           );
         })}
+
+      <br />
+      <br />
+      <br />
     </Box>
   );
 }

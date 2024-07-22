@@ -1,19 +1,27 @@
-.tong{
+.tong {
     width: 90%;
     padding: 1rem;
-    
+
     margin: auto;
     background-color: #fff;
 
 }
-.top{
 
- width: 100%;
+.top {
 
- display: flex;
- justify-content: space-between;
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
 }
-.charttron{
+
+.chart {
+    width: 100%;
+    overflow-x: auto;
+
+}
+
+.charttron {
     border-radius: 20px;
     padding: 10px;
     margin: 10px;
@@ -21,7 +29,8 @@
     width: 25%;
     height: 500px;
 }
-.chartcot{
+
+.chartcot {
     border-radius: 20px;
     margin: 10px;
     padding: 10px;
@@ -31,18 +40,44 @@
 }
 
 
- .sinchart {
+.sinchart {
     border-radius: 20px;
     margin: 10px;
     padding: 10px;
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-    width: 90%; /* Thay đổi chiều rộng */
-    height: 400px; /* Thay đổi chiều cao */
-    margin: auto; /* Căn giữa */
-} 
+    /* width: 100% !important; */
 
- .sinchart .line {
-    background-color: rgba(255, 99, 132, 0.2); /* Màu nền của đường*/ 
-    border-color: rgba(255, 99, 132, 1); /* Màu viền của đường */
-    border-width: 2px; /* Độ dày của đường */
-} 
+    /* Thay đổi chiều rộng */
+    height: 400px;
+    /* Thay đổi chiều cao */
+    margin: auto;
+    /* Căn giữa */
+}
+
+.sinchart .line {
+    background-color: rgba(255, 99, 132, 0.2);
+    /* Màu nền của đường*/
+    border-color: rgba(255, 99, 132, 1);
+    /* Màu viền của đường */
+    border-width: 2px;
+    /* Độ dày của đường */
+}
+
+
+
+@media screen and (max-width: 960px) {
+
+
+    .sinchart {
+        height: 300px !important;
+    }
+
+}
+
+
+@media screen and (max-width: 600px) {
+    .sinchart {
+
+        height: 250px !important;
+    }
+}
