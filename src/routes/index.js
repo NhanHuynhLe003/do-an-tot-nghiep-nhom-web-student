@@ -20,7 +20,7 @@ import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
-import Thungrac from "../pages/GhiChu/TrangRecycleBin";
+import Thungrac from "../pages/GhiChu/TrangChinh/TrangRecycleBin";
 import BookCheckout from "../pages/BookPage/BookCheckout";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import NotFoundPage from "../pages/NotFound";
