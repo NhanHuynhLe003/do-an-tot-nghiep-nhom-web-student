@@ -7,19 +7,17 @@ import { useWindowSizeDepParent } from "../../../hooks";
 import theme from "../../../theme";
 import HeaderBook from "../../common/header/header-book";
 import SideBar from "../../common/sidebar";
-import style from "./mainlayout.module.css";
+import style from "./noteLayout.module.css";
+import { NoteNavigate } from "../../../routes/NoteNavigation";
 
-export default function MainLayout({ children, typePage = "" }) {
+export default function NoteLayout({ children, typePage = "" }) {
   const sideBarWidth = useRef(248);
+
+  const listNavigationNote = NoteNavigate;
 
   const refSlideContent = useRef(null);
   const { left, top } = useWindowSizeDepParent(refSlideContent);
   const [widthToolBarDrawer, setWidthToolBarDrawer] = React.useState(0);
-  // const [scrollProperty, setScrollProperty] = useState({
-  //   scrollTopPage: 0,
-  //   scrollHeightPage: 0,
-  //   clientHeightPage: 0,
-  // });
 
   function handleSetWidthToolBarDrawer(width) {
     setWidthToolBarDrawer(width);
@@ -78,7 +76,7 @@ export default function MainLayout({ children, typePage = "" }) {
           padding={"2rem 0 0 0"}
           className={clsx(style.sidebarContainer)}
         >
-          <SideBar></SideBar>
+          <SideBar listNavigation={listNavigationNote}></SideBar>
         </Box>
         <Box
           width={"82%"}

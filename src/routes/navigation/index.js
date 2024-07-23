@@ -29,14 +29,6 @@ const navList = [
     icon: <FaBookOpenReader></FaBookOpenReader>,
     isLogin: true,
   },
-  {
-    id: 5,
-    name: "Quản Trị",
-    path: "/admin",
-    icon: <GrUserAdmin></GrUserAdmin>,
-    isLogin: true,
-    isAdmin: true,
-  },
 ];
 
 export { navList };
