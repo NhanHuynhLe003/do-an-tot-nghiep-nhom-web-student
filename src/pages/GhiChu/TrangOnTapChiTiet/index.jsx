@@ -67,6 +67,7 @@ export default function TrangOnTapChiTiet() {
     data: dataNotesServerTraVe, //du lieu server tra ve sau khi lay data thong qua api
   } = useGetNhungNoteHomNay({
     note_userId: studentData._id, // user cua id dang nhap hien tai
+    limit: limitNote,
   });
 
   useEffect(() => {
@@ -76,14 +77,10 @@ export default function TrangOnTapChiTiet() {
       dataNotesServerTraVe.data.metadata
     ) {
       const danhSachDuLieuMoi = dataNotesServerTraVe.data.metadata;
-      console.log(
-        "NOTE LIST danhSachDuLieuMoi:::::::::::::",
-        danhSachDuLieuMoi
-      );
+      
       setNoteList(danhSachDuLieuMoi);
     }
   }, [dataNotesServerTraVe]);
-
   useEffect(() => {
     if (noteList) {
       //Nếu dữ liệu đã có mới chạy vào hàm này
@@ -202,11 +199,17 @@ export default function TrangOnTapChiTiet() {
   };
   //////////////////////////////
   
+  const handleShowMore = () => {
+    setLimitNote((prevLimit) => prevLimit + 20);
+  };
+  
+
   /////////////////////////////
   return (
     <div className={style.TrangOnTap} id="TrangOnTapChiTiet">
       <div className={style.documentList}>
         <h5 className={style.tieude}>Documents</h5>
+        
         {/* Danh Sach Note Goc */}
         {notes && notes.length > 0 ? (
           notes.map((note, index) => (
@@ -238,6 +241,11 @@ export default function TrangOnTapChiTiet() {
             Không có note hôm nay
           </Typography>
         )}
+      
+        <div className={style.BTHTT}>
+  <button onClick={handleShowMore}className={style.ButtonHTgt}>Hiển thị Thêm</button>
+</div>
+
 
       </div>
       <div className={style.OnTapChiTiet}>
