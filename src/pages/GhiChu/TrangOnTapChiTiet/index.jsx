@@ -166,7 +166,6 @@ export default function TrangOnTapChiTiet() {
         note_userId: studentData?._id,
         note_level: noteHienTaiDangChon?.level + 1,
       });
-
       toast.success("Chúc mừng bạn đã hoàn thành note", {
         position: "top-center",
       });

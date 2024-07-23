@@ -10,17 +10,6 @@ import { useDeleteNoteVinhVien } from "../../../hooks/apis/notes/useDeleteNoteVi
 import { toast } from "react-toastify";
 import { Button } from "@mui/material";
 
-const notesData = [
-  { id: 1, content: "Nội dung chi tiết của tờ note 1." },
-  { id: 2, content: "Nội dung chi tiết của tờ note 2." },
-  { id: 3, content: "Nội dung chi tiết của tờ note 3." },
-  { id: 4, content: "Nội dung chi tiết của tờ note 4." },
-  { id: 5, content: "Nội dung chi tiết của tờ note 5." },
-  { id: 6, content: "Nội dung chi tiết của tờ note 6." },
-  { id: 7, content: "Nội dung chi tiết của tờ note 7." },
-  { id: 8, content: "Nội dung chi tiết của tờ note 8." },
-];
-
 export default function Thungrac() {
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
@@ -35,12 +24,8 @@ export default function Thungrac() {
 
   const { mutate: deleteNoteVinhVien } = useDeleteNoteVinhVien();
 
-  const [isDeleted, setIsDeleted] = useState(
-    Array(notesData.length).fill(false)
-  );
-  const [isContentVisible, setIsContentVisible] = useState(
-    Array(notesData.length).fill(false)
-  );
+  const [isDeleted, setIsDeleted] = useState([]);
+  const [isContentVisible, setIsContentVisible] = useState([]);
   const [selectedNotes, setSelectedNotes] = useState([]);
   const pressTimer = useRef(null);
 

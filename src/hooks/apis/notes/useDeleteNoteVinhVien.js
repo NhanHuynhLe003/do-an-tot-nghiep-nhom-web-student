@@ -8,8 +8,8 @@ export const useDeleteNoteVinhVien = (payload, options = {}) => {
   // use Mutation cho các method còn lại là POST, PUT, DELETE,...., upload dữ liệu, tạo mới note, xóa note
   return useMutation(
     async (dulieunotegoc) => {
-      const { data } = await axiosInstance.post(
-        `/v1/api/note/restore/${dulieunotegoc?.noteId}?userId=${dulieunotegoc?.userId}`,
+      const { data } = await axiosInstance.delete(
+        `/v1/api/note/delete/${dulieunotegoc?.noteId}?userId=${dulieunotegoc?.userId}`,
         dulieunotegoc.payload
       );
       return data;
