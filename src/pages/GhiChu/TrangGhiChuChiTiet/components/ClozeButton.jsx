@@ -14,6 +14,7 @@ export function ClozeButton() {
 
   // Tracks whether the text & background are both blue.
   const [isSelected, setIsSelected] = useState(
+
     editor.getActiveStyles().textColor === "black" &&
       editor.getActiveStyles().backgroundColor === "yellow"
   );
@@ -21,6 +22,7 @@ export function ClozeButton() {
   // Updates state on content or selection change.
   useEditorContentOrSelectionChange(() => {
     setIsSelected(
+
       editor.getActiveStyles().textColor === "black" &&
         editor.getActiveStyles().backgroundColor === "yellow"
     );
