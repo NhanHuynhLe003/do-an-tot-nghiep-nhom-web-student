@@ -13,7 +13,8 @@
     /* Đảm bảo padding và border được tính vào chiều rộng */
     margin: 20px;
     max-height: 75vh;
-    overflow-x: hidden;;
+    overflow-x: hidden;
+    ;
     background-color: #fff;
     border-radius: 10px;
     display: flex;
@@ -21,10 +22,13 @@
     position: relative;
 
 }
+
 .ButtonHTT {
     display: flex;
-    justify-content: center; /* Căn giữa button */
-    margin-top: auto; /* Đẩy button xuống cuối */
+    justify-content: center;
+    /* Căn giữa button */
+    margin-top: auto;
+    /* Đẩy button xuống cuối */
 }
 
 .ButtonHTT button {
@@ -191,7 +195,8 @@
     cursor: pointer;
 
 }
-.ButtonHTgt{
+
+.ButtonHTgt {
     width: 130px;
     height: 35px;
     background-color: #5496FA;
@@ -204,35 +209,37 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
 }
-.BTHTT{
+
+.BTHTT {
     /* position: relative; */
     text-align: center;
-    position: absolute;
     bottom: 1rem;
     right: 0.3rem;
     width: 100%;
 }
+
 @media only screen and (max-width: 46.1875em) {
-    .OnTapChiTiet{
+    .OnTapChiTiet {
         width: 100%;
     }
-    .TrangOnTap{
+
+    .TrangOnTap {
         flex-direction: column;
     }
 
-    .documentList{
+    .documentList {
         position: unset;
     }
 
-    .TrangOnTap .documentList{
+    .TrangOnTap .documentList {
         display: flex;
         padding-bottom: 4rem;
         width: 100%;
         max-height: 247px;
         overflow-x: hidden;
-        
+
     }
-    
+
     .OnTapChiTiet {
         width: 100%;
     }
@@ -245,6 +252,7 @@
         width: 20%;
         height: 60px;
     }
+
     .contentEditable {
         width: 100%;
         height: 500px;
@@ -259,36 +267,39 @@
         white-space: pre-wrap;
         min-height: 150px;
     }
-    .BTHTT{
-       position: unset;
+
+    .BTHTT {
+        position: unset;
         text-align: center;
-        
+
         bottom: 0;
         width: 100%;
     }
 }
 
 @media only screen and (min-width: 46.25em) and (max-width:63.9375em) {
-   
-    .OnTapChiTiet{
+
+    .OnTapChiTiet {
         width: 100%;
     }
-    .TrangOnTap{
+
+    .TrangOnTap {
         flex-direction: column;
     }
 
-    .documentList{
+    .documentList {
         position: unset;
     }
 
-    .TrangOnTap .documentList{
+    .TrangOnTap .documentList {
         display: flex;
         padding-bottom: 4rem;
         width: 100%;
         max-height: 247px;
         overflow-x: hidden;
-        
+
     }
+
     .contentEditable {
         width: 100%;
         height: 500px;
@@ -303,10 +314,11 @@
         white-space: pre-wrap;
         min-height: 150px;
     }
-    .BTHTT{
-       position: unset;
+
+    .BTHTT {
+        position: unset;
         text-align: center;
-        
+
         bottom: 0;
         width: 100%;
     }
