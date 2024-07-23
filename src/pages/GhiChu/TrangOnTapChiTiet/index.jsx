@@ -221,6 +221,7 @@ export default function TrangOnTapChiTiet() {
             >
               <div className={style.notecard}>
                 <h6 className={style.titlenote}>{note.tieude}</h6>
+
               </div>
             </div>
           ))
