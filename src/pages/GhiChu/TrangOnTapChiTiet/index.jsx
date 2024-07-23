@@ -10,22 +10,22 @@ import { Typography } from "@mui/material";
 const notes1 = [
   {
     tieude: "Note 1",
-    nd: "khoa dep trai qua di.",
+    nd: "",
     ngay: "2024-05-15",
   },
   {
     tieude: "Note 2",
-    nd: "khoa dep trai qua di.",
+    nd: "",
     ngay: "2024-05-14",
   },
   {
     tieude: "Note 3",
-    nd: "khoa dep trai qua di.",
+    nd: "",
     ngay: "2024-05-24",
   },
   {
     tieude: "Note 4",
-    nd: "khoa dep trai qua di.",
+    nd: ".",
     ngay: "2024-05-12",
   },
 ];
@@ -201,9 +201,7 @@ export default function TrangOnTapChiTiet() {
     return date.toISOString().split("T")[0];
   };
   //////////////////////////////
-  const loadMoreNotes = () => {
-    setVisibleNotesCount((prevCount) => prevCount + 10); // Tăng thêm 10 ghi chú mỗi lần nhấn
-  };
+  
   /////////////////////////////
   return (
     <div className={style.TrangOnTap} id="TrangOnTapChiTiet">
