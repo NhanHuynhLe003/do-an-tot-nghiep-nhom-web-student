@@ -6,29 +6,7 @@ import style from "./TrangOnTapChiTiet.module.css";
 import { toast } from "react-toastify";
 import { useUpdateNoteLevel } from "../../../hooks/apis/notes/useUpdateNoteLevel.js";
 import { Typography } from "@mui/material";
-
-const notes1 = [
-  {
-    tieude: "Note 1",
-    nd: "",
-    ngay: "2024-05-15",
-  },
-  {
-    tieude: "Note 2",
-    nd: "",
-    ngay: "2024-05-14",
-  },
-  {
-    tieude: "Note 3",
-    nd: "",
-    ngay: "2024-05-24",
-  },
-  {
-    tieude: "Note 4",
-    nd: ".",
-    ngay: "2024-05-12",
-  },
-];
+import { formatDate } from "date-fns";
 
 export default function TrangOnTapChiTiet() {
   // const editor = useCreateBlockNote();
@@ -59,7 +37,6 @@ export default function TrangOnTapChiTiet() {
   //   limit: limitNote,
   // });
 
-
   const { mutate: updateLevelNote } = useUpdateNoteLevel();
 
   // Lấy các note chính tại thời điểm đó
@@ -71,16 +48,21 @@ export default function TrangOnTapChiTiet() {
   });
 
   useEffect(() => {
+    // Kiểm tra dữ liệu có tồn tại không
+
+    console.log("dataNotesServerTraVe:::", dataNotesServerTraVe);
+
     if (
       dataNotesServerTraVe &&
       dataNotesServerTraVe.data &&
       dataNotesServerTraVe.data.metadata
     ) {
       const danhSachDuLieuMoi = dataNotesServerTraVe.data.metadata;
-      
+
       setNoteList(danhSachDuLieuMoi);
     }
   }, [dataNotesServerTraVe]);
+
   useEffect(() => {
     if (noteList) {
       //Nếu dữ liệu đã có mới chạy vào hàm này
@@ -117,7 +99,6 @@ export default function TrangOnTapChiTiet() {
       // Lấy ra nội dung đục lỗ
       const noteCloze = noteList[0]?.note_cloze;
       if (noteCloze) {
-        console.log("noteCloze::::", noteCloze);
         //Chuyển đổi string dạng html sang block note
         setCurrentHtml(noteCloze);
         // const blocks = await editor.tryParseHTMLToBlocks(noteCloze);
@@ -185,31 +166,23 @@ export default function TrangOnTapChiTiet() {
         note_userId: studentData?._id,
         note_level: noteHienTaiDangChon?.level + 1,
       });
-
       toast.success("Chúc mừng bạn đã hoàn thành note", {
         position: "top-center",
       });
     }
   }
 
-  // chỉ hiển thị ngày, xóa data time của sever//////////
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0];
-  };
-  //////////////////////////////
-  
   const handleShowMore = () => {
+    console.log("Show More", limitNote);
     setLimitNote((prevLimit) => prevLimit + 20);
   };
-  
 
   /////////////////////////////
   return (
     <div className={style.TrangOnTap} id="TrangOnTapChiTiet">
       <div className={style.documentList}>
         <h5 className={style.tieude}>Documents</h5>
-        
+
         {/* Danh Sach Note Goc */}
         {notes && notes.length > 0 ? (
           notes.map((note, index) => (
@@ -224,10 +197,8 @@ export default function TrangOnTapChiTiet() {
             >
               <div className={style.notecard}>
                 <h6 className={style.titlenote}>{note.tieude}</h6>
-
               </div>
             </div>
-
           ))
         ) : (
           <Typography
@@ -242,18 +213,16 @@ export default function TrangOnTapChiTiet() {
             Không có note hôm nay
           </Typography>
         )}
-      
+
         <div className={style.BTHTT}>
-  <button onClick={handleShowMore}className={style.ButtonHTgt}>Hiển thị Thêm</button>
-</div>
-
-
+          <button onClick={handleShowMore} className={style.ButtonHTgt}>
+            Hiển thị Thêm
+          </button>
+        </div>
       </div>
       <div className={style.OnTapChiTiet}>
         {/* <h2>{selectedNote.tieude}</h2> */}
-        <h2>
-          {noteList[currentNoteIndex] && noteList[currentNoteIndex].note_title}
-        </h2>
+        <h2>{noteHienTaiDangChon?.tieude}</h2>
         <div className={style.fonderdate}>
           <img
             src="https://tse3.explicit.bing.net/th?id=OIP.SQo02J3N13kPFLekg_E3TAHaHu&pid=Api&P=0&h=180"
@@ -265,8 +234,8 @@ export default function TrangOnTapChiTiet() {
             {/* <span className={style.date}>{selectedNote.ngay}</span> */}
             {/* <span className={style.date}>{noteList[currentNoteIndex] && noteList[currentNoteIndex].createdOn.toString()}</span> */}
             <span className={style.date}>
-              {noteList[currentNoteIndex] &&
-                formatDate(noteList[currentNoteIndex].createdOn.toString())}
+              {noteHienTaiDangChon?.ngay &&
+                formatDate(noteHienTaiDangChon?.ngay, "dd-MM-yyyy")}
             </span>
           </div>
         </div>
