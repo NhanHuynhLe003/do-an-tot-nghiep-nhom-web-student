@@ -646,7 +646,7 @@ export default function IDraggableFree({
                   lines[activeIndex][direction] === 0 ||
                   lines[activeIndex][direction] < distanceY
                 ) {
-                  //activeIndex lần lượt chạy theo thứ tự top, right, bottom, left, center, tương ứng: 0,1,2,3,4
+                  //activeIndex lần lượt chạy theo thứ tự top-left, top-right, bottom-right, bottom-left, center, tương ứng: 0,1,2,3,4
                   //Lấy khoảng cách lớn nhất giữa 2 item
                   lines[activeIndex][direction] = distanceY;
                 }

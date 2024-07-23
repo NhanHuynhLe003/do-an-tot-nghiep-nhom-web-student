@@ -20,6 +20,7 @@ import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
 import MyBookShelf from "../pages/BookPage/MyBookShelf";
+import Thungrac from "../pages/GhiChu/TrangChinh/TrangRecycleBin";
 import BookCheckout from "../pages/BookPage/BookCheckout";
 import TrangChart from "../pages/GhiChu/TrangChart";
 import NotFoundPage from "../pages/NotFound";
@@ -30,7 +31,9 @@ import AdminLogin from "../pages/Admin/Access/AdminLogin";
 import AdminUserManagePage from "../pages/Admin/AdminUserManagePage";
 import AdminSignUp from "../pages/Admin/Access/AdminSignUp";
 import AdminNoteManagePage from "../pages/Admin/AdminNoteManagePage";
+import ThongTin from "../pages/GhiChu/ThongTin";
 import AdminMultiSignUp from "../pages/Admin/Access/AdminMultiSignUp";
+import NoteLayout from "../components/layouts/NoteLayout";
 
 const routes = [
   {
@@ -131,7 +134,7 @@ const routes = [
     path: "/admin/note-manage",
     component: AdminNoteManagePage,
     layout: MainLayout,
-    isAdmin: true,
+    // isAdmin: true,
   },
   {
     path: "/admin/multi-sign-up",
@@ -178,35 +181,45 @@ const routes = [
 
   //===========================GHI CHU===========================
   {
-    path: "/ghi-chu",
-    component: TrangChinh, // là các page
-    layout: MainLayout, //
-    isAuth: true,
-  },
-  {
     path: "/chi-tiet-ghi-chu",
     component: TrangGhiChuChiTiet, // là các page
-    layout: MainLayout, //
+    layout: NoteLayout, //
+    // isAuth: true,
+  },
+  {
+    path: "/chi-tiet-ghi-chu/:id",
+    component: TrangGhiChuChiTiet, // là các page
+    layout: NoteLayout, //
     // isAuth: true,
   },
   {
     path: "/on-tap-chi-tiet",
     component: TrangOnTapChiTiet,
-    layout: MainLayout,
+    layout: NoteLayout,
     // isAuth: true,
   },
   {
     path: "/trang-chart",
     component: TrangChart,
-    layout: MainLayout,
+    layout: NoteLayout,
     // isAuth: true,
+  },
+  {
+    path: "/ghi-chu/thung-rac",
+    component: Thungrac,
+    layout: MainLayout,
   },
 
   //==================TRANG CHINH===================
   {
-    path: "/trang-chinh",
+    path: "/ghi-chu",
     component: TrangChinh,
-    layout: EmptyLayout,
+    layout: NoteLayout,
+  },
+  {
+    path: "/thong-tin",
+    component: ThongTin,
+    layout: MainLayout,
   },
 
   //===========================Student Information===========================

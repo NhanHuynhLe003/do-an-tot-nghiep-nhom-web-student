@@ -6,13 +6,14 @@ export function SortableItem({
   animateLayoutChanges,
   getNewIndex,
   handle,
-  id,
+  id, //Của Item truyền từ Sortable
   index,
   onRemove,
   style,
   renderItem,
   useDragOverlay,
   wrapperStyle,
+  value, //Giá trị của note trong notes truyền từ item {id, title, content}
 }) {
   const {
     active,
@@ -35,7 +36,7 @@ export function SortableItem({
   return (
     <ItemDraggable
       ref={setNodeRef}
-      value={id}
+      value={value}
       disabled={disabled}
       dragging={isDragging}
       sorting={isSorting}

@@ -20,24 +20,18 @@ import { toast } from "react-toastify";
 import { useSendCvToStudent } from "../../../hooks/apis/cv/useSendCvToStudent";
 
 export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
-  const {
-    mutate: sendCvToStudent,
-    data: sendCvToStudentData,
-    isLoading: isLoadingSendCvToStudent,
-    error: errorSendCvToStudent,
-  } = useSendCvToStudent();
+  const { mutate: sendCvToStudent } = useSendCvToStudent();
+
+  const roleAdmin = process.env.REACT_APP_ADMIN_ROLE;
+
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const menuToolBarRef = useRef(null);
   const [isHoverToolBar, setIsHoverToolBar] = React.useState(false);
 
   const cvUserList = useSelector(listCvUserSelector);
 
-  const {
-    mutate: updateCv,
-    data: dataUpdateCv,
-    error: errorUpdateCv,
-    isLoading: isLoadingUpdateCv,
-  } = useUpdateCv();
+  const { mutate: updateCv } = useUpdateCv();
   const handlePublicCv = useCallback((e) => {
     console.log("Public CV");
   }, []);
@@ -241,14 +235,15 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
             <Button
               onClick={handlePublicCv}
               type="submit"
-              color="warning"
-              variant="outlined"
+              color="info"
+              variant="contained"
               size="small"
               sx={{
-                height: "100%",
+                display: !studentData.roles.includes(roleAdmin) && "none",
               }}
+              disabled={!studentData.roles.includes(roleAdmin)}
             >
-              Public CV
+              Công khai
             </Button>
             <Button
               onClick={handleSendCvToStudent}
@@ -257,22 +252,11 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
               variant="contained"
               size="small"
               sx={{
-                height: "100%",
+                display: !studentData.roles.includes(roleAdmin) && "none",
               }}
+              disabled={!studentData.roles.includes(roleAdmin)}
             >
-              Send To Student
-            </Button>
-            <Button
-              onClick={handleSendCvToStudent}
-              type="submit"
-              color="error"
-              variant="outlined"
-              size="small"
-              sx={{
-                height: "100%",
-              }}
-            >
-              Remove In Student
+              Gửi Học Sinh
             </Button>
             <Button
               onClick={handleSaveCv}
@@ -280,9 +264,6 @@ export default function CvHeaderToolBar({ ref, topPositon = 0 }) {
               color="primary"
               variant="contained"
               size="small"
-              sx={{
-                height: "100%",
-              }}
             >
               Save
             </Button>
