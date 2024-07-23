@@ -3,9 +3,9 @@ import styles from "./TrangRecycleBin.module.css";
 import {
   useGetNoteDeletedById,
   useGetNoteDeletedByUserId,
-} from "../../../../hooks/apis/notes/useGetNoteDeletedByUserId";
-import { useRestoreNoteById } from "../../../../hooks/apis/notes/useRestoreNoteById";
-import { useDeleteNoteVinhVien } from "../../../../hooks/apis/notes/useDeleteNoteVinhVien";
+} from "../../../hooks/apis/notes/useGetNoteDeletedByUserId";
+import { useRestoreNoteById } from "../../../hooks/apis/notes/useRestoreNoteById";
+import { useDeleteNoteVinhVien } from "../../../hooks/apis/notes/useDeleteNoteVinhVien";
 import { toast } from "react-toastify";
 import { Button } from "@mui/material";
 
