@@ -88,6 +88,7 @@ export default function TrangGhiChuChiTiet() {
     // Chuyển đổi nội dung BlockNote thành chuỗi HTML
     const htmlString = await editor.blocksToHTMLLossy(editor.document);
     setHTML(htmlString);
+    
   };
 
   const replaceHtml = (html) => {
