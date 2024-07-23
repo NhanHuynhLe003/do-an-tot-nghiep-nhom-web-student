@@ -10,22 +10,22 @@ import { Typography } from "@mui/material";
 const notes1 = [
   {
     tieude: "Note 1",
-    nd: "khoa dep trai qua di.",
+    nd: "",
     ngay: "2024-05-15",
   },
   {
     tieude: "Note 2",
-    nd: "khoa dep trai qua di.",
+    nd: "",
     ngay: "2024-05-14",
   },
   {
     tieude: "Note 3",
-    nd: "khoa dep trai qua di.",
+    nd: "",
     ngay: "2024-05-24",
   },
   {
     tieude: "Note 4",
-    nd: "khoa dep trai qua di.",
+    nd: ".",
     ngay: "2024-05-12",
   },
 ];
@@ -46,6 +46,7 @@ export default function TrangOnTapChiTiet() {
   const [page, setPage] = useState(1);
   const [limitNote, setLimitNote] = useState(20); // số note giới hạn lấy về, có thể thêm nút xem thêm ở phía cuối sau đó tăng giới hạn này lên để lấy thêm nhiều note nữa bên dưới
   const [noteParentIdChild, setNoteParentIdChild] = useState(null); // id của note cha, dùng để lấy note con
+
   const [noteHienTaiDangChon, setNoteHienTaiDangChon] = useState({});
   const [shButtun, setButtun] = useState(false);
   const [currentHtml, setCurrentHtml] = useState();
@@ -58,6 +59,7 @@ export default function TrangOnTapChiTiet() {
   //   limit: limitNote,
   // });
 
+
   const { mutate: updateLevelNote } = useUpdateNoteLevel();
 
   // Lấy các note chính tại thời điểm đó
@@ -65,6 +67,7 @@ export default function TrangOnTapChiTiet() {
     data: dataNotesServerTraVe, //du lieu server tra ve sau khi lay data thong qua api
   } = useGetNhungNoteHomNay({
     note_userId: studentData._id, // user cua id dang nhap hien tai
+    limit: limitNote,
   });
 
   useEffect(() => {
@@ -74,14 +77,10 @@ export default function TrangOnTapChiTiet() {
       dataNotesServerTraVe.data.metadata
     ) {
       const danhSachDuLieuMoi = dataNotesServerTraVe.data.metadata;
-      console.log(
-        "NOTE LIST danhSachDuLieuMoi:::::::::::::",
-        danhSachDuLieuMoi
-      );
+      
       setNoteList(danhSachDuLieuMoi);
     }
   }, [dataNotesServerTraVe]);
-
   useEffect(() => {
     if (noteList) {
       //Nếu dữ liệu đã có mới chạy vào hàm này
@@ -199,10 +198,18 @@ export default function TrangOnTapChiTiet() {
     return date.toISOString().split("T")[0];
   };
   //////////////////////////////
+  
+  const handleShowMore = () => {
+    setLimitNote((prevLimit) => prevLimit + 20);
+  };
+  
+
+  /////////////////////////////
   return (
     <div className={style.TrangOnTap} id="TrangOnTapChiTiet">
       <div className={style.documentList}>
         <h5 className={style.tieude}>Documents</h5>
+        
         {/* Danh Sach Note Goc */}
         {notes && notes.length > 0 ? (
           notes.map((note, index) => (
@@ -220,6 +227,7 @@ export default function TrangOnTapChiTiet() {
 
               </div>
             </div>
+
           ))
         ) : (
           <Typography
@@ -234,6 +242,12 @@ export default function TrangOnTapChiTiet() {
             Không có note hôm nay
           </Typography>
         )}
+      
+        <div className={style.BTHTT}>
+  <button onClick={handleShowMore}className={style.ButtonHTgt}>Hiển thị Thêm</button>
+</div>
+
+
       </div>
       <div className={style.OnTapChiTiet}>
         {/* <h2>{selectedNote.tieude}</h2> */}
