@@ -26,14 +26,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGetNoteChiTietById } from "../../../hooks/apis/notes/useGetNoteChiTietById";
 import { useUpdateNote } from "../../../hooks/apis/notes/useUpdateNote";
 
-
 export default function TrangGhiChuChiTiet() {
   // Lấy ra id từ URL
   const { id } = useParams();
 
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   const [html, setHTML] = useState("");
-  const [textHiddenConvert, setTextHiddenConvert] = useState("")
+  const [textHiddenConvert, setTextHiddenConvert] = useState("");
   const [hideCount, setHideCount] = useState(0);
   const [previousContents, setPreviousContents] = useState([]);
 
@@ -43,17 +42,15 @@ export default function TrangGhiChuChiTiet() {
   const transformData = (data) => {
     const regex = /\[\d\]\(\d+\)/g;
     const result = data.replace(regex, (match) => {
-      return match.replace(/\(\d+\)/, '(.....)');
+      return match.replace(/\(\d+\)/, "(.....)");
     });
-    return result
+    return result;
   };
-
 
   useEffect(() => {
     // Log nội dung HTML để kiểm tra khi "html" thay đổi
     console.log("HTML:::", transformData(" " + html));
   }, [html]);
-
 
   const [tieude, setTieuDe] = useState("");
 
@@ -85,12 +82,10 @@ export default function TrangGhiChuChiTiet() {
     setTieuDe(title);
   };
 
-
   const onChange = async () => {
     // Chuyển đổi nội dung BlockNote thành chuỗi HTML
     const htmlString = await editor.blocksToHTMLLossy(editor.document);
     setHTML(htmlString);
-    
   };
 
   const replaceHtml = (html) => {
@@ -107,7 +102,6 @@ export default function TrangGhiChuChiTiet() {
 
     // Lấy danh sách kết quả => vd: [ABC]D12[34]5 => [ABC, 34]
     const danhSachKetQua = matches.map((match) => match[1]);
-
 
     const htmlReplace = html.replace(
       regex,
@@ -170,14 +164,12 @@ export default function TrangGhiChuChiTiet() {
       return; //return để không chạy xuống các đoạn code bên dưới
     }
 
-
     // Chuyển đổi các nội dung BlockNote thành mảng chứa các đoạn cloze, result la obj tra ve
 
     const result = replaceHtml(html);
 
     const htmlDaThayThe = result.htmlReplace;
     const danhSachKetQua = result.listKetQua;
-
 
     const payloadNoteGoc = {
       note_userId: studentData._id, //id cua nguoi dung
@@ -188,7 +180,6 @@ export default function TrangGhiChuChiTiet() {
     };
 
     taoNoteGoc(payloadNoteGoc, {
-
       onSuccess: async () => {
         toast.success("Tạo ghi chú thành công", {
           position: "top-center",
@@ -204,7 +195,6 @@ export default function TrangGhiChuChiTiet() {
           position: "top-center",
         });
       },
-
     });
   }
 
@@ -219,71 +209,11 @@ export default function TrangGhiChuChiTiet() {
       />
       <div className="TrangGhiChuChiTiet___BlockNoteView">
         {/* onChange lắng nghe sự kiện khi nội dung thay đổi */}
-<<<<<<< HEAD
-        {noteChiTietUpdate && (
-          <BlockNoteView
-            editor={editor}
-            formattingToolbar={false}
-            onChange={onChange}
-            data-theming-ghi-chu-chi-tiet
-            // editable={false} //Ngăn ko cho sửa nội dung
-          >
-            <FormattingToolbarController
-              formattingToolbar={() => (
-                <FormattingToolbar>
-                  <BlockTypeSelect key={"blockTypeSelect"} />
-                  {/* Extra button to toggle blue text & background */}
-                  <ClozeButton key={"customButton"} />
-                  <FileCaptionButton key={"fileCaptionButton"} />
-                  <FileReplaceButton key={"replaceFileButton"} />
-                  <BasicTextStyleButton
-                    basicTextStyle={"bold"}
-                    key={"boldStyleButton"}
-                  />
-                  <BasicTextStyleButton
-                    basicTextStyle={"italic"}
-                    key={"italicStyleButton"}
-                  />
-                  <BasicTextStyleButton
-                    basicTextStyle={"underline"}
-                    key={"underlineStyleButton"}
-                  />
-                  <BasicTextStyleButton
-                    basicTextStyle={"strike"}
-                    key={"strikeStyleButton"}
-                  />
-                  {/* Extra button to toggle code styles */}
-                  <BasicTextStyleButton
-                    key={"codeStyleButton"}
-                    basicTextStyle={"code"}
-                  />
-                  <TextAlignButton
-                    textAlignment={"left"}
-                    key={"textAlignLeftButton"}
-                  />
-                  <TextAlignButton
-                    textAlignment={"center"}
-                    key={"textAlignCenterButton"}
-                  />
-                  <TextAlignButton
-                    textAlignment={"right"}
-                    key={"textAlignRightButton"}
-                  />
-                  <ColorStyleButton key={"colorStyleButton"} />
-                  <NestBlockButton key={"nestBlockButton"} />
-                  <UnnestBlockButton key={"unnestBlockButton"} />
-                  <CreateLinkButton key={"createLinkButton"} />
-                </FormattingToolbar>
-              )}
-            />
-          </BlockNoteView>
-        )}
-=======
+
         <BlockNoteView
           editor={editor}
           formattingToolbar={false}
           onChange={onChange}
-
           data-theming-ghi-chu-chi-tiet
           // editable={false} //Ngăn ko cho sửa nội dung
         >
@@ -293,7 +223,7 @@ export default function TrangGhiChuChiTiet() {
                 <BlockTypeSelect key={"blockTypeSelect"} />
                 {/* Extra button to toggle blue text & background */}
                 <ClozeButton key={"customButton"} />
-                <FileCaptionButton key={"fileCaptionButton"} />     
+                <FileCaptionButton key={"fileCaptionButton"} />
                 <FileReplaceButton key={"replaceFileButton"} />
                 <BasicTextStyleButton
                   basicTextStyle={"bold"}
@@ -336,7 +266,6 @@ export default function TrangGhiChuChiTiet() {
             )}
           />
         </BlockNoteView>
->>>>>>> parent of 8ba7265 (new code)
       </div>
       <button
         className={style.ButtonLuu}
