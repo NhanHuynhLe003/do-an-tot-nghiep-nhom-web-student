@@ -8,29 +8,6 @@ import { useUpdateNoteLevel } from "../../../hooks/apis/notes/useUpdateNoteLevel
 import { Typography } from "@mui/material";
 import { formatDate } from "date-fns";
 
-const notes1 = [
-  {
-    tieude: "Note 1",
-    nd: "",
-    ngay: "2024-05-15",
-  },
-  {
-    tieude: "Note 2",
-    nd: "",
-    ngay: "2024-05-14",
-  },
-  {
-    tieude: "Note 3",
-    nd: "",
-    ngay: "2024-05-24",
-  },
-  {
-    tieude: "Note 4",
-    nd: ".",
-    ngay: "2024-05-12",
-  },
-];
-
 export default function TrangOnTapChiTiet() {
   // const editor = useCreateBlockNote();
   const studentData = JSON.parse(localStorage.getItem("studentData"));
@@ -221,7 +198,6 @@ export default function TrangOnTapChiTiet() {
             >
               <div className={style.notecard}>
                 <h6 className={style.titlenote}>{note.tieude}</h6>
-
               </div>
             </div>
           ))
