@@ -184,30 +184,31 @@ const routes = [
     path: "/chi-tiet-ghi-chu",
     component: TrangGhiChuChiTiet, // là các page
     layout: NoteLayout, //
-    // isAuth: true,
+    isAuth: true,
   },
   {
     path: "/chi-tiet-ghi-chu/:id",
     component: TrangGhiChuChiTiet, // là các page
     layout: NoteLayout, //
-    // isAuth: true,
+    isAuth: true,
   },
   {
     path: "/on-tap-chi-tiet",
     component: TrangOnTapChiTiet,
     layout: NoteLayout,
-    // isAuth: true,
+    isAuth: true,
   },
   {
     path: "/trang-chart",
     component: TrangChart,
     layout: NoteLayout,
-    // isAuth: true,
+    isAuth: true,
   },
   {
     path: "/ghi-chu/thung-rac",
     component: Thungrac,
-    layout: MainLayout,
+    layout: NoteLayout,
+    isAuth: true,
   },
 
   //==================TRANG CHINH===================
@@ -215,6 +216,7 @@ const routes = [
     path: "/ghi-chu",
     component: TrangChinh,
     layout: NoteLayout,
+    isAuth: true,
   },
   {
     path: "/thong-tin",
