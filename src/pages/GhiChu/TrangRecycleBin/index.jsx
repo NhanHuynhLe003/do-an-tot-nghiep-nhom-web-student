@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+
 import styles from "./TrangRecycleBin.module.css";
 import {
   useGetNoteDeletedById,
@@ -8,6 +9,17 @@ import { useRestoreNoteById } from "../../../hooks/apis/notes/useRestoreNoteById
 import { useDeleteNoteVinhVien } from "../../../hooks/apis/notes/useDeleteNoteVinhVien";
 import { toast } from "react-toastify";
 import { Button } from "@mui/material";
+
+const notesData = [
+  { id: 1, content: "Nội dung chi tiết của tờ note 1." },
+  { id: 2, content: "Nội dung chi tiết của tờ note 2." },
+  { id: 3, content: "Nội dung chi tiết của tờ note 3." },
+  { id: 4, content: "Nội dung chi tiết của tờ note 4." },
+  { id: 5, content: "Nội dung chi tiết của tờ note 5." },
+  { id: 6, content: "Nội dung chi tiết của tờ note 6." },
+  { id: 7, content: "Nội dung chi tiết của tờ note 7." },
+  { id: 8, content: "Nội dung chi tiết của tờ note 8." },
+];
 
 export default function Thungrac() {
   const studentData = JSON.parse(localStorage.getItem("studentData"));
@@ -23,8 +35,12 @@ export default function Thungrac() {
 
   const { mutate: deleteNoteVinhVien } = useDeleteNoteVinhVien();
 
-  const [isDeleted, setIsDeleted] = useState([]);
-  const [isContentVisible, setIsContentVisible] = useState([]);
+  const [isDeleted, setIsDeleted] = useState(
+    Array(notesData.length).fill(false)
+  );
+  const [isContentVisible, setIsContentVisible] = useState(
+    Array(notesData.length).fill(false)
+  );
   const [selectedNotes, setSelectedNotes] = useState([]);
   const pressTimer = useRef(null);
 
@@ -133,10 +149,6 @@ export default function Thungrac() {
     clearTimeout(pressTimer.current);
   };
 
-  useEffect(() => {
-    console.log("SELECTED NOTES:::", selectedNotes);
-  }, [selectedNotes]);
-
   const handleCheckboxChange = (index) => {
     setSelectedNotes(
       selectedNotes.includes(index)
@@ -145,25 +157,20 @@ export default function Thungrac() {
     );
   };
 
-  const handleNoteClick = (index) => {
-    handleCheckboxChange(index);
+  const handleNoteRestore = (index) => {
+    setIsDeleted(
+      isDeleted.map((deleted, idx) => (idx === index ? false : deleted))
+    );
   };
 
-  const handleSelectAll = () => {
-    if (selectedNotes.length === listNoteDeleted.length) {
-      setSelectedNotes([]);
-    } else {
-      setSelectedNotes(listNoteDeleted.map((_, index) => index));
-    }
+  const handleNoteDelete = (index) => {
+    setIsDeleted(
+      isDeleted.map((deleted, idx) => (idx === index ? true : deleted))
+    );
   };
 
   return (
     <div className={styles.tong}>
-      {selectedNotes.length > 0 && (
-        <button className={styles.clickbtn} onClick={handleSelectAll}>
-          Chọn tất cả
-        </button>
-      )}
       {listNoteDeleted &&
         listNoteDeleted.map((note, index) => (
           <div
@@ -172,7 +179,6 @@ export default function Thungrac() {
             onMouseDown={() => handleMouseDown(index)}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp} // Clear the timer if the mouse leaves the element
-            onClick={() => handleNoteClick(index)}
           >
             <input
               type="checkbox"
