@@ -11,6 +11,9 @@
     color: #3f3f3f;
     font-size: 17px;
     font-weight: bold;
+    border-radius: 5px;
+    height: 35px;
+    padding-left: 10px;
 }
 
 .ButtonLuu{

@@ -15,7 +15,7 @@ import {
   UnnestBlockButton,
   useCreateBlockNote,
 } from "@blocknote/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import style from "./TrangGhiChuChiTiet.module.css";
 
 import { toast } from "react-toastify";
