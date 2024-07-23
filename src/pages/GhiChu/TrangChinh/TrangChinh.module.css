@@ -100,27 +100,6 @@
 h2 {
   margin: 0;
 }
-/* Form để thêm ghi chú mới */
-.note-form {
-  text-align: right;
-  margin-left: 20px;
-}
-
-/* Kiểu dáng cho nút lưu */
-.note-form button {
-  border-radius: 5px;
-  background-color: #007aff;
-  border: none;
-  padding: 10px;
-  font-size: 16px;
-  width: 150px;
-  color: white;
-}
-/* Hiệu ứng hover cho nút lưu */
-.note-form button:hover {
-  background-color: #007aff;
-  cursor: pointer;
-}
 
 .saveButton {
   top: 10px;
@@ -183,19 +162,11 @@ h2 {
     width: 100%;
     /* Adjust width for mobile devices */
   }
-  .note-form button {
-    width: 100%;
-    /* Make the save button full width on mobile devices */
-  }
+ 
   .deleteicon {
     bottom: 20px;
     /* Adjust position for mobile devices */
     right: 20px;
     /* Adjust position for mobile devices */
-  }
-  .note-form {
-    text-align: right;
-    margin-left: 0;
-    bottom: 10px;
   }
 }
