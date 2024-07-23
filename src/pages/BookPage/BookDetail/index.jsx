@@ -82,6 +82,7 @@ export default function BookDetailPage({
     error: errorBookPublishDetail,
   } = useGetBookPublishDetailById({ bookId: bookId });
 
+  // Lấy ra list các cuốn sách có cùng thể loại
   const {
     data: bookListCategory,
     isLoading: isLoadingData,
@@ -92,18 +93,22 @@ export default function BookDetailPage({
 
   useEffect(() => {
     console.log("bookPublishDetail", bookPublishDetail);
+
+    // Kiểm tra xem sách hiện tại đã có dữ liệu chưa
     if (
       bookPublishDetail &&
       bookPublishDetail.data &&
       bookPublishDetail.data.metadata
     ) {
       const dataBook = bookPublishDetail.data.metadata;
-      console.log("dataBook", dataBook);
+      console.log("dataBook:::", dataBook);
       if (
         dataBook &&
         dataBook.categoryBookList &&
         dataBook.categoryBookList.length > 0
       ) {
+        console.log("DATA BOOK", dataBook);
+        // lấy category của cuốn sách
         setCurrentCategory(dataBook.categoryBookList[0]._id);
       }
       setBookDetail(dataBook);
@@ -199,8 +204,8 @@ export default function BookDetailPage({
       <Grid
         container
         spacing={{
-          sm: 4,
-          xs: 0,
+          sm: 4, // kích cỡ màn hình >600px
+          xs: 0, // kích cỡ màn hình <= 600px
         }}
         className={style.section1}
         sx={{
@@ -221,7 +226,7 @@ export default function BookDetailPage({
         <Grid
           item
           className={clsx("book-img-detail-container")}
-          md={4}
+          md={4} // 600<kích cỡ màn hình <960
           sm={5}
           xs={12}
           mb={{
@@ -257,6 +262,7 @@ export default function BookDetailPage({
               mb: 4,
             }}
           >
+            {/* Lấy ra tên quyển sách */}
             {bookDetail?.book_name}
           </Typography>
           <Stack
@@ -283,6 +289,7 @@ export default function BookDetailPage({
               >
                 {roundNumber(bookDetail?.book_ratingsAverage || 4.5).toFixed(1)}
               </Box>
+              {/* Hiển thị các ngôi sao */}
               <Rating
                 name="read-only"
                 value={roundNumber(bookDetail?.book_ratingsAverage || 4.5)}
@@ -549,7 +556,7 @@ export default function BookDetailPage({
           </Typography>
         ) : (
           <FreeModeCarousel
-            spaceBetween={30}
+            spaceBetween={30} // khoang cách giữa các item
             isHiddenWhenOutOfStock={true}
             isLoadingData={isLoadingData}
             dataList={booksRelated}

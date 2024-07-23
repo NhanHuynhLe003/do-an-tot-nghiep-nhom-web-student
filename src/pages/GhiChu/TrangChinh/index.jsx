@@ -6,30 +6,40 @@ import { useGetNoteChinhCuaUser } from "../../../hooks/apis/notes/useGetNoteChin
 import style from "./TrangChinh.module.css";
 import { useDeleteNote } from "../../../hooks/apis/notes/useDeleteNote";
 import { toast } from "react-toastify";
+import { FaTrash } from "react-icons/fa";
 
 export default function TrangChinh() {
   const [notes, setNotes] = useState([]);
   const [ndTimKiem, setNdTimKiem] = useState("");
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
+  // Lấy ra các note chính của user
   const { data: danhSachNoteChinh } = useGetNoteChinhCuaUser({
     note_userId: studentData?._id,
-    search: ndTimKiem,
+    search: ndTimKiem, // Tìm kiếm theo nội dung note
   });
 
   const { mutate: deleteNote } = useDeleteNote();
 
   const navigate = useNavigate();
 
+  // Hàm debounce để giảm số lần gọi API khi người dùng nhập vào ô tìm kiếm
   const handleChangeInput = debounce((e) => {
     setNdTimKiem(e.target.value);
-  }, 700);
+  }, 700); //700ms sau khi người dùng nhập xong thì mới gọi API
 
   const handleAddNote = (e) => {
-    navigate("/chi-tiet-ghi-chu");
+    window.location.href = "/chi-tiet-ghi-chu";
   };
 
-  const handleDeleteNote = (id) => {
+  const handleClickNote = (id) => {
+    window.location.href = `/chi-tiet-ghi-chu/${id}`;
+  };
+
+  const handleDeleteNote = (e, id) => {
+    // Ngăn sự kiện nổi bọt
+    e.stopPropagation();
+    // Dữ liệu đẩy lên server
     const payload = {
       noteId: id,
       userId: studentData?._id,
@@ -44,12 +54,13 @@ export default function TrangChinh() {
     });
   };
   const handleImageClick = () => {
-    navigate("/trang-chinh/thung-rac"); // Navigate to the TrangRecycleBin page
+    navigate("/ghi-chu/thung-rac"); // Navigate to the TrangRecycleBin page
   };
 
   useEffect(() => {
     console.log("DATA THAY DOI:::", danhSachNoteChinh);
 
+    // Chuyển dữ liệu trả về sang định dạng hiển thị của note
     const noteData =
       danhSachNoteChinh?.data?.metadata?.data?.map((note) => ({
         id: note._id,
@@ -57,6 +68,7 @@ export default function TrangChinh() {
         content: note.note_content,
       })) || [];
 
+    // Set nội dung cho note để hiển thị
     setNotes(noteData);
   }, [danhSachNoteChinh]);
 
@@ -106,10 +118,14 @@ export default function TrangChinh() {
             </div>
           ) : (
             notes.map((note) => (
-              <div key={note.id} className={style["note-item"]}>
+              <div
+                key={note.id}
+                className={style["note-item"]}
+                onClick={() => handleClickNote(note.id)}
+              >
                 <div className={style["notes-header"]}>
                   <button
-                    onClick={() => handleDeleteNote(note.id)}
+                    onClick={(e) => handleDeleteNote(e, note.id)}
                     className={style.saveButton}
                   >
                     x
@@ -126,24 +142,13 @@ export default function TrangChinh() {
         </div>
         <br />
 
-        {/* <Sortable
-          items={notes}
-          adjustScale={true}
-          Container={(props) => <GridContainer {...props} columns={5} />}
-          strategy={rectSortingStrategy}
-          wrapperStyle={() => ({
-            width: 140,
-            height: 140,
-          })}
-        ></Sortable> */}
-        
 
-        <div className={style.deleteicon}>
-          <img
-            src="https://png.pngtree.com/png-vector/20220826/ourlarge/pngtree-trashcan-dustbin-flat-junk-vector-png-image_33478412.png"
-            alt="anhdetele"
+        <div>
+          <FaTrash
+            className={style.deleteicon}
+
             onClick={handleImageClick}
-          />
+          ></FaTrash>
         </div>
       </div>
     </div>

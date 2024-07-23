@@ -1,13 +1,11 @@
-"use strict";
 import { Box, Stack, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import style from "./listBookView.module.css";
-
 import clsx from "clsx";
 import FreeModeCarousel from "../ICarousel/FreeModeCarousel";
 import CardBook from "./cardBook";
 
-export default function ListdBookView({
+export default function ListBookView({
   title = "",
   dataList = [],
   paginationCustomize,
@@ -15,17 +13,15 @@ export default function ListdBookView({
   slideCardPerView,
   isLoading = false,
   isHiddenWhenOutOfStock = true,
-  spacebetween = 30,
+  spaceBetween = 30,
 }) {
-  const [listComponentBook, setListComponentBook] = useState([]);
-  useEffect(() => {
-    const newBooks = dataList.map((book, index) => {
+  const listComponentBook = useMemo(() => {
+    return dataList.map((book, index) => {
       const currentId =
-        book._id || "ID_" + index + Date.now() + Math.random() * 1000;
+        book._id || `ID_${index}_${Date.now() + Math.random() * 1000}`;
       return {
         id: currentId,
         bookQuantity: book.book_quantity,
-
         component: (
           <CardBook
             isHiddenWhenOutOfStock={isHiddenWhenOutOfStock}
@@ -34,18 +30,13 @@ export default function ListdBookView({
             title={book.book_name || book.title}
             rating={book.book_ratingsAverage || book.vote}
             bookQuantity={book.book_quantity}
-          ></CardBook>
+          />
         ),
       };
     });
+  }, [dataList, isHiddenWhenOutOfStock]);
 
-    console.log("NEW BOOKS:::", newBooks);
-    newBooks.length > 0
-      ? setListComponentBook([...newBooks])
-      : setListComponentBook([]);
-  }, []);
-
-  if (!isLoading && dataList.length === 0)
+  if (!dataList || dataList.length === 0) {
     return (
       <Typography
         component={"h2"}
@@ -59,6 +50,7 @@ export default function ListdBookView({
         Chưa có dữ liệu
       </Typography>
     );
+  }
 
   return (
     <Stack
@@ -76,14 +68,14 @@ export default function ListdBookView({
       </Box>
       <Box className={style.boxCardCarouselContainer}>
         <FreeModeCarousel
-          spaceBetween={spacebetween}
+          spaceBetween={spaceBetween}
           isHiddenWhenOutOfStock={isHiddenWhenOutOfStock}
           isLoadingData={isLoading}
           dataList={listComponentBook}
           paginationCustomize={paginationCustomize}
           classNameSwiper={classNameSwiper}
           slidesPerView={slideCardPerView}
-        ></FreeModeCarousel>
+        />
       </Box>
     </Stack>
   );

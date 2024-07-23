@@ -15,28 +15,52 @@ import {
   UnnestBlockButton,
   useCreateBlockNote,
 } from "@blocknote/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import style from "./TrangGhiChuChiTiet.module.css";
 
 import { toast } from "react-toastify";
 import { useTaoNoteGoc } from "../../../hooks/apis/notes/useTaoNoteGoc";
 import { ClozeButton } from "./components/ClozeButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetNoteChiTietById } from "../../../hooks/apis/notes/useGetNoteChiTietById";
+import { useUpdateNote } from "../../../hooks/apis/notes/useUpdateNote";
 
 export default function TrangGhiChuChiTiet() {
-  const navigate = useNavigate();
+  // Lấy ra id từ URL
+  const { id } = useParams();
 
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const [html, setHTML] = useState("");
   const [tieude, setTieuDe] = useState("");
+  const [noteChiTietUpdate, setNoteChiTietUpdate] = useState({});
 
   const { mutate: taoNoteGoc, data: dulieuNoteGoc } = useTaoNoteGoc();
+
+  const { data: duLieuNoteChiTiet } = useGetNoteChiTietById({
+    noteId: id,
+  });
+
+  const { mutate: updateNote } = useUpdateNote();
 
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Initial content of the editor.
   });
+
+  useEffect(() => {
+    async function updateNoiDungBlockNote(value) {
+      const blocks = await editor.tryParseHTMLToBlocks(value);
+      editor.replaceBlocks(editor.document, blocks);
+    }
+
+    const dataNoteChiTiet = duLieuNoteChiTiet?.data?.metadata;
+    if (dataNoteChiTiet) {
+      setNoteChiTietUpdate(dataNoteChiTiet);
+      setTieuDe(dataNoteChiTiet.note_title);
+      updateNoiDungBlockNote(dataNoteChiTiet.note_content);
+    }
+  }, [duLieuNoteChiTiet]);
 
   const layTitle = (title) => {
     setTieuDe(title);
@@ -64,8 +88,6 @@ export default function TrangGhiChuChiTiet() {
     // Lấy danh sách kết quả => vd: [ABC]D12[34]5 => [ABC, 34]
     const danhSachKetQua = matches.map((match) => match[1]);
 
-    console.log("Matches:::", matches);
-
     const htmlReplace = html.replace(
       regex,
       (match, text) =>
@@ -80,7 +102,45 @@ export default function TrangGhiChuChiTiet() {
     };
   };
 
-  async function handleSave() {
+  const handleUpdateNote = async () => {
+    const result = replaceHtml(html); // Thay thế các đoạn highlight thành input gửi cho Ôn tập
+
+    const htmlDaThayThe = result.htmlReplace;
+    const danhSachKetQua = result.listKetQua; // ABCD1234 => [AB, 34]
+
+    // Dữ liệu cập nhật trên server
+    const payloadUpdate = {
+      note_userId: studentData._id, //id cua nguoi dung
+      note_title: tieude, // tieu de
+      note_content: html, // noi dung
+      note_cloze: htmlDaThayThe, //note cloze: chứa nội dung đã thay thế bằng ô input để nhập kết quả
+      clozes: danhSachKetQua, // mảng chứa nội dung ẩn
+    };
+
+    // Gọi API cập nhật note
+    updateNote(
+      {
+        noteId: id,
+        payload: payloadUpdate,
+      },
+      {
+        onSuccess: async () => {
+          toast.success("Cập nhật ghi chú thành công", {
+            position: "top-center",
+          });
+          // Điều hướng về trang chính
+
+          // ĐỢi 1s rồi mới chuyển trang
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          // Điều hướng về trang chính sau khi đã cập nhật dữ liệu
+          window.location.href = "/ghi-chu";
+        },
+      }
+    );
+  };
+
+  async function handleCreateNote() {
     if (!tieude) {
       // neu tieu de khong ton tai
       toast.error("Vui lòng nhập tiêu đề", {
@@ -113,7 +173,7 @@ export default function TrangGhiChuChiTiet() {
 
         // ĐỢi 2s rồi mới chuyển trang
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        window.location.href = "/trang-chinh";
+        window.location.href = "/ghi-chu";
       },
       onError: (error) => {
         toast.error("Tạo ghi chú thất bại", {
@@ -126,6 +186,7 @@ export default function TrangGhiChuChiTiet() {
   return (
     <div className={style.GhiChuChiTiet}>
       <input
+        value={tieude}
         type="text"
         placeholder="Nhập tiêu đề"
         className={style.header}
@@ -197,8 +258,12 @@ export default function TrangGhiChuChiTiet() {
           />
         </BlockNoteView>
       </div>
-      <button className={style.ButtonLuu} onClick={handleSave}>
-        Lưu
+      <button
+        className={style.ButtonLuu}
+        // Nếu id tồn tại thì sẽ gọi hàm cập nhật note, ngược lại sẽ gọi hàm tạo note
+        onClick={id ? handleUpdateNote : handleCreateNote}
+      >
+        {id ? "Cập nhật" : "Tạo"}
       </button>
     </div>
   );
