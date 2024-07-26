@@ -15,6 +15,7 @@ export default function Home() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          overflow: "hidden",
         }}
       >
         <CircleNav />

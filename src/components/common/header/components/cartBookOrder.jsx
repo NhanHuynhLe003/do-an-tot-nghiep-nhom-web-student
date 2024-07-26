@@ -216,6 +216,10 @@ export default function CartBookOrder({
         position: "relative",
         width: "fit-content",
         height: "fit-content",
+        "@media (max-width: 600px)": {
+          width: "94%",
+          margin: "0 auto",
+        },
       }}
     >
       {bookCartIdsSelect.length > 0 && (

@@ -233,3 +233,9 @@
     transform: rotate(288deg);
 
 }
+
+@media screen and (max-width: 600px) {
+    .containerNav {
+        transform: scale(0.7);
+    }
+}

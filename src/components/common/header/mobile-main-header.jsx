@@ -15,6 +15,22 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
 import IDrawer from "../../IDrawer";
+import CartBookOrder from "./components/cartBookOrder";
+import IPopOverBtn from "../../IPopOverBtn";
+import { Button } from "@mui/material";
+import theme from "../../../theme";
+import { RiShoppingBag4Fill } from "react-icons/ri";
+import { useGetBooksInCart } from "../../../hooks/apis/cart";
+import { useNavigate } from "react-router-dom";
+import { useStudentLogout } from "../../../hooks/apis/access";
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    border: `1px solid ${theme.palette.background.paper}`,
+    right: -2,
+    top: -2,
+  },
+}));
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -55,11 +71,32 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
   },
 }));
+
 export default function MobileMainHeader() {
+  const dataStudent = JSON.parse(localStorage.getItem("studentData"));
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [cartUser, setCartUser] = React.useState([]);
+
+  const { mutate: logout } = useStudentLogout();
 
   const isMenuOpen = Boolean(anchorEl);
+
+  const { data: dataBooksInCartData } = useGetBooksInCart(
+    { cartUserId: dataStudent?._id || null },
+    {
+      keepPreviousData: true,
+    }
+  );
+
+  React.useEffect(() => {
+    setCartUser(dataBooksInCartData?.data?.metadata);
+  }, [dataBooksInCartData]);
+
+  function handleGetCartProductCount(count) {
+    console.log("count", count);
+  }
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -67,6 +104,19 @@ export default function MobileMainHeader() {
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
+  };
+
+  const handleClickProfile = () => {
+    console.log("click profile");
+    handleMenuClose();
+    navigate("/student/information");
+  };
+
+  const handleClickLogOut = () => {
+    handleMenuClose();
+    logout();
+    localStorage.removeItem("studentData");
+    navigate("/student/login");
   };
 
   const handleMenuClose = () => {
@@ -95,8 +145,8 @@ export default function MobileMainHeader() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleClickProfile}>Thông tin của tôi</MenuItem>
+      <MenuItem onClick={handleClickLogOut}>Đăng xuất</MenuItem>
     </Menu>
   );
 
@@ -145,15 +195,6 @@ export default function MobileMainHeader() {
           <Box sx={{ display: "flex" }}>
             <IconButton
               size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-            >
-              <Badge badgeContent={4} color="error">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              size="large"
               aria-label="show 17 new notifications"
               color="inherit"
             >
@@ -161,6 +202,33 @@ export default function MobileMainHeader() {
                 <NotificationsIcon />
               </Badge>
             </IconButton>
+
+            <IPopOverBtn
+              wrapperStyle={{ marginTop: "0.5rem" }}
+              ButtonComponent={
+                <Button
+                  sx={{
+                    color: theme.colors.primary2,
+                  }}
+                >
+                  <StyledBadge badgeContent={cartUser?.length} color="error">
+                    <RiShoppingBag4Fill
+                      fontSize={"1.75rem"}
+                      color="var(--color-primary2)"
+                    ></RiShoppingBag4Fill>
+                  </StyledBadge>
+                </Button>
+              }
+              ComponentPopOver={
+                //=====================Cart Hiển thị khi click vào====================
+                <Box>
+                  <CartBookOrder
+                    handleGetCartProductCount={handleGetCartProductCount}
+                  ></CartBookOrder>
+                </Box>
+              }
+            ></IPopOverBtn>
+
             <IconButton
               size="large"
               edge="end"
@@ -170,7 +238,16 @@ export default function MobileMainHeader() {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              <AccountCircle />
+              {dataStudent?.profileImage ? (
+                <img
+                  width={"28px"}
+                  height={"28px"}
+                  alt="avatar"
+                  src={dataStudent?.profileImage}
+                ></img>
+              ) : (
+                <AccountCircle />
+              )}
             </IconButton>
           </Box>
           {/* <Box sx={{ display: { xs: "flex", md: "none" } }}>
