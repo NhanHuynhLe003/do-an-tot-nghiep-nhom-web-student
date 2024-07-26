@@ -15,6 +15,7 @@ import animationUserLogin from "../../assets/animations/animation-user-login-jum
 import cvIcon from "../../assets/icons/cv-icon.png";
 import PageLoader from "../pageLoader";
 import style from "./CircleNav.module.css";
+import { Box } from "@mui/material";
 
 export default function CircleNav({ isOpenToggle = false }) {
   //Dieu huong
@@ -55,7 +56,9 @@ export default function CircleNav({ isOpenToggle = false }) {
 
   return (
     <div className={style.containerNav}>
-      <PageLoader active={loaderActive} />
+      <Box>
+        <PageLoader active={loaderActive} />
+      </Box>
       <ul className={clsx(style.menu, { [style.active]: isOpen })}>
         {/* <div className={clsx(style.circleOverlay)}></div> */}
         <button

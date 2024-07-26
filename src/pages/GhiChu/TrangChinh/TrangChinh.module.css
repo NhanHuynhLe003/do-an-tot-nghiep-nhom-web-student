@@ -47,7 +47,7 @@
 
 /* Thêm hiệu ứng thay đổi màu và nổi lên khi di chuột vào */
 .note-item:hover {
-  background-color: #007aff;
+  background-color: #f824b1;
   /* Màu nền mới khi di chuột vào */
   transform: translateY(-10px);
   /* Nổi lên cao */

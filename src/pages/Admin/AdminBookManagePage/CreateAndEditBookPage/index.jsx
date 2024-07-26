@@ -16,6 +16,7 @@ import useAdminCreateBook from "../../../../hooks/apis/books/useAdminCreateBook"
 import { useGetCategoriesPublished } from "../../../../hooks/apis/category";
 import { useParams } from "react-router-dom";
 import { useGetBookPublishDetailById } from "../../../../hooks/apis/books/useGetBookPublishDetailById";
+import { useUpdateBookById } from "../../../../hooks/apis/books/useUpdateBookById";
 /**
  * @description Trang tạo mới hoặc edit sách
  * @param {*} param
@@ -33,6 +34,8 @@ export default function CreateBookPage() {
     useGetBookPublishDetailById({
       bookId: params?.id,
     });
+
+  const { mutate: updateBook } = useUpdateBookById();
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const {
@@ -268,6 +271,38 @@ export default function CreateBookPage() {
     return data;
   }, []);
 
+  const handleUpdateBook = useCallback((data) => {
+    const payloadUpdateBook = {
+      book_thumb_id: data.thumbnailUrlId,
+      book_name: data.nameBook,
+      book_author: data.nameAuthor,
+      book_thumb: data.thumbnailUrl,
+      book_desc: data.bookDescription,
+      book_quantity: data.bookQuantity,
+      book_genre: data.nameCategory, //Tìm kiếm thể loại trước rồi gán objectID vào
+      book_publish_date: data.datePublish.toISOString(),
+      book_author_desc: data.authorDescription,
+      book_isPublic: data.isPublicBook,
+    };
+
+    setLoadingToast({
+      status: true,
+      message: "Đang cập nhật sách...",
+    });
+    //Gọi API cập nhật sách
+    updateBook({
+      id: params?.id,
+      ...payloadUpdateBook,
+    });
+    setLoadingToast({
+      status: false,
+      message: "",
+    });
+    toast.success("Cập nhật sách thành công");
+
+    return data;
+  }, []);
+
   /**
    * @description Xử lý khi người dùng submit form
    * @param {*} data
@@ -281,6 +316,7 @@ export default function CreateBookPage() {
         break;
       case "update":
         console.log("Handle Update submit:", data);
+        handleUpdateBook(data);
         reset();
 
         break;

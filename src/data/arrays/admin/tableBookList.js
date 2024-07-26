@@ -1,6 +1,8 @@
 import { Box, Button, Stack } from "@mui/material";
 import { FaTrash } from "react-icons/fa";
 import { PiNotePencilBold } from "react-icons/pi";
+import { toast } from "react-toastify";
+import axiosInstance from "../../../apis/axiosConfig";
 export const headerListBooks = [
   { field: "id", headerName: "Id", width: 70 },
   {
@@ -36,7 +38,15 @@ export const headerListBooks = [
         >
           <PiNotePencilBold></PiNotePencilBold>
         </Button>
-        <Button variant="contained" color="error" title="Xóa Sách">
+        <Button
+          onClick={async () => {
+            await axiosInstance.delete(`/v1/api/book/${params?.row?.id}`);
+            toast.success("Xóa Sách Thành Công");
+          }}
+          variant="contained"
+          color="error"
+          title="Xóa Sách"
+        >
           <FaTrash></FaTrash>
         </Button>
       </Box>

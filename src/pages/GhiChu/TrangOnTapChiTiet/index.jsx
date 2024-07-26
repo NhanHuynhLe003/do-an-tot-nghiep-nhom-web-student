@@ -59,6 +59,8 @@ export default function TrangOnTapChiTiet() {
     ) {
       const danhSachDuLieuMoi = dataNotesServerTraVe.data.metadata;
 
+      console.log("danhSachDuLieuMoi:::[123]:::", danhSachDuLieuMoi);
+
       setNoteList(danhSachDuLieuMoi);
     }
   }, [dataNotesServerTraVe]);
