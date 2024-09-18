@@ -79,16 +79,16 @@ export default function StudentInformation() {
 
   useEffect(() => {
     if (userData && userData.data && userData.data.metadata) {
-      const studentData = userData.data.metadata;
-      setValue("email", studentData.email);
-      setValue("name", studentData.name);
+      const studentData = userData?.data.metadata;
+      setValue("email", studentData?.email);
+      setValue("name", studentData?.name);
       setValue("password", "**********");
-      setValue("booksRead", studentData.books_reading.length);
-      setValue("classStudent", studentData.classStudent);
-      setValue("dateOfBirth", dayjs(studentData.date_of_birth));
-      setValue("phoneNumber", studentData.phone);
-      setValue("profileImg", studentData.profileImage);
-      setImgUploaded(studentData.profileImage);
+      setValue("booksRead", studentData?.books_readed?.length);
+      setValue("classStudent", studentData?.classStudent);
+      setValue("dateOfBirth", dayjs(studentData?.date_of_birth));
+      setValue("phoneNumber", studentData?.phone);
+      setValue("profileImg", studentData?.profileImage);
+      setImgUploaded(studentData?.profileImage);
     }
   }, [userData, setValue]);
 
@@ -125,7 +125,6 @@ export default function StudentInformation() {
       });
       const response = imageUpload?.data?.metadata;
       setImgUploaded(response.url || "/imgs/avatar-user.jpg");
-      console.log("IMAGE UPLOAD:::", imageUpload?.data?.metadata);
     }
   };
 
@@ -147,7 +146,6 @@ export default function StudentInformation() {
       profileImage: valueUpload.profileImg,
     };
     setIsLoadingToast(true);
-    console.log("Data submitted:::", payload);
     updateStudentInformation(payload);
 
     setIsLoadingToast(false);

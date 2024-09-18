@@ -6,9 +6,9 @@ export const useGetStudentReadingBooks = (payload = {}, options = {}) => {
   return QueryFunction(
     UserKeys.GET_USER_BOOKS_READING,
     async () =>
-      await axiosInstance.get(`/v1/api/user/books-reading/${payload.userId}`, {
+      await axiosInstance.get(`/v1/api/user/books-reading/${payload?.userId}`, {
         ...payload,
       }),
-    { enabled: !!payload.userId }
+    { enabled: !!payload?.userId }
   );
 };

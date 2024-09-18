@@ -1,8 +1,6 @@
 import React, { useRef } from "react";
-
 import { Box, Stack } from "@mui/material";
 import clsx from "clsx";
-import BgImg from "../../../assets/images/main-bg.png";
 import { useWindowSizeDepParent } from "../../../hooks";
 import theme from "../../../theme";
 import HeaderBook from "../../common/header/header-book";
@@ -15,11 +13,6 @@ export default function MainLayout({ children, typePage = "" }) {
   const refSlideContent = useRef(null);
   const { left, top } = useWindowSizeDepParent(refSlideContent);
   const [widthToolBarDrawer, setWidthToolBarDrawer] = React.useState(0);
-  // const [scrollProperty, setScrollProperty] = useState({
-  //   scrollTopPage: 0,
-  //   scrollHeightPage: 0,
-  //   clientHeightPage: 0,
-  // });
 
   function handleSetWidthToolBarDrawer(width) {
     setWidthToolBarDrawer(width);
@@ -32,32 +25,11 @@ export default function MainLayout({ children, typePage = "" }) {
         height: "100vh",
         position: "relative",
         overflow: "hidden",
+        backgroundImage: 'url("/imgs/background-layout.jpg")',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover'
       }}
     >
-      <Box
-        sx={{
-          position: "absolute",
-          top: "-35%",
-          width: "120%",
-          left: "-3%",
-          zIndex: 0,
-          transform: "rotate(1deg)",
-          "@media (max-width: 600px)": {
-            top: "-30rem",
-            width: "150%",
-            left: "-30rem",
-          },
-        }}
-      >
-        <img
-          src={BgImg}
-          alt="bg"
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-        />
-      </Box>
       <Stack
         direction={"row"}
         sx={{

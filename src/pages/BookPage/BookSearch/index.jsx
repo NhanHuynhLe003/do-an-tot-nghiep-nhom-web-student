@@ -1,23 +1,36 @@
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Button,
   CircularProgress,
   Grid,
   Pagination,
   Stack,
-  Typography,
+  Typography
 } from "@mui/material";
 import clsx from "clsx";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import CardBook from "../../../components/book/cardBook";
 import ButtonSortType from "../../../components/bookSearch/buttonSortType";
 import IMenuListFloat from "../../../components/IMenuListFloat";
 import { listSortType, listStatusType } from "../../../data/arrays";
 import { useGetListSearchBook } from "../../../hooks/apis/books/useGetListSearchBook";
 import { useGetCategoriesPublished } from "../../../hooks/apis/category";
+import theme from "../../../theme";
+import { decodeTextFromURL } from "../../../utils";
 import style from "./bookSearch.module.css";
+import { useAddBookToCartStudent } from "../../../hooks/apis/cart";
 
 export default function BookSearchPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState("");
+  const [searchValueQuery, setSearchValueQuery] = useState("");
+
+  const {
+    mutate: addBook,
+  } = useAddBookToCartStudent();
+
   // State quản lý bộ lọc sách
   const [payloadFilter, setPayloadFilter] = useState({
     sortType: "all",
@@ -27,9 +40,18 @@ export default function BookSearchPage() {
     limit: 20,
   });
 
+  const handleSearchValue = (e) => {
+    const value = e.target.value;
+    if(value === "") {
+      setSearchParams({ search: "" });
+      setSearchValueQuery("");
+    }
+    setSearchValue(value);
+  }
+
   // Lấy dữ liệu sách dựa trên bộ lọc
   const { data: bookFilterData, isLoading: isLoadingBookFilter } =
-    useGetListSearchBook(payloadFilter);
+    useGetListSearchBook({ ...payloadFilter, search: searchValueQuery });
 
   // Lấy danh sách thể loại sách
   const { data: categoryData } = useGetCategoriesPublished();
@@ -92,6 +114,17 @@ export default function BookSearchPage() {
     }));
   };
 
+  const handleKeyDownSearch = (e) => {
+    if (e.key === "Enter") {
+      handleClickSearchBtn();
+    }
+  };
+
+  const handleClickSearchBtn = () => {
+    setSearchParams({ search: searchValue });
+    setSearchValueQuery(searchValue);
+  };
+
   // Hàm xử lý khi lọc sách
   const handleFilter = () => {
     // Hàm chuyển đổi loại sắp xếp
@@ -128,6 +161,15 @@ export default function BookSearchPage() {
     setCurrentPage(1); // Reset lại trang hiện tại
   };
 
+  useEffect(() => {
+    const searchValueParams = searchParams.get("search");
+    if (searchValueParams) {
+      const searchValueDecoded = decodeTextFromURL(searchValueParams);
+      setSearchValue(searchValueDecoded);
+      setSearchValueQuery(searchValueDecoded);
+    }
+  }, [searchParams]);
+
   if (isLoadingBookFilter) {
     return (
       <Stack
@@ -156,6 +198,34 @@ export default function BookSearchPage() {
         px={{ sm: 6, xs: 2 }}
         mb={6}
       >
+        <Stack
+          direction={"row"}
+          sx={{
+            boxShadow: "0 0 10px rgba(0, 0, 0, 0.08)",
+            borderRadius: "10px",
+          }}
+        >
+          <input
+            style={{ ml: 1, flex: 1, paddingLeft: "1rem", border: "none", outline: "none",borderRadius: "10px", }}
+            placeholder="Tìm kiếm sách, tác giả...."
+            inputProps={{ "aria-label": "search" }}
+            onKeyDown={handleKeyDownSearch}
+            value={searchValue}
+            onChange={handleSearchValue}  
+          />
+          <Button
+            type="button"
+            sx={{ p: "10px", color: theme.colors.primary1 }}
+            aria-label="search"
+            onClick={handleClickSearchBtn}
+          >
+            <SearchIcon
+              sx={{
+                color: theme,
+              }}
+            />
+          </Button>
+        </Stack>
         {/* Nút sắp xếp */}
         <IMenuListFloat
           fnClickItem={handleClickSortType}

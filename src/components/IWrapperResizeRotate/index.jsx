@@ -33,7 +33,7 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     typeChildren = "editor",
     ChildComponentProps = {},
     ChildComponent = <Box></Box>,
-
+    isDragging = false,
     // Tránh khi component bị re-render lại thì dữ liệu bị mất
     dataRotate,
     dataResize,
@@ -88,7 +88,12 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
     isClickOutsideDragItem && setIsOverlay(true);
   }, [isClickOutsideDragItem]);
 
-  useEffect(() => {}, [colorValue]);
+  // Lưu màu truyền vào từ props
+  useEffect(() => {
+    if (color) {
+      setColorValue(color);
+    }
+  }, [color]);
 
   const dispatch = useDispatch();
   const elementRef = useRef(null);
@@ -103,12 +108,9 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
   //Hàm xử lý khi rời khỏi wrapper
 
   // Hàm xử lý khi thay đổi màu
-  const debouncedUpdateColorChange = useCallback(
-    _.debounce((value) => {
-      handleSetColorValue(value);
-    }, 100),
-    []
-  );
+  const debouncedUpdateColorChange = _.debounce((value) => {
+    handleSetColorValue(value);
+  }, 100);
 
   function handleSetColorValue(value) {
     //Update Color Input
@@ -501,9 +503,11 @@ const IWrapperResizeRotate = React.forwardRef((props, ref) => {
         "IWrapperChanging IWrapperRotating": currentAction.isRotating,
       })}
       style={{
-        border: selectedItems.items?.some((item) => item.id === id) //Check xem có đg select ko
-          ? `2px dashed var(--color-primary1)`
-          : `none`,
+        // Is dragging truyen từ React.cloneElement trong IDraggableFreeItem
+        border:
+          isDragging || selectedItems.items?.some((item) => item.id === id) //Check xem có đg select ko
+            ? `2px dashed var(--color-primary1)`
+            : `none`,
         boxShadow: selectedItems.items?.some((item) => item.id === id)
           ? "none"
           : "0 0 4px rgba(0,0,0,0.1)",

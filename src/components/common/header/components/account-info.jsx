@@ -16,7 +16,7 @@ export default function AccountInfo({
       gap={"0.25rem"}
       alignItems={"center"}
     >
-      <Avatar className={style.img} alt={nameUser} src={img} />
+      <Avatar className={style.img} alt={nameUser} src={img || "/imgs/avatar-user.jpg"} />
       <p className={style.nameUser}>{nameUser}</p>
       <ArrowDropDown
         style={{

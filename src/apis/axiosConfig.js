@@ -1,6 +1,5 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useStudentLogout } from "../hooks/apis/access";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
@@ -55,8 +54,10 @@ axiosInstance.interceptors.request.use(
   (error) => {
     // Xử lý khi gặp lỗi request trước khi được gửi lên server
     const errorMessage = error.response?.data?.message || error?.message;
-
-    toast.error(errorMessage);
+    console.error("error:::", error);
+    if (error.status !== 404) {
+      toast.error(errorMessage);
+    }
     return Promise.reject(error);
   }
 );

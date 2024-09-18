@@ -5,17 +5,15 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
-import { useGetAllCvByAdmin } from "../../../hooks/apis/admin/useGetAllCvByAdmin";
 import clsx from "clsx";
 import { format, parseISO } from "date-fns";
+import React, { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import IPagination from "../../../components/IPagination";
 import { useCreateEmptyCv } from "../../../hooks/apis/admin/useCreateEmptyCv";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useGetAllCvByAdmin } from "../../../hooks/apis/admin/useGetAllCvByAdmin";
 
 export default function AdminCvManagePage() {
-  const navigate = useNavigate();
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const pageSize = useRef(20);
@@ -26,19 +24,12 @@ export default function AdminCvManagePage() {
     console.log("CURRENT PAGE:::", currentPage);
   }, [currentPage]);
 
-  const {
-    data: dataCv,
-    error: errorCv,
-    isLoading: isLoadingCv,
-  } = useGetAllCvByAdmin({ page: currentPage, pageSize: pageSize.current });
+  const { data: dataCv, isLoading: isLoadingCv } = useGetAllCvByAdmin({
+    page: currentPage,
+    pageSize: pageSize.current,
+  });
 
-  const {
-    mutate: createNewCv,
-
-    data: dataCreateCv,
-    error: errorCreateCv,
-    isLoading: isLoadingCreateCv,
-  } = useCreateEmptyCv();
+  const { mutate: createNewCv } = useCreateEmptyCv();
 
   useEffect(() => {
     console.log("DATA CV:::", dataCv);

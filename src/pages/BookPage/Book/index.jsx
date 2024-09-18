@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import clsx from "clsx";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CardUserRank from "../../../components/book/cardUserRank";
 import CarouselCard from "../../../components/book/carouselCard";
 import ListBookView from "../../../components/book/listBookView";
@@ -8,24 +8,20 @@ import ListCardViewHorizontal from "../../../components/book/listCardViewHorizon
 
 import { Link } from "react-router-dom";
 import axiosInstance from "../../../apis/axiosConfig";
+import { BREAK_POINTS } from "../../../constants";
 import { famouseQuotes, ratingBooks } from "../../../data/arrays";
-import listTopUserRank from "../../../data/jsons/top-user-read-book.json";
-import {
-  useGetListBooks,
-  useGetListNewestBook,
-} from "../../../hooks/apis/books";
+import { useGetListNewestBook } from "../../../hooks/apis/books";
 import { useGetListRecommendBooks } from "../../../hooks/apis/books/useGetListRecommendBook";
 import { useGetListSortBookReads } from "../../../hooks/apis/books/useGetListSortBookReads";
 import { useGetCategoriesPublished } from "../../../hooks/apis/category/useGetCategoriesPublished";
+import { useListRankStudentBooksReaded } from "../../../hooks/apis/students/useListRankStudentBooksReaded";
 import { useWindowSize } from "../../../hooks/useWindowSize";
 import theme from "../../../theme";
 import { shuffleArray } from "../../../utils";
 import style from "./book.module.css";
-import { BREAK_POINTS } from "../../../constants";
-import { useListRankStudentBooksReaded } from "../../../hooks/apis/students/useListRankStudentBooksReaded";
 
 export default function Book() {
-  const { width, height } = useWindowSize();
+  const { width } = useWindowSize();
   const [limitRank, setLimitRank] = useState(5);
   const [listTopUserRank, setListTopUserRank] = useState([]);
   const { data: dataListNewestBook } = useGetListNewestBook();
@@ -55,7 +51,6 @@ export default function Book() {
         avatar: student?.profileImage,
       }));
 
-      console.log("TOP STUDENT LIST RANK", topListRankStudent);
       setListTopUserRank(topListRankStudent);
     }
   }, [rankStudentReadedBooks]);
@@ -121,10 +116,10 @@ export default function Book() {
       <Stack
         className={clsx(style.section1, "animate__animated animate__zoomIn")}
         direction={"row"}
-        justifyContent={"space-between"}
+        gap={"2rem"}
         px={{ sm: 6, xs: 2 }}
       >
-        {width > BREAK_POINTS.xs && (
+        {width > BREAK_POINTS.md && (
           <CarouselCard
             dataList={famouseQuotes}
             dotCustomize={paginationCustomize}
@@ -134,10 +129,18 @@ export default function Book() {
 
         {/* Sach mới nhất  */}
         <ListCardViewHorizontal
-          spacebetween={width < BREAK_POINTS.xs ? 10 : 30}
+          spacebetween={5}
           paginationCustomize={paginationCustomize}
           classNameSwiper={"book-newest-carousel"}
-          slideCardPerView={width < BREAK_POINTS.md ? 2.4 : 3.4}
+          slideCardPerView={
+            width > BREAK_POINTS["lg"]
+              ? 3.2
+              : width > BREAK_POINTS["md"]
+              ? 4.6
+              : width > BREAK_POINTS["sm"]
+              ? 3.6
+              : 2.6
+          }
           dataList={dataListNewestBook?.data?.metadata}
         ></ListCardViewHorizontal>
       </Stack>
@@ -205,7 +208,7 @@ export default function Book() {
       <Stack
         className={style.section4}
         mt={"3rem"}
-        px={{ sm: 6, md: 2 }}
+        p={{ sm: 6, xs: 2 }}
         direction={"column"}
       >
         <Stack direction={"row"} justifyContent={"space-between"}>

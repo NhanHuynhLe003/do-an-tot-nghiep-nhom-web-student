@@ -15,12 +15,7 @@ export const useAcceptOrderByAdmin = (payload, options = {}) => {
     {
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries({
-          queryKey: [
-            CheckoutOrderKeys.GET_ORDER_ALL,
-            CheckoutOrderKeys.GET_ORDER_BY_STUDENT_ID,
-            UserKeys.GET_USER_BOOKS_READING,
-            UserKeys.GET_USER_BOOKS_READED,
-          ],
+          queryKey: [CheckoutOrderKeys.GET_ORDER_ALL],
         });
       },
 

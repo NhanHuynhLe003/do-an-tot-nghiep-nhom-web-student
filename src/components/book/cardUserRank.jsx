@@ -7,7 +7,7 @@ export default function CardUserRank({
   img = "imgs/avatar-user.jpg",
 }) {
   return (
-    <Stack direction={"row"} className={style.cardUserRank}>
+    <Stack direction={"row"} className={style.cardUserRank} sx={{minWidth: '18rem'}}>
       <Avatar alt={`hinh-anh-${userName}`} src={img} />
       <Stack direction={"column"} pl={"0.75rem"}>
         <p className={style.userName}>{userName}</p>

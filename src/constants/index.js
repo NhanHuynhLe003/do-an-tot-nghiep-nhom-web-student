@@ -17,8 +17,9 @@ export const BREAK_POINTS = {
   xs: 576,
   sm: 768,
   md: 992,
-  lg: 1200,
-  xl: 1400,
+  lg: 1024,
+  xl: 1250,
+  "2xl": 1440,
 };
 
 export * from "./ReactQuery/access";

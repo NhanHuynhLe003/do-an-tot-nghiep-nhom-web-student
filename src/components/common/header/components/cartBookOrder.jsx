@@ -1,14 +1,13 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button } from "@mui/material";
 import React, { useCallback, useEffect } from "react";
-import SubmitDialog from "../../../IDialog/SubmitDialog";
-import ITable from "../../../ITable/ITable";
-
+import { useNavigate } from "react-router-dom";
 import { useDeleteBookInCart } from "../../../../hooks/apis/cart/useDeleteBookInCart";
 import { useGetBooksInCart } from "../../../../hooks/apis/cart/useGetBooksInCart";
 import { useUpdateBookQuantiyInCart } from "../../../../hooks/apis/cart/useUpdateBookQuantityInCart";
+import SubmitDialog from "../../../IDialog/SubmitDialog";
 import IQuantityInput from "../../../IQuantityInput";
-import { useNavigate } from "react-router-dom";
+import ITable from "../../../ITable/ITable";
 
 export default function CartBookOrder({
   handleGetCartProductCount = (count) => {
@@ -21,31 +20,18 @@ export default function CartBookOrder({
   const dataStudent = JSON.parse(localStorage.getItem("studentData"));
 
   // Trigger API xóa sách khỏi giỏ hàng
-  const {
-    mutate: deleteBookInCart,
-    data: dataDeleteBookInCartData,
-    isLoading: isDeleteBookInCartLoading,
-    error: DeleteBookInCartError,
-  } = useDeleteBookInCart();
+  const { mutate: deleteBookInCart, data: dataDeleteBookInCartData } =
+    useDeleteBookInCart();
 
   // Trigger API lấy danh sách sách trong giỏ hàng
-  const {
-    data: dataBooksInCartData,
-    isLoading: isBooksInCartLoading,
-    error: BooksInCartError,
-  } = useGetBooksInCart(
-    { cartUserId: dataStudent?._id || null },
-    {
-      keepPreviousData: true,
-    }
-  );
+  const { data: dataBooksInCartData } = useGetBooksInCart({
+    cartUserId: dataStudent?._id,
+  });
 
   //Trigger API cập nhật số lượng sách trong giỏ hàng
   const {
     mutate: updateBookQuantityInCart,
     data: dataUpdateBookQuantityInCartData,
-    isLoading: isUpdateBookInCartLoading,
-    error: UpdateBookInCartError,
   } = useUpdateBookQuantiyInCart();
 
   //=============STATE================
@@ -114,6 +100,7 @@ export default function CartBookOrder({
               });
             }
           }
+          
           return (
             <Box>
               <SubmitDialog

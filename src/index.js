@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { CssBaseline } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { BackdropProvider } from "./components/backdropProvider/BackdropProvider";
 // Khởi tạo queryClient
 const queryClient = new QueryClient();
 
@@ -16,7 +17,9 @@ root.render(
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <CssBaseline></CssBaseline>
-        <App />
+        <BackdropProvider>
+          <App />
+        </BackdropProvider>
 
         {/* Thêm Toast hiển thị  */}
         <ToastContainer

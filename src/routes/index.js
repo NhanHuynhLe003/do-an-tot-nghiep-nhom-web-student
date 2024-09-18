@@ -7,33 +7,25 @@ import AdminMainPage from "../pages/Admin/AdminMainPage";
 import Book from "../pages/BookPage/Book";
 import BookDetailPage from "../pages/BookPage/BookDetail";
 import BookSearchPage from "../pages/BookPage/BookSearch";
-import TrangChinh from "../pages/GhiChu/TrangChinh";
-import TrangGhiChuChiTiet from "../pages/GhiChu/TrangGhiChuChiTiet";
-import TrangOnTapChiTiet from "../pages/GhiChu/TrangOnTapChiTiet";
 import Home from "../pages/Home";
 import Login from "../pages/login";
 
 import CvLayout from "../components/layouts/CvLayout";
+import AdminLogin from "../pages/Admin/Access/AdminLogin";
+import AdminMultiSignUp from "../pages/Admin/Access/AdminMultiSignUp";
+import AdminSignUp from "../pages/Admin/Access/AdminSignUp";
 import BookTrashPage from "../pages/Admin/AdminBookManagePage/BookTrashPage";
 import CreateCategoryPage from "../pages/Admin/AdminBookManagePage/CreateCategoryPage";
 import AdminBookOrderPage from "../pages/Admin/AdminBookOrderPage";
 import AdminCvManagePage from "../pages/Admin/AdminCvManagePage";
 import CvAdminPageDetail from "../pages/Admin/AdminCvManagePage/CvAdminPageDetail";
-import MyBookShelf from "../pages/BookPage/MyBookShelf";
-import Thungrac from "../pages/GhiChu/TrangRecycleBin";
+import AdminUserManagePage from "../pages/Admin/AdminUserManagePage";
 import BookCheckout from "../pages/BookPage/BookCheckout";
-import TrangChart from "../pages/GhiChu/TrangChart";
-import NotFoundPage from "../pages/NotFound";
-import StudentInformation from "../pages/Student/StudentInformation";
+import MyBookShelf from "../pages/BookPage/MyBookShelf";
 import CvPage from "../pages/CvPage";
 import CvUserDetail from "../pages/CvPage/CvUserDetail";
-import AdminLogin from "../pages/Admin/Access/AdminLogin";
-import AdminUserManagePage from "../pages/Admin/AdminUserManagePage";
-import AdminSignUp from "../pages/Admin/Access/AdminSignUp";
-import AdminNoteManagePage from "../pages/Admin/AdminNoteManagePage";
-import ThongTin from "../pages/GhiChu/ThongTin";
-import AdminMultiSignUp from "../pages/Admin/Access/AdminMultiSignUp";
-import NoteLayout from "../components/layouts/NoteLayout";
+import NotFoundPage from "../pages/NotFound";
+import StudentInformation from "../pages/Student/StudentInformation";
 
 const routes = [
   {
@@ -131,12 +123,6 @@ const routes = [
     isAdmin: true,
   },
   {
-    path: "/admin/note-manage",
-    component: AdminNoteManagePage,
-    layout: MainLayout,
-    // isAdmin: true,
-  },
-  {
     path: "/admin/multi-sign-up",
     component: AdminMultiSignUp,
     layout: MainLayout,
@@ -177,49 +163,6 @@ const routes = [
     component: BookCheckout,
     layout: MainLayout,
     isAuth: true,
-  },
-
-  //===========================GHI CHU===========================
-  {
-    path: "/chi-tiet-ghi-chu",
-    component: TrangGhiChuChiTiet, // là các page
-    layout: NoteLayout, //
-    // isAuth: true,
-  },
-  {
-    path: "/chi-tiet-ghi-chu/:id",
-    component: TrangGhiChuChiTiet, // là các page
-    layout: NoteLayout, //
-    // isAuth: true,
-  },
-  {
-    path: "/on-tap-chi-tiet",
-    component: TrangOnTapChiTiet,
-    layout: NoteLayout,
-    // isAuth: true,
-  },
-  {
-    path: "/trang-chart",
-    component: TrangChart,
-    layout: NoteLayout,
-    // isAuth: true,
-  },
-  {
-    path: "/ghi-chu/thung-rac",
-    component: Thungrac,
-    layout: MainLayout,
-  },
-
-  //==================TRANG CHINH===================
-  {
-    path: "/ghi-chu",
-    component: TrangChinh,
-    layout: NoteLayout,
-  },
-  {
-    path: "/thong-tin",
-    component: ThongTin,
-    layout: MainLayout,
   },
 
   //===========================Student Information===========================

@@ -1,8 +1,10 @@
 .cardListHorizonContainer {
-    width: 65%;
+    width: 80%;
     box-sizing: border-box;
     height: fit-content;
-    justify-content: flex-end;
+    justify-content: flex-start;
+    position: relative;
+    padding-left: 4rem;
 }
 
 
@@ -10,21 +12,24 @@
     /* width: 25%; */
     display: flex;
     align-items: center;
-    position: relative;
-    /* border-radius: 1rem 0 0 1rem; */
-
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    z-index: 100;
 }
 
 .titleHeading {
     border-top: 2px solid var(--color-blue1);
-
+    flex-grow: 1;
     border-bottom: 2px solid var(--color-blue1);
     border-right: 2px solid var(--color-blue1);
     border-radius: 0 1rem 1rem 0;
     display: flex;
     justify-content: center;
     width: 4rem;
-    height: 15rem;
+    height: 100%;
     color: var(--color-white1);
     writing-mode: vertical-lr;
     transform: rotate(180deg);
@@ -43,14 +48,15 @@
     border-top-right-radius: 1rem;
     border-bottom-right-radius: 1rem;
     padding: 0 1rem;
+    min-height: 10rem;
 }
 
-@media screen and (max-width: 576px) {
+@media screen and (max-width: 992px) {
     .cardListHorizonContainer {
         width: 100%;
     }
 
     .boxCardCarouselContainer {
-        width: 80%;
+        width: 75vw;
     }
 }

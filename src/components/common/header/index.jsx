@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import HeaderBook from "./header-book";
 
 export default function Header({ typePage = "home" }) {

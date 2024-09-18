@@ -164,7 +164,6 @@ export default function CardBook({
         <Button
           sx={{
             color: "var(--color-primary2)",
-            background: "#fff",
           }}
           className={clsx({
             [style.smallBtnBuyNow]: widthCard < 150,

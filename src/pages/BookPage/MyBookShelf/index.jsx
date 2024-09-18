@@ -1,16 +1,19 @@
-import { Button, Chip, Stack, Typography } from "@mui/material";
-import clsx from "clsx";
+import { Chip, Stack, Typography } from "@mui/material";
+import { addDays, format, isWeekend, nextMonday } from "date-fns";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import axiosInstance from "../../../apis/axiosConfig";
 import SubmitDialog from "../../../components/IDialog/SubmitDialog";
 import { useReturnOrderByUser } from "../../../hooks/apis/checkout_order/useReturnOrderByUser";
+import { useSendEmail } from "../../../hooks/apis/email/useSendEmail";
+import { useGetStudentReadedBooks } from "../../../hooks/apis/students/useGetStudentReadedBooks";
 import { useGetStudentReadingBooks } from "../../../hooks/apis/students/useGetStudentReadingBooks";
 import style from "./MyBookShelf.module.css";
-import axiosInstance from "../../../apis/axiosConfig";
-import { useGetStudentReadedBooks } from "../../../hooks/apis/students/useGetStudentReadedBooks";
 
 export default function MyBookShelf() {
   const [booksReadingInShelf, setBooksReadingInShelf] = useState([]);
   const [booksReadedInShelf, setBooksReadedInShelf] = useState([]);
+  const { mutate: sendMail } = useSendEmail();
 
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   const { data: userBooksReadingData } = useGetStudentReadingBooks({
@@ -23,10 +26,21 @@ export default function MyBookShelf() {
   const { mutate: returnOrderBook } = useReturnOrderByUser();
 
   const [activeItem, setActiveItem] = useState("All Books"); // State để lưu trữ mục đang active
-  const [statusBook, setStatusBook] = useState({
-    status: "pending",
-    message: "Chờ xác nhận",
-  });
+
+  function translateStatusBook(status) {
+    if (status === "pending") {
+      return "Chờ xác nhận";
+    }
+    if (status === "indue") {
+      return "Đang mượn";
+    }
+    if (status === "overdue") {
+      return "Đã quá hạn";
+    }
+    if (status === "completed") {
+      return "Đã hoàn thành";
+    }
+  }
 
   useEffect(() => {
     if (userBooksReadingData && dataBooksReaded) {
@@ -84,13 +98,41 @@ export default function MyBookShelf() {
 
   function handleAcceptReturnBook(orderId, value, bookId, idBookReading) {
     if (value) {
-      returnOrderBook({
-        userId: studentData?._id,
-        orderId: orderId,
-        bookId: bookId,
+      returnOrderBook(
+        {
+          userId: studentData?._id,
+          orderId: orderId,
+          bookId: bookId,
+          idBookReading: idBookReading,
+        },
+        {
+          onSuccess: () => {
+            let returnDate = addDays(new Date(), 2); // Cộng 2 ngày từ ngày hiện tại
 
-        idBookReading: idBookReading,
-      });
+            // Nếu ngày trả rơi vào thứ 7 hoặc Chủ Nhật, thì lấy ngày thứ Hai tiếp theo
+            if (isWeekend(returnDate)) {
+              returnDate = nextMonday(returnDate);
+            }
+
+            const formattedDate = format(returnDate, "dd-MM-yyyy");
+
+            sendMail({
+              destinationEmail: studentData?.email,
+              nameReceiver: studentData?.name,
+              title: "Thông báo hẹn trả sách",
+              content: `<div>Đã xác nhận sinh viên <b>${studentData?.name}</b> trả sách thành công vào lúc ${format(new Date(), 'dd/MM/yyyy - hh:mm:ss')}. Vui lòng mang sách đến trả đúng hạn vào ngày ${formattedDate} tại f8.1`,
+            });
+
+            toast.success(
+              "Trả sách thành công, thời gian hẹn trả sách đã được gửi vào Email của bạn, vui lòng kiểm tra!",
+              {
+                position: "top-center",
+                autoClose: 7000,
+              }
+            );
+          },
+        }
+      );
     }
   }
 
@@ -102,35 +144,6 @@ export default function MyBookShelf() {
           <span className={style.blueText}>Shelf</span>
         </h2>
       </div>
-      <div className={style.menu}>
-        <ul className={style.card}>
-          {/* Sử dụng className active để chỉ định mục đang active */}
-          <li
-            className={clsx("animate__animated animate__fadeIn", {
-              [style.active]: activeItem === "All Books",
-            })}
-            onClick={() => setActiveItem("All Books")}
-          >
-            Tất cả
-          </li>
-          <li
-            className={clsx("animate__animated animate__fadeIn", {
-              [style.active]: activeItem === "Favourite",
-            })}
-            onClick={() => setActiveItem("Favourite")}
-          >
-            Yêu thích
-          </li>
-          <li
-            className={clsx("animate__animated animate__fadeIn", {
-              [style.active]: activeItem === "Borrowed Books",
-            })}
-            onClick={() => setActiveItem("Borrowed Books")}
-          >
-            Đã mượn
-          </li>
-        </ul>
-      </div>
 
       <Typography
         component={"h2"}
@@ -139,6 +152,7 @@ export default function MyBookShelf() {
           fontWeight: "500",
           color: "var(--color-primary2)",
           opacity: 0.4,
+          mt: 4,
         }}
       >
         Sách Đang Đọc
@@ -173,17 +187,6 @@ export default function MyBookShelf() {
                   >
                     {book.data?.bookName}
                   </Typography>
-                  <Typography
-                    component={"h5"}
-                    sx={{
-                      fontSize: "1rem",
-                      color: "var(--color-primary2)",
-                      opacity: 0.5,
-                      mt: "0.35rem",
-                    }}
-                  >
-                    Author
-                  </Typography>
                 </Stack>
               </div>
               <div
@@ -205,13 +208,14 @@ export default function MyBookShelf() {
                 <h4 className={style.titleBookInfo}>Trạng thái</h4>
                 <div className={style.btnborrowedOn}>
                   <Chip
-                    label={`${book.book_status}`}
+                    label={`${translateStatusBook(book.book_status)}`}
                     variant="filled"
                     sx={{
-                      fontSize: "0.85rem",
+                      fontSize: "0.8rem",
                       backgroundColor: `var(--${book.book_status}-color-status-rgba)`,
                       color: `var(--${book.book_status}-color-status)`,
                       textTransform: "capitalize",
+                      fontWeight: "500",
                     }}
                   />
                 </div>
@@ -285,6 +289,22 @@ export default function MyBookShelf() {
       </Typography>
 
       <div className={style.bookContainer}>
+        {!booksReadedInShelf?.length && (
+          <Typography
+            component={"h2"}
+            sx={{
+              color: "var(--color-primary2)",
+              opacity: 0.6,
+              textAlign: "center",
+              width: "100%",
+              my: 4,
+              fontSize: 16,
+            }}
+          >
+            Chưa có dữ liệu
+          </Typography>
+        )}
+
         {booksReadedInShelf &&
           booksReadedInShelf.map((book) => (
             <div
@@ -301,31 +321,6 @@ export default function MyBookShelf() {
                     className={style.imgbook}
                   />
                 </div>
-
-                <Stack direction={"column"}>
-                  <Typography
-                    className={style.bookTitle}
-                    component={"h5"}
-                    title={book?.book_data?.bookName}
-                    sx={{
-                      fontSize: "1rem",
-                      color: "var(--color-primary2)",
-                    }}
-                  >
-                    {book?.book_data?.bookName}
-                  </Typography>
-                  <Typography
-                    component={"h5"}
-                    sx={{
-                      fontSize: "0.8rem",
-                      color: "var(--color-primary2)",
-                      opacity: 0.5,
-                      mt: "0.5rem",
-                    }}
-                  >
-                    Author
-                  </Typography>
-                </Stack>
               </div>
               <div
                 className={`${style.bookShelfInformation} ${
@@ -346,7 +341,7 @@ export default function MyBookShelf() {
                 <h4 className={style.titleBookInfo}>Trạng thái</h4>
                 <div className={style.btnborrowedOn}>
                   <Chip
-                    label={`${book?.book_status}`}
+                    label={`${translateStatusBook(book?.book_status)}`}
                     variant="filled"
                     sx={{
                       fontSize: "0.85rem",
