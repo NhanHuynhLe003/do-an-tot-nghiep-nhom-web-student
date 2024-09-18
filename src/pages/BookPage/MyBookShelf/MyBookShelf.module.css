@@ -53,13 +53,14 @@
 }
 
 .book {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    /* Right - Bot */
+    box-shadow: 6px 10px 10px rgba(0, 0, 0, 0.03),
+        -6px 10px 10px rgba(0, 0, 0, 0.03);
     width: 30%;
     display: flex;
     justify-content: space-between;
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 1rem;
+    border-radius: 8px;
+    padding: 1rem 0.75rem;
 }
 
 .bookImgContainer {
@@ -77,8 +78,9 @@
     width: 100%;
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 2rem;
     justify-content: stretch;
+    margin-bottom: 4rem;
 }
 
 .bookcard {
@@ -89,7 +91,7 @@
 
 
 .bookShelfInformation {
-    width: 50%;
+    width: 45%;
     height: auto;
 }
 
@@ -103,12 +105,10 @@
 .date {
     font-size: 0.8rem;
     color: #ccc;
-
-
 }
 
 .titleBookInfo {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 500;
     color: var(--color-primary2);
     text-transform: capitalize;

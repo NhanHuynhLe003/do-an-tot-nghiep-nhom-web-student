@@ -1,12 +1,12 @@
 import { Box, Button, Chip, Stack, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import style from "./AdminBookOrderPage.module.css";
 //===========FILTER===============
 import { ArrowDropDown } from "@mui/icons-material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { format } from "date-fns";
+import { addDays, format, isWeekend, nextMonday } from "date-fns";
 import dayjs from "dayjs";
 import { FaEdit, FaFilter } from "react-icons/fa";
 import { RiDeleteBin5Line } from "react-icons/ri";
@@ -14,6 +14,8 @@ import IMenuListFloat from "../../../components/IMenuListFloat";
 import IPopupButton from "../../../components/IPopupButton";
 import ButtonSortType from "../../../components/bookSearch/buttonSortType";
 
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import slugify from "slugify";
 import ITable from "../../../components/ITable/ITable";
 import {
@@ -23,6 +25,7 @@ import {
 } from "../../../data/arrays";
 import { useGetAllOrderByAdmin } from "../../../hooks/apis/checkout_order";
 import { useAcceptOrderByAdmin } from "../../../hooks/apis/checkout_order/useAcceptOrderByAdmin";
+import { useSendEmail } from "../../../hooks/apis/email/useSendEmail";
 
 const listOrder = [
   {
@@ -74,12 +77,17 @@ const listOrder = [
 export default function AdminBookOrderPage() {
   //Giới hạn số lượng item trên 1 trang
   const limitPage = useRef(5);
+  const navigate = useNavigate();
+
+  const { mutate: sendMail } = useSendEmail();
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const [currentPagePagination, setCurrentPagePagination] = useState(1);
   //Lấy giá trị calendar
   const [dateCalendatrVal, setDateCalendatrVal] = React.useState(
     dayjs(format(new Date(), "yyyy-MM-dd"))
   );
+
   //Chuyển data xuống table
   const [dataOrderTableConvert, setDataOrderTableConvert] = useState(listOrder);
 
@@ -106,6 +114,7 @@ export default function AdminBookOrderPage() {
         return {
           id: dataOrder._id,
           StudentName: dataOrder?.order_userId?.name,
+          studentEmail: dataOrder?.order_userId?.email,
           StudentClass: dataOrder?.order_userId?.classStudent,
           StudentId: dataOrder?.order_userId?.student_id,
           BookInformations: dataOrder?.order_books
@@ -128,8 +137,9 @@ export default function AdminBookOrderPage() {
     );
   }, [dataOrders]);
 
+
   //Header cuả table
-  const headerGetOrderTable = useCallback(
+  const headerGetOrderTable = useMemo(
     () => [
       {
         //ID đơn hàng
@@ -207,7 +217,7 @@ export default function AdminBookOrderPage() {
                     backgroundColor: "var(--pending-color-status-rgba)",
                   },
                 }}
-                onClick={() => handleAcceptOrderBook(params.row.id)}
+                onClick={() => handleAcceptOrderBook(params.row)}
               />
             );
 
@@ -280,7 +290,7 @@ export default function AdminBookOrderPage() {
         },
       },
     ],
-    []
+    [dataOrders]
   );
 
   //=================Function area ================
@@ -288,11 +298,33 @@ export default function AdminBookOrderPage() {
   function handleAcceptOrderBook(payload) {
     // Xác nhận cho phép mượn sách
     acceptOrderBook({
-      orderId: payload,
+      orderId: payload?.id,
+    }, {
+      onSuccess: () => {
+        // Refresh lại dữ liệu
+        let returnDate = addDays(new Date(), 2); // Cộng 2 ngày từ ngày hiện tại
+
+            // Nếu ngày trả rơi vào thứ 7 hoặc Chủ Nhật, thì lấy ngày thứ Hai tiếp theo
+            if (isWeekend(returnDate)) {
+              returnDate = nextMonday(returnDate);
+            }
+
+            const formattedDate = format(returnDate, "dd-MM-yyyy");
+
+            sendMail({
+              destinationEmail: payload?.studentEmail,
+              nameReceiver: payload?.StudentName,
+              title: "Thông báo đến nhận sách",
+              content: `<div>Đã xác nhận sinh viên <b>${payload?.StudentName}</b> mượn thành công vào lúc ${format(new Date(), 'dd/MM/yyyy - hh:mm:ss')}. Vui lòng đến nhận sách vào <b>ngày ${formattedDate} tại f8.1</b>. Khi đến hãy liên hệ giảng viên để nhận sách. </div>`,
+            });
+        toast.success("Xác nhận đơn mượn sách thành công");
+      },
+      onError: () => {
+        toast.error("Xác nhận đơn mượn sách thất bại, vui lòng thử lại!");
+      }
     });
   }
 
-  function handleUpdateQuantityBook(payload) {}
 
   function handleDeleteBookInCheckout(payload) {}
 
@@ -309,7 +341,6 @@ export default function AdminBookOrderPage() {
   }
 
   function handleClickOrderBookType(item) {
-    console.log("[item:::]", listCategoryLevel1);
     setFilterContent({
       ...filterContent,
       orderType: item.content,
@@ -469,7 +500,6 @@ export default function AdminBookOrderPage() {
       >
         <ITable
           fncGetCurrentPage={(currentPage) => {
-            console.log("Current Page:", currentPage);
             setCurrentPagePagination(currentPage);
           }}
           isCustomFooter={true}
@@ -477,7 +507,7 @@ export default function AdminBookOrderPage() {
             dataOrders?.data?.options?.total / limitPage.current
           )}
           pageSize={limitPage.current}
-          headerList={headerGetOrderTable()}
+          headerList={headerGetOrderTable}
           dataList={dataOrderTableConvert}
         ></ITable>
       </Box>

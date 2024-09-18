@@ -1,8 +1,8 @@
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
+import { Button } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
@@ -14,15 +14,16 @@ import { alpha, styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
-import IDrawer from "../../IDrawer";
-import CartBookOrder from "./components/cartBookOrder";
-import IPopOverBtn from "../../IPopOverBtn";
-import { Button } from "@mui/material";
-import theme from "../../../theme";
 import { RiShoppingBag4Fill } from "react-icons/ri";
-import { useGetBooksInCart } from "../../../hooks/apis/cart";
 import { useNavigate } from "react-router-dom";
 import { useStudentLogout } from "../../../hooks/apis/access";
+import { useGetBooksInCart } from "../../../hooks/apis/cart";
+import { useWindowSize } from "../../../hooks/useWindowSize";
+import theme from "../../../theme";
+import IDrawer from "../../IDrawer";
+import IPopOverBtn from "../../IPopOverBtn";
+import CartBookOrder from "./components/cartBookOrder";
+import { BREAK_POINTS } from "../../../constants/index";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -75,9 +76,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function MobileMainHeader() {
   const dataStudent = JSON.parse(localStorage.getItem("studentData"));
   const navigate = useNavigate();
+  const { width: widthScreen } = useWindowSize();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const [cartUser, setCartUser] = React.useState([]);
+  const [searchValue, setSearchValue] = React.useState("");
 
   const { mutate: logout } = useStudentLogout();
 
@@ -94,16 +96,28 @@ export default function MobileMainHeader() {
     setCartUser(dataBooksInCartData?.data?.metadata);
   }, [dataBooksInCartData]);
 
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+  };
+
+  const handleSubmitSearch = (e) => {
+    if (e.key === "Enter") {
+      btnClickSearch();
+    }
+  }
+
+  const btnClickSearch = () => {
+    setSearchValue("");
+    navigate(`/book/search?search=${searchValue}`);
+  }
+
   function handleGetCartProductCount(count) {
     console.log("count", count);
   }
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
   };
 
   const handleClickProfile = () => {
@@ -121,12 +135,7 @@ export default function MobileMainHeader() {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    handleMobileMenuClose();
   };
-
-  // const handleMobileMenuOpen = (event) => {
-  //   setMobileMoreAnchorEl(event.currentTarget);
-  // };
 
   const menuId = "primary-search-account-menu";
   const renderMenu = (
@@ -183,16 +192,19 @@ export default function MobileMainHeader() {
 
           {/* Thanh Tìm Kiếm */}
           <Search>
-            <SearchIconWrapper>
+            <SearchIconWrapper onClick={btnClickSearch}>
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
               placeholder="Tìm Kiếm Sách…"
+              value={searchValue}
+              onChange={handleSearch}
+              onKeyDown={handleSubmitSearch}
               inputProps={{ "aria-label": "search" }}
             />
           </Search>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", alignItems:'center' }}>
             <IconButton
               size="large"
               aria-label="show 17 new notifications"
@@ -208,13 +220,16 @@ export default function MobileMainHeader() {
               ButtonComponent={
                 <Button
                   sx={{
-                    color: theme.colors.primary2,
+                    color:theme.colors.primary2,
+                    padding: "0.75rem",
+                    boxSizing: "border-box",
                   }}
                 >
                   <StyledBadge badgeContent={cartUser?.length} color="error">
                     <RiShoppingBag4Fill
-                      fontSize={"1.75rem"}
-                      color="var(--color-primary2)"
+                      fontSize={widthScreen < BREAK_POINTS.md ? "1.5rem" :"1.75rem"}
+                      color= {widthScreen < BREAK_POINTS.md ? "var(--color-white1)" : "var(--color-primary2)"}
+                      style={{marginBottom: "0.25rem"}}
                     ></RiShoppingBag4Fill>
                   </StyledBadge>
                 </Button>
@@ -240,34 +255,21 @@ export default function MobileMainHeader() {
             >
               {dataStudent?.profileImage ? (
                 <img
-                  width={"28px"}
+                  width={"30px"}
                   height={"28px"}
                   alt="avatar"
                   src={dataStudent?.profileImage}
+                  style={{ borderRadius: "50%" }}
                 ></img>
               ) : (
                 <AccountCircle />
               )}
             </IconButton>
           </Box>
-          {/* <Box sx={{ display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon />
-            </IconButton>
-          </Box> */}
         </Toolbar>
       </AppBar>
 
       {renderMenu}
-
-      {/* Drawer navigation */}
     </Box>
   );
 }

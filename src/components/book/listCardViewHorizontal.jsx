@@ -38,7 +38,6 @@ export default function ListCardViewHorizontal({
         };
       });
 
-    console.log("LIST COMPONENT BOOK:::", newBooks);
     setListComponentBook(newBooks);
   }, [dataList]);
   return (

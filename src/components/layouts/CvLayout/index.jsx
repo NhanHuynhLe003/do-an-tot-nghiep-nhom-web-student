@@ -63,7 +63,6 @@ export default function CvLayout({ children, typePage = "" }) {
           style={{
             width: "100%",
             height: "100%",
-            // filter: "drop-shadow(3px 3px 30px #6154FA)",
           }}
         />
       </Box>

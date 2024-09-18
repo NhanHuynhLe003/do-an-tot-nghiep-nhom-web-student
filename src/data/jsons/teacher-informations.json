@@ -1,0 +1,34 @@
+{
+    "teacherInformations": [
+        {
+            "id": 1000,
+            "name": "Huỳnh Lê Nhân",
+            "email": "0308211150@caothang.edu.vn"
+        },
+        {
+            "id": 1001,
+            "name": "Nguyễn Thiện Thông",
+            "email": "nguyenthienthong@caothang.edu.vn"
+        },
+        {
+            "id": 1002,
+            "name": "Nguyễn Duy Thắng",
+            "email": "nguyenduythang@caothang.edu.vn"
+        },
+        {
+            "id": 1003,
+            "name": "Trần Tú Nam Kha",
+            "email": "trantunamkha@caothang.edu.vn"
+        },
+        {
+            "id": 1004,
+            "name": "Phạm Duy Tân",
+            "email": "phamduytan@caothang.edu.vn"
+        },
+        {
+            "id": 1005,
+            "name": "Đỗ Ngọc Thanh Châu",
+            "email": "dongocthanhchau@caothang.edu.vn"
+        }
+    ]
+}

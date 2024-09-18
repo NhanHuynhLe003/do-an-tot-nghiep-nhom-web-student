@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from "react";
-import styles from "./BookCheckout.module.css";
 import {
   Box,
   Button,
@@ -8,56 +6,48 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { IoMdReturnLeft } from "react-icons/io";
-import IQuantityInput from "../../../components/IQuantityInput";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import { useForm, Controller } from "react-hook-form";
-import { useGetCheckoutReview } from "../../../hooks/apis/checkout_order";
-import {
-  Navigate,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import { useOrderBookStudent } from "../../../hooks/apis/checkout_order/useOrderBookStudent";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { IoMdReturnLeft } from "react-icons/io";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useQueryClient } from "react-query";
-import { CheckoutOrderKeys } from "../../../constants";
+import IQuantityInput from "../../../components/IQuantityInput";
+import { useGetCheckoutReview } from "../../../hooks/apis/checkout_order";
+import { useOrderBookStudent } from "../../../hooks/apis/checkout_order/useOrderBookStudent";
+import styles from "./BookCheckout.module.css";
 
 export default function BookCheckout() {
   const { userId } = useParams();
   const navigate = useNavigate();
-
-  const queryClient = useQueryClient();
 
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   const [checkoutInformation, setCheckoutInformation] = useState([]);
 
   const {
-    mutate: orderBook,
-    isLoading: isLoadingOrderBook,
-    error: errorOrderBook,
-    data: dataOrderBook,
-  } = useOrderBookStudent();
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm();
 
-  const {
-    data: checkoutData,
-    error: errorCheckoutData,
-    isLoading: isLoadingCheckoutData,
-  } = useGetCheckoutReview({
-    cartUserId: studentData?._id,
-    userInfo: {
-      name: studentData?.name,
-      email: studentData?.email,
-      userId: studentData?._id,
-      class: studentData?.classStudent,
-    },
-    dateReturnBook: "06-30-2024",
-  });
+  const { mutate: orderBook } = useOrderBookStudent();
+
+  const { data: checkoutData, isLoading: isLoadingCheckoutData } =
+    useGetCheckoutReview({
+      cartUserId: studentData?._id,
+      userInfo: {
+        name: studentData?.name,
+        email: studentData?.email,
+        userId: studentData?._id,
+        class: studentData?.classStudent,
+      },
+      dateReturnBook: "06-30-2024",
+    });
 
   useEffect(() => {
     setCheckoutInformation(checkoutData?.data?.metadata || []);
@@ -71,24 +61,13 @@ export default function BookCheckout() {
     setValue("email", email);
     setValue("fullName", name);
     setValue("class", classStudent);
-  }, [checkoutInformation]);
+  }, [checkoutInformation, setValue]);
 
-  const {
-    control,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm();
   const currentDate = dayjs();
   const onSubmit = (data) => {
     const newData = { ...data };
     newData.borrowDate = dayjs(newData.borrowDate).format("DD/MM/YYYY");
     newData.returnDate = dayjs(newData.returnDate).format("DD/MM/YYYY");
-
-    // const idToast = toast.loading("Đang xác nhận thông tin mượn sách", {
-    //   position: "top-center",
-    // });
 
     orderBook(
       {
@@ -100,47 +79,20 @@ export default function BookCheckout() {
       },
       {
         onSuccess: (data) => {
-          console.log("SUCCESSED UPDATE CHECKOUT::::", data);
-
-          //Cập nhật lại DATA thông tin mượn sách để hiển thị phía Client cho người dùng
-          queryClient.setQueryData(CheckoutOrderKeys.GET_CHECKOUT_REVIEW, {
-            name: studentData?.name,
-            email: studentData?.email,
-            userId: studentData?._id,
-            class: studentData?.classStudent,
-          });
-          // Đánh dấu dữ liệu đã hết hạn và refetch lại dữ liệu mới
-          queryClient.invalidateQueries({
-            queryKey: [
-              CheckoutOrderKeys.GET_ORDER_ALL,
-              CheckoutOrderKeys.GET_ORDER_BY_STUDENT_ID,
-              CheckoutOrderKeys.GET_CHECKOUT_REVIEW,
-              data?.metadata?.cart_userId,
-            ],
-          });
+          navigate("/book/my-bookshelf");
+          toast.success(
+            "Xác nhận thông tin mượn sách thành công!",
+            {
+              position: "top-center",
+            }
+          );
         },
       }
     );
-
-    toast.success(
-      "Xác nhận thông tin mượn sách thành công!",
-      {
-        position: "top-center",
-      },
-      {
-        autoClose: 3000,
-      }
-    );
-
-    setTimeout(() => {
-      navigate("/book");
-    }, 4000);
-
-    console.log(newData);
   };
 
   if (studentData && userId !== studentData?._id)
-    return <Navigate to="/not-found-page"></Navigate>;
+    return <Navigate to="/login"></Navigate>;
 
   if (isLoadingCheckoutData)
     return (
@@ -156,6 +108,10 @@ export default function BookCheckout() {
         <CircularProgress size={"large"}></CircularProgress>
       </Box>
     );
+
+  if (!checkoutData) {
+    return <Navigate to="/book"></Navigate>;
+  }
 
   return (
     <Box>
@@ -270,7 +226,14 @@ export default function BookCheckout() {
                       ml: "1rem",
                     }}
                   >
-                    <IQuantityInput id={Date.now()} value={1}></IQuantityInput>
+                    <Box sx={{
+                      minWidth: "4rem",
+                      border: "1px solid var(--color-primary2)",
+                      borderRadius: "0.5rem",
+                      textAlign: "center",
+                    }}>
+                      {book?.bookQuantity || 1}
+                    </Box>
                   </Stack>
 
                   <button

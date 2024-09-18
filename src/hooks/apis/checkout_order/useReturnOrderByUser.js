@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "react-query";
 import axiosInstance from "../../../apis/axiosConfig";
 import { CheckoutOrderKeys } from "../../../constants";
+import { UserKeys } from "../../../constants/ReactQuery/user";
 
 export const useReturnOrderByUser = (payload, options = {}) => {
   const queryClient = useQueryClient();
@@ -15,9 +16,10 @@ export const useReturnOrderByUser = (payload, options = {}) => {
 
     {
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries({
-          queryKey: [CheckoutOrderKeys.GET_ORDER_ALL],
-        });
+        Promise.all([
+          queryClient.invalidateQueries([UserKeys.GET_USER_BOOKS_READING]),
+          queryClient.invalidateQueries([UserKeys.GET_USER_BOOKS_READED]),
+        ]);
       },
 
       ...options,

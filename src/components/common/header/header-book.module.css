@@ -53,26 +53,17 @@
 
 @media screen and (max-width: 1120px) {
     .boxHour .time {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
+    }
+
+    .timeBox {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 
     .timeBox .boxDate p {
-
-        font-size: 1.5rem;
-    }
-
-}
-
-@media screen and (max-width: 1060px) {
-    .boxHour .time {
-        font-size: 0.75rem;
         text-wrap: nowrap;
-    }
-
-    .timeBox .boxDate p {
-
-        font-size: 0.75rem;
-        text-wrap: nowrap;
+        font-size: 1.35rem;
     }
 
 }

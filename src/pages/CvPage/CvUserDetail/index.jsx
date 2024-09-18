@@ -17,35 +17,43 @@ import IWrapperResizeRotate from "../../../components/IWrapperResizeRotate";
 import { BREAK_POINTS } from "../../../constants";
 import { useWindowSize } from "../../../hooks";
 import { useGetCvById } from "../../../hooks/apis/admin/useGetCvById";
+import teacherInformations from "../../../data/jsons/teacher-informations.json";
 import {
   cvZoomScaleSelector,
   listCvUserSelector,
 } from "../../../redux/selector";
 import CvSlice from "../../../redux/slices/CvSlice";
+import SendCvEmailTeacherListBtn from "../../../components/sendCvEmailTeacherListBtn";
+import { useUpdateCv } from "../../../hooks/apis/cv/useUpdateCv";
+import { useBackdrop } from "../../../components/backdropProvider/BackdropProvider";
 
 export default function CvUserDetail() {
   const { widthScreen, heightScreen } = useWindowSize();
   const studentData = JSON.parse(localStorage.getItem("studentData"));
+  const { mutate: updateCv } = useUpdateCv();
+  const { isLoading, startLoading, stopLoading } = useBackdrop();
+  const [isSaveCv, setIsSaveCv] = useState(false);
+  const [thumbnailCvImg, setThumbnailCvImg] = useState("");
 
+  const loadingIdRef = useRef(null);
   const { id: currentCvPageId } = useParams();
 
   const [isExistCvPage, setIsExistCvPage] = useState(true);
 
   //Dữ liệu CV từ Store Redux
   const listCvUsers = useSelector(listCvUserSelector);
+
   const boardCvConvertToDisplay = useRef([]);
 
-  const {
-    data: cvDataDetail,
-    error: errorCvDetail,
-    isLoading: isLoadingCvDetail,
-  } = useGetCvById({ cvId: currentCvPageId, userId: studentData?._id });
+  const { data: cvDataDetail } = useGetCvById({
+    cvId: currentCvPageId,
+    userId: studentData?._id,
+  });
 
   const [listBoardCv, setListBoardCv] = useState([]);
   const [getApiFirstTime, setGetApiFirstTime] = useState(true);
 
   // Chuyển sang dạng hiển thị được trên IDraggableFree
-  const [listBoardCvConvert, setListBoardCvConvert] = useState([]);
   const [listBoardRefs, setListBoardRefs] = useState([]);
 
   useEffect(() => {
@@ -77,8 +85,6 @@ export default function CvUserDetail() {
         cvWrapperRef: React.createRef(),
       }));
 
-      console.log("Convert Data Board From API:::", convertDataBoardFromApi);
-
       // Set Vị trí CV đầu tiên cho view
       dispatch(
         CvSlice.actions.setCurrentBoardInView({
@@ -107,6 +113,7 @@ export default function CvUserDetail() {
   // Board bao bên ngoài
   const containerBoardRef = useRef(null);
 
+  const [loadingToast, setLoadingToast] = useState(false);
   const [initialTouchDistance, setInitialTouchDistance] = useState(null);
   const [lastTouchPositions, setLastTouchPositions] = useState(null);
 
@@ -173,6 +180,66 @@ export default function CvUserDetail() {
     setIsDrawingRectangle(false);
   };
 
+  const handleSaveCv = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setScale(1);
+      startLoading();
+
+      //Chụp ảnh CV để lưu
+      const thumbnailCV = await handleCaptureCv();
+      setThumbnailCvImg(thumbnailCV?.metadata?.url || "");
+
+      if (listCvUsers[0]) {
+        const dataCv = { ...listCvUsers[0] };
+
+        const cvPayload = {
+          ...dataCv,
+          _id: dataCv?.cvId,
+          userId: dataCv?.cvUserId,
+          thumbnail: thumbnailCV?.metadata?.url,
+          boards: dataCv?.boards?.map((board, boardIndex) => {
+            return {
+              ...board,
+
+              position: { top: boardIndex * 80, left: 0 },
+              listDataItem: board?.listDataItem?.map((item, index) => {
+                const newItem = { ...item };
+
+                // newItem._id = item?.id;
+
+                delete newItem.id;
+                delete newItem.component;
+
+                return newItem;
+              }),
+            };
+          }),
+        };
+
+        // delete cvPayload?.cvUserId;
+
+        updateCv(cvPayload, {
+          onSuccess: (data, variables, context) => {
+            stopLoading();
+            toast.success("Lưu CV thành công", {
+              position: "top-center",
+              autoClose: 2000,
+            });
+            setIsSaveCv(true);
+          },
+          onError: () => {
+            stopLoading();
+            toast.error("Lưu CV thất bại", {
+              position: "top-center",
+            });
+          },
+        });
+      }
+    },
+    [listCvUsers]
+  );
+
   // ==================Xử lý căn giữa thanh scrollX khi zoom==================
   const centerScrollX = (container) => {
     if (container) {
@@ -180,6 +247,17 @@ export default function CvUserDetail() {
       container.scrollLeft = (scrollWidth - clientWidth) / 2;
     }
   };
+
+  useEffect(() => {
+    if (loadingToast) {
+      loadingIdRef.current = toast.loading("Đang xử lý...", {
+        position: "top-center",
+        autoClose: 10000,
+      });
+    } else {
+      toast.dismiss(loadingIdRef.current);
+    }
+  }, [loadingToast]);
 
   useEffect(() => {
     //(*)Chuyển CV sang dạng Hiển thị được trong BOARD
@@ -194,8 +272,6 @@ export default function CvUserDetail() {
 
     const newBoardDataConvert = listCVTemp.map((board, index) => {
       const newItemDataConvert = board.listDataItem.map((item) => {
-        console.log("ITEM:::", item);
-
         // console.log("TYPE ITEM DRAG:::", typeItemDrag);
         //(*)Component sẽ được truyền xuống Board, tìm cách chỉ hiển thị khi có type thôi
         let ChildComponent = ITipTapEditor;
@@ -472,11 +548,14 @@ export default function CvUserDetail() {
 
   //==============Xử lý setScale từ Slider từ footerCv===================
   useEffect(() => {
+    if (isLoading) return; //Nếu đang loading để lưu thì không set scale
+
     setScale(scaleCvSelector);
   }, [scaleCvSelector]);
 
   //=======================Xử lý setScale khi zoom==================
   useEffect(() => {
+    if (isLoading) return; //Nếu đang loading để lưu thì không set scale
     //Set SCale value lên ngược lên footer
     dispatch(CvSlice.actions.setZoomScale(scale));
     centerScrollX(containerBoardRef.current);
@@ -493,8 +572,10 @@ export default function CvUserDetail() {
     if (event.ctrlKey) {
       event.preventDefault(); // Ngăn hành vi zoom mặc định của trình duyệt
 
+      if (isLoading) return; //Nếu đang loading để lưu thì không set scale
+
       // Tính toán delta để thay đổi zoom
-      const delta = event.deltaY > 0 ? -0.02 : 0.02;
+      const delta = event.deltaY > 0 ? -0.04 : 0.04;
 
       setScale((prevScale) => {
         let newScale = prevScale + delta;
@@ -516,6 +597,9 @@ export default function CvUserDetail() {
   const handleTouchMove = (event) => {
     if (event.touches.length === 2) {
       event.preventDefault();
+
+      if (isLoading) return; //Nếu đang loading để lưu thì không set scale
+
       const touch1 = event.touches[0];
       const touch2 = event.touches[1];
 
@@ -638,10 +722,60 @@ export default function CvUserDetail() {
     }, 500)
   );
 
-  const handleDownloadPDF = async () => {
+  const handleCaptureCv = async () => {
     // Load images through proxy
     // Đưa về 100% để tránh lỗi ảnh
     dispatch(CvSlice.actions.setZoomScale(1));
+    //Delay 1s để về 100% scale
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const element = listBoardRefs[0].boardRef.current;
+
+    if (element) {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        logging: true,
+        letterRendering: 1,
+        allowTaint: false,
+        useCORS: true,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      // Chuyển đổi base64 thành Blob
+      const byteString = atob(imgData.split(",")[1]);
+      const mimeString = imgData.split(",")[0].split(":")[1].split(";")[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: mimeString });
+
+      // Sử dụng FormData để lưu Blob dưới dạng file
+      const formData = new FormData();
+
+      formData.append("uploadFileKey", blob, `${Date.now().toString()}.png`);
+      const { data } = await axiosInstance.post(
+        `/v1/api/upload/static/img?nameStorage=cvboard`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      return data;
+    }
+    return null;
+  };
+
+  const handleDownloadPDF = async () => {
+    setScale(1);
+    // Load images through proxy
+    startLoading();
+    // Đưa về 100% để tránh lỗi ảnh
     //Delay 1s để về 100% scale
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -673,6 +807,11 @@ export default function CvUserDetail() {
       }
     }
 
+    stopLoading();
+    toast.success("Tạo file PDF thành công!", {
+      position: "top-center",
+      autoClose: 2000,
+    });
     pdf.save("document.pdf");
   };
 
@@ -698,16 +837,49 @@ export default function CvUserDetail() {
         },
       }}
     >
-      <Button
-        onClick={handleDownloadPDF}
-        type="button"
-        variant="outlined"
+      <Stack
+        direction={"row"}
+        justifyContent={"center"}
+        alignItems={"center"}
+        gap={"1rem"}
         sx={{
-          fontSize: "1.25rem",
+          position: "relative",
+          left: `${50 * scale}%`,
         }}
       >
-        Lưu CV PDF
-      </Button>
+        <Button
+          type="button"
+          variant="outlined"
+          color="success"
+          size="medium"
+          onClick={handleSaveCv}
+        >
+          Lưu CV
+        </Button>
+
+        <Button
+          onClick={handleDownloadPDF}
+          type="button"
+          variant="outlined"
+          size="medium"
+        >
+          Xuất CV PDF
+        </Button>
+
+        <SendCvEmailTeacherListBtn
+          isSaveCv={isSaveCv}
+          cvId={currentCvPageId}
+          cvImgUrl={thumbnailCvImg}
+          btnProps={{
+            type: "button",
+            variant: "outlined",
+            color: "warning",
+            size: "medium",
+          }}
+          items={teacherInformations.teacherInformations}
+          btnContent={"yêu cầu preview cv"}
+        />
+      </Stack>
       {isExistCvPage ? (
         <Box
           // Phải dùng Box này chứa để các item bên trong có thể ăn theo flex của board_container_cv

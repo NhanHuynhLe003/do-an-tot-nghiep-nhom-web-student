@@ -45,7 +45,7 @@ export default function IDraggableFree({
   isDrawingRectangle,
   boardInformation,
 }) {
-  const { boardId, name, position } = boardInformation;
+  const { boardId } = boardInformation;
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   //Cờ dùng update Lịch sử lần đầu tiên khi component được mount
   const flagUpdateHistoryRefFirstTime = useRef(false);
@@ -849,6 +849,7 @@ export default function IDraggableFree({
 
     // Cập nhật vị trí mới của item được kéo
     const newDataListItemPositionDragEnd = listDataItem.map((data) => {
+      const TRANSLATE_NUM = TRANSLATE_RATE / 100;
       //Check xem item đang kéo có phải là active item không, nếu đúng thì cập nhật tọa độ
       if (data.id === active.id) {
         const { x, y } = data.coordinate;
@@ -856,16 +857,16 @@ export default function IDraggableFree({
         //(*) Do khi scale thì tỉ lệ width height của item cũng sẽ thay đổi, nên ta phải chia cho zoomScale để nó về tọa độ gốc
         //Vd: width: 200 => scale 0.8 là còn 160 => 160/0.8 về lại 200
         const newCoordinate = {
-          x: x + delta.x,
-          y: y + delta.y,
-          x2: x + delta.x + width / zoomScale,
-          y2: y + delta.y,
-          x3: x + delta.x + width / zoomScale,
-          y3: y + delta.y + height / zoomScale,
-          x4: x + delta.x,
-          y4: y + delta.y + height / zoomScale,
-          x5: x + delta.x + width / 2 / zoomScale,
-          y5: y + delta.y + height / 2 / zoomScale,
+          x: x + delta.x / zoomScale,
+          y: y + delta.y / zoomScale,
+          x2: x + width + delta.x / zoomScale,
+          y2: y + delta.y / zoomScale,
+          x3: x + width + delta.x / zoomScale,
+          y3: y + height + delta.y / zoomScale,
+          x4: x + delta.x / zoomScale,
+          y4: y + height + delta.y / zoomScale,
+          x5: x + width / 2 + delta.x / zoomScale,
+          y5: y + height / 2 + delta.y / zoomScale,
         };
 
         return {
@@ -938,6 +939,7 @@ export default function IDraggableFree({
                 // Chỉ có Author mới được kéo dù cho disabled
                 isDragDisabled && studentData?.id !== childData.cvUserId
               }
+              zoomScale={zoomScale}
               layer={childData.layer}
               typeDragItem={childData.type}
               sizeItem={childData.sizeItem}
@@ -996,6 +998,7 @@ export const IDraggbleItemWrapper = ({
   componentRef,
   typeDragItem,
   isDragDisabled,
+  zoomScale,
 }) => {
   /**
    useDraggable chỉ chạy khi component được kéo
@@ -1014,6 +1017,7 @@ export const IDraggbleItemWrapper = ({
     <IDraggableItem
       id={childId}
       sizeLines={sizeLines}
+      zoomScale={zoomScale}
       ref={(node) => {
         //Ref nhận vào 1 agr là node, ta setNodeRef cho item kéo thả bên trong, còn lại ta sẽ lưu lại HTMLDOM trong componentRef
         componentRef.current = node; //Gán giá trị Dom vào ref component

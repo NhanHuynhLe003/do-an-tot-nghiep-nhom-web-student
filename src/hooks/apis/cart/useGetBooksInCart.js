@@ -10,8 +10,7 @@ export const useGetBooksInCart = (payload = {}, options = {}) => {
         ...payload,
       }),
     {
-      enabled: !!payload?.cartUserId,
-      refetchOnMount: true, // Tải lại khi data có thay đổi, dùng để update Cart khi thêm sách vào giỏ hàng
+      enabled: !!payload.cartUserId,
     }
   );
 };

@@ -1,9 +1,9 @@
 import { Box, Stack, Typography } from "@mui/material";
-import React, { useEffect, useState, useMemo } from "react";
-import style from "./listBookView.module.css";
 import clsx from "clsx";
+import React, { useMemo } from "react";
 import FreeModeCarousel from "../ICarousel/FreeModeCarousel";
 import CardBook from "./cardBook";
+import style from "./listBookView.module.css";
 
 export default function ListBookView({
   title = "",
@@ -36,7 +36,7 @@ export default function ListBookView({
     });
   }, [dataList, isHiddenWhenOutOfStock]);
 
-  if (!dataList || dataList.length === 0) {
+  if (dataList?.length === 0) {
     return (
       <Typography
         component={"h2"}

@@ -1,4 +1,4 @@
-import { format, parse, differenceInWeeks, parseISO } from "date-fns";
+import { differenceInDays, format, parse, parseISO } from "date-fns";
 import slugify from "slugify";
 
 /**
@@ -45,10 +45,10 @@ function calculateTimeDifference(dateString) {
   const currentDate = new Date();
 
   // Tính khoảng cách giữa ngày nhập vào và ngày hiện tại theo đơn vị tuần
-  const weeksDifference = differenceInWeeks(inputDate, currentDate);
+  const daysDifference = differenceInDays(inputDate, currentDate);
 
   // Trả về số tuần
-  return -weeksDifference;
+  return -daysDifference;
 }
 
 /**
@@ -85,12 +85,17 @@ function createSlug(text) {
   });
 }
 
+function decodeTextFromURL(encodedText) {
+  return decodeURIComponent(encodedText);
+}
+
 export {
   calculateDistanceByCoordinate,
-  shuffleArray,
-  roundNumber,
   calculateTimeDifference,
-  debounce,
-  createSlug,
   convertISO,
+  createSlug,
+  debounce,
+  decodeTextFromURL,
+  roundNumber,
+  shuffleArray,
 };

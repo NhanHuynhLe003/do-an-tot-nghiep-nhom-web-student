@@ -14,8 +14,6 @@ export const useGetListSearchBook = (payload = {}, options = {}) => {
       payload.limit,
     ],
     async () => {
-      console.log("DATA CHANGED::::::", payload);
-
       return await axiosInstance.get(
         `/v1/api/book/filter?sortType=${payload?.sortType}&categoryId=${
           payload?.categoryId

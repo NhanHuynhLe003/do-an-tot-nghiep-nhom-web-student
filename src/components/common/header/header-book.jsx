@@ -1,33 +1,31 @@
+import { Notifications } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Badge,
   Box,
   Button,
-  CircularProgress,
   IconButton,
   InputBase,
   Paper,
   Stack,
-  styled,
+  styled
 } from "@mui/material";
-import { RiShoppingBag4Fill } from "react-icons/ri";
 import clsx from "clsx";
+import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
+import { RiShoppingBag4Fill } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
+import { BREAK_POINTS } from "../../../constants";
+import { useStudentLogout } from "../../../hooks/apis/access";
+import { useGetBooksInCart } from "../../../hooks/apis/cart";
+import { useWindowSize } from "../../../hooks/useWindowSize";
 import theme from "../../../theme";
 import IMenuListFloat from "../../IMenuListFloat";
-import AccountInfo from "./components/account-info";
-import style from "./header-book.module.css";
-import { useStudentLogout } from "../../../hooks/apis/access";
-import { useNavigate } from "react-router-dom";
-import { Notifications } from "@mui/icons-material";
 import IPopOverBtn from "../../IPopOverBtn";
+import AccountInfo from "./components/account-info";
 import CartBookOrder from "./components/cartBookOrder";
-import { useGetBooksInCart } from "../../../hooks/apis/cart";
-import { format } from "date-fns";
-import { debounce } from "lodash";
-import { useFindBookByTextSearch } from "../../../hooks/apis/books/useFindBookByTextSearch";
-import BookSearchCard from "./components/bookSearchCard";
+import style from "./header-book.module.css";
 
 const listMenuItemFloat = [
   {
@@ -54,6 +52,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
   const dataStudent = JSON.parse(localStorage.getItem("studentData"));
 
   const navigate = useNavigate();
+  const {width: widthScreen} = useWindowSize();
   // Trigger API lấy danh sách sách trong giỏ hàng
 
   const [cartUser, setCartUser] = useState([]);
@@ -61,26 +60,14 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
   const { mutate: logout } = useStudentLogout();
   const [searchBook, setSearchBook] = React.useState("");
   const [formattedDate, setFormattedDate] = useState("");
-  const [booksSearchFound, setBooksSearchFound] = useState([]);
 
-  const { data: dataBooksInCartData } = useGetBooksInCart(
-    { cartUserId: dataStudent?._id || null },
-    {
-      keepPreviousData: true,
-    }
-  );
-
-  const { data: dataBooksSearch } = useFindBookByTextSearch({
-    textSearch: searchBook,
+  const { data: dataBooksInCartData } = useGetBooksInCart({
+    cartUserId: dataStudent?._id,
   });
 
-  useEffect(() => {
-    const listBookSearchFound = dataBooksSearch?.data?.metadata;
-    console.log("listBookSearchFound:::", listBookSearchFound);
-    if (listBookSearchFound) {
-      setBooksSearchFound(listBookSearchFound);
-    }
-  }, [dataBooksSearch]);
+  // const { data: dataBooksSearch } = useFindBookByTextSearch({
+  //   textSearch: valueSearchQuery,
+  // });
 
   useEffect(() => {
     const userAuth = JSON.parse(localStorage.getItem("studentData"));
@@ -99,10 +86,10 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
     setCartUser(dataBooksInCartData?.data?.metadata);
   }, [dataBooksInCartData]);
 
-  const handleSearchBook = debounce((value) => {
-    console.log("value", value);
-    setSearchBook(value);
-  }, 700);
+  function handleClickSearchBtn(){
+    setSearchBook('');
+    navigate(`/book/search?search=${searchBook}`);
+  }
 
   function handleClickLoginNow() {
     navigate("/login");
@@ -122,6 +109,12 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
 
     if (mark.tag === "profile") {
       navigate("/student/information");
+    }
+  }
+
+  function handleKeyDownSearch(e){
+    if(e.key === "Enter"){
+      handleClickSearchBtn();
     }
   }
 
@@ -154,7 +147,6 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
           }}
         >
           <Paper
-            component="form"
             sx={{
               background: "transparent",
               borderRadius: "5rem",
@@ -169,12 +161,15 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
               sx={{ ml: 1, flex: 1 }}
               placeholder="Tìm kiếm sách, tác giả...."
               inputProps={{ "aria-label": "search" }}
-              onChange={(e) => handleSearchBook(e.target.value)}
+              onKeyDown = {handleKeyDownSearch}
+              value={searchBook}
+              onChange={(e) => setSearchBook(e.target.value)}
             />
             <IconButton
               type="button"
               sx={{ p: "10px", color: theme.colors.primary1 }}
               aria-label="search"
+              onClick={handleClickSearchBtn}
             >
               <SearchIcon
                 sx={{
@@ -183,33 +178,10 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
               />
             </IconButton>
           </Paper>
-          {/* List Nội dung tìm kiếm sách */}
-          <Paper
-            sx={{
-              position: "absolute",
-              top: "3rem",
-              left: 0,
-              width: "100%",
-            }}
-          >
-            {booksSearchFound ? (
-              booksSearchFound.map((book) => (
-                <BookSearchCard
-                  key={book._id}
-                  img={book.book_thumb}
-                  title={book.book_name}
-                  author={book.book_author}
-                  desc={book.book_desc}
-                />
-              ))
-            ) : (
-              <CircularProgress />
-            )}
-          </Paper>
         </Stack>
 
         <Stack className={style.timeBox} direction={"row"} gap={"2rem"}>
-          <Box className={style.boxHour}>
+          {widthScreen > 1300 && <Box className={style.boxHour}>
             <FaRegClock
               color={theme.colors.primary1}
               fontSize={"1.25rem"}
@@ -221,7 +193,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
                 new Date().getMinutes()}{" "}
               {new Date().getHours() >= 12 ? "PM" : "AM"}
             </p>
-          </Box>
+          </Box>}
           <Box className={style.boxDate}>
             <FaRegCalendarAlt
               color={theme.colors.primary1}
@@ -243,7 +215,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
                 <StyledBadge badgeContent={0} color="error">
                   <Notifications
                     sx={{
-                      fontSize: "1.75rem",
+                      fontSize: widthScreen >= BREAK_POINTS.xl ? "1.75rem": "1.35rem",
                       color: "var(--color-primary2)",
                     }}
                   ></Notifications>
@@ -263,7 +235,7 @@ export default function HeaderBook({ ref, topPositon = 0 }) {
               >
                 <StyledBadge badgeContent={cartUser?.length} color="error">
                   <RiShoppingBag4Fill
-                    fontSize={"1.75rem"}
+                    fontSize={widthScreen >= BREAK_POINTS.xl ? "1.75rem": "1.35rem"}
                     color="var(--color-primary2)"
                   ></RiShoppingBag4Fill>
                 </StyledBadge>

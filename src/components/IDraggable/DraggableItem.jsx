@@ -33,6 +33,7 @@ const IDraggableItem = React.forwardRef((props, ref) => {
     listeners,
     transform,
     style,
+    zoomScale = 1,
     childElement,
     ...attributes
   } = props;
@@ -66,12 +67,16 @@ const IDraggableItem = React.forwardRef((props, ref) => {
       // Quan trọng, nó dùng để transform mục kéo được
       style={{
         ...style,
-        "--translate-x": `${transform?.x || 0}px`,
-        "--translate-y": `${transform?.y || 0}px`,
+        "--translate-x": `${transform?.x / zoomScale || 0}px`,
+        "--translate-y": `${transform?.y / zoomScale || 0}px`,
+        "--scale-x": zoomScale,
+        "--scale-y": zoomScale,
       }}
     >
-      <button className={styles.buttonDragger}>
-        {childElement}
+      <button>
+        {React.cloneElement(childElement, {
+          isDragging: dragging,
+        })}
         <div
           style={{
             // Kiểm tra xem id của item đang kéo có trùng với id của item hiện tại không, tránh trường hợp kéo trùng lặp

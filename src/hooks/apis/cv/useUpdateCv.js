@@ -12,9 +12,17 @@ export const useUpdateCv = (payload, options = {}) => {
 
     {
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries({
-          queryKey: [CvKeys.GET_CV_BY_ID, CvKeys.GET_ALL_CV_BY_ADMIN],
-        });
+        Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [CvKeys.GET_CV_BY_ID],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: [CvKeys.GET_CVS_BY_USER_ID],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: [CvKeys.GET_ALL_CV_BY_ADMIN],
+          }),
+        ]);
       },
 
       ...options,

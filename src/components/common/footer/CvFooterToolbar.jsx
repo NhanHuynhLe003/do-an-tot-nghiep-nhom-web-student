@@ -1,8 +1,9 @@
 import { Box, Slider, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { cvZoomScaleSelector } from "../../../redux/selector";
 import CvSlice from "../../../redux/slices/CvSlice";
+import { debounce } from "lodash";
 
 export default function CvFooterToolbar({
   sideBarWidth,
@@ -10,9 +11,19 @@ export default function CvFooterToolbar({
 }) {
   const dispatch = useDispatch();
   const zoomScale = useSelector(cvZoomScaleSelector);
+  const [zoom, setZoom] = useState(zoomScale || 100);
+
+  // Tạo hàm debounce một lần duy nhất
+  const debouncedDispatch = useCallback(
+    debounce((newValue) => {
+      dispatch(CvSlice.actions.setZoomScale(newValue / 100));
+    }, 50),
+    [dispatch]
+  );
 
   function handleZoomChange(event, newValue) {
-    dispatch(CvSlice.actions.setZoomScale(newValue / 100));
+    setZoom(newValue / 100);
+    debouncedDispatch(newValue);
   }
 
   return (
@@ -63,7 +74,7 @@ export default function CvFooterToolbar({
               width: "100%",
               height: "0.2rem",
             }}
-            value={zoomScale * 100}
+            value={zoom * 100}
             min={10}
             max={500}
             step={2}

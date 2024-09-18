@@ -7,18 +7,20 @@ import { commentList } from "../../../data/arrays";
 import style from "./book_detail.module.css";
 
 import {
+  Avatar,
   Box,
   Button,
   CircularProgress,
   Divider,
   Grid,
   IconButton,
+  Input,
   Rating,
   Stack,
   Typography,
 } from "@mui/material";
 import clsx from "clsx";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import FreeModeCarousel from "../../../components/ICarousel/FreeModeCarousel";
 import CardBook from "../../../components/book/cardBook";
 import CommentBook from "../../../components/bookDetail/commentBook";
@@ -27,6 +29,11 @@ import { useWindowSize } from "../../../hooks";
 import { useGetBookPublishDetailById } from "../../../hooks/apis/books/useGetBookPublishDetailById";
 import { useGetBooksByCategoryId } from "../../../hooks/apis/books/useGetBooksByCategoryId";
 import { convertISO, roundNumber } from "../../../utils";
+import { useAddBookToCartStudent } from "../../../hooks/apis/cart";
+import { toast } from "react-toastify";
+import { useGetComment } from "../../../hooks/apis/comment/useGetComment";
+import { format } from "date-fns";
+import { useCreateComment } from "../../../hooks/apis/comment/useCreateComment";
 export default function BookDetailPage({
   img,
   title = "book title",
@@ -62,19 +69,59 @@ export default function BookDetailPage({
     { content: "Tự Truyện", tag: "self-help" },
   ],
 }) {
+  const dataStudent = JSON.parse(localStorage.getItem("studentData"));
   const { bookId } = useParams();
+  const navigate = useNavigate();
 
   const { width: windowWidth, height } = useWindowSize();
 
   const [currentBtnComment, setCurrentBtnComment] = React.useState(0);
   // Sử dụng useState để quản lý số lượng comment đã hiển thị
+  const [dataComments, setDataComments] = useState(comments);
+  const [parentCommentId, setParentCommentId] = useState(null);
   const [visibleCount, setVisibleCount] = useState(7);
   const [showLoadingCmt, setShowLoadingCmt] = useState(false);
   const [booksRelated, setBooksRelated] = useState([]);
   const [bookDetail, setBookDetail] = useState({});
+  const [isLoadingComment, setIsLoadingComment] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(
     "667bb9c1f159a0af59debd15"
   );
+  const [contentReply, setContentReply] = React.useState("");
+
+  const contentBoxRef = React.useRef(null);
+
+  const { mutate: createComment } = useCreateComment();
+
+  const handleSubmitComment = () => {
+    setIsLoadingComment(true);
+
+    createComment(
+      {
+        bookId,
+        userId: dataStudent?._id,
+        content: contentReply,
+        parentId: null,
+      },
+      {
+        onSuccess: () => {
+          setIsLoadingComment(false);
+          handleHideCommentBox();
+        },
+        onError: () => {
+          toast.error(
+            "Có lỗi xảy ra khi phản hồi bình luận, vui lòng thử lại !"
+          );
+          setIsLoadingComment(false);
+        },
+      }
+    );
+  };
+
+  const { data: commentListData } = useGetComment({
+    bookId: bookId,
+    parentCommentId: null,
+  });
 
   const {
     data: bookPublishDetail,
@@ -91,9 +138,9 @@ export default function BookDetailPage({
     categoryId: currentCategory,
   });
 
-  useEffect(() => {
-    console.log("bookPublishDetail", bookPublishDetail);
+  const { mutate: addBook } = useAddBookToCartStudent();
 
+  useEffect(() => {
     // Kiểm tra xem sách hiện tại đã có dữ liệu chưa
     if (
       bookPublishDetail &&
@@ -101,13 +148,11 @@ export default function BookDetailPage({
       bookPublishDetail.data.metadata
     ) {
       const dataBook = bookPublishDetail.data.metadata;
-      console.log("dataBook:::", dataBook);
       if (
         dataBook &&
         dataBook.categoryBookList &&
         dataBook.categoryBookList.length > 0
       ) {
-        console.log("DATA BOOK", dataBook);
         // lấy category của cuốn sách
         setCurrentCategory(dataBook.categoryBookList[0]._id);
       }
@@ -121,6 +166,20 @@ export default function BookDetailPage({
     setCurrentBtnComment((prev) => (prev === 0 ? 1 : 0));
   };
 
+  const handleHideCommentBox = () => {
+    setContentReply("");
+  };
+
+  const handleChangeContentReply = (e) => {
+    const textarea = contentBoxRef.current;
+    // Đặt chiều cao về auto để reset trước khi tính toán kích thước
+    textarea.style.height = "auto";
+
+    // Đặt chiều cao mới dựa trên chiều cao cuộn (scrollHeight)
+    textarea.style.height = `${textarea.scrollHeight}px`;
+    setContentReply(e.target.value);
+  }
+
   // Hàm để xử lý sự kiện bấm vào nút "xem thêm"
 
   const handleShowMoreComments = async (e) => {
@@ -129,6 +188,35 @@ export default function BookDetailPage({
     setShowLoadingCmt(false);
     setVisibleCount((prev) => (prev <= 7 ? comments.length : 7));
   };
+
+  const handleBorrowBookNow = () => {
+    const payload = {
+      userId: dataStudent?._id,
+      book: {
+        bookId: bookDetail?._id,
+        quantity: 1,
+      },
+    };
+    addBook(payload, {
+      onSuccess: () => {
+        toast.success("Thêm sách thành công");
+        navigate(`/checkout/${dataStudent?._id}`);
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (commentListData) {
+      const newCommentList = commentListData?.data?.metadata?.map((cmt) => {
+        const date = cmt?.updatedAt ? new Date(cmt?.updatedAt) : new Date();
+        return {
+          ...cmt,
+          updatedAt: format(date, "dd-MM-yyyy"),
+        };
+      });
+      setDataComments(newCommentList);
+    }
+  }, [commentListData]);
 
   useEffect(() => {
     if (
@@ -388,6 +476,7 @@ export default function BookDetailPage({
             >
               <Button
                 className={style.borrowBookBtn}
+                onClick={handleBorrowBookNow}
                 sx={{
                   color: "var(--color-white1)",
                   backgroundColor: "var(--color-primary1)",
@@ -475,7 +564,7 @@ export default function BookDetailPage({
               }}
               onClick={handleChangeBtnComment}
             >
-              Bình Luận <span>(3)</span>
+              Bình Luận <span>({dataComments?.length || 0})</span>
             </Button>
             <Button
               variant="outlined"
@@ -494,19 +583,80 @@ export default function BookDetailPage({
           <br />
           <Divider></Divider>
           <br />
-
+          <Box width={"100%"} mt={2}>
+            <Stack direction={"row"} gap={1}>
+            <Avatar
+              alt="Nguyen Van A"
+              src={img}
+              sx={{ width: 40, height: 40, marginRight: "0.25rem" }}
+            />
+            <textarea
+                ref={contentBoxRef}
+                style={{
+                  width: "100%",
+                  resize: "none",
+                  borderLeft: "none",
+                  borderRight: "none",
+                  borderTop: "none",
+                  background: "transparent",
+                  outline: "none",
+                  paddingBottom: "0",
+                  lineHeight: '14px',
+                  overflow: 'hidden'
+                }}
+                value={contentReply}
+                onChange={handleChangeContentReply}
+                placeholder="Nhập nội dung phản hồi...."
+              />
+            </Stack>
+            <Stack direction={"row"} mt={3} justifyContent={'flex-end'}>
+              <Button
+                onClick={handleHideCommentBox}
+                type="button"
+                variant="outlined"
+                color="inherit"
+                sx={{ borderRadius: 8, outline: "none", border: "none" }}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="button"
+                variant="contained"
+                color={contentReply ? "primary" : "inherit"}
+                disabled={contentReply?.length === 0}
+                sx={{ borderRadius: 8, outline: "none", border: "none" }}
+                onClick={handleSubmitComment}
+              >
+                Phản hồi
+              </Button>
+            </Stack>
+          </Box>
           {/* Comment List*/}
           <Box>
             <Stack direction={"column"} spacing={2} mt={4}>
-              {comments.slice(0, visibleCount).map((cmt) => (
+            {isLoadingComment && (
+              <Box className={style.loadingCmt} textAlign={"center"} pt={4}>
+                <CircularProgress size={50} />
+              </Box>
+            )}
+              {!isLoadingComment && dataComments?.length ? dataComments.slice(0, visibleCount).map((cmt) => (
                 <CommentBook
-                  key={cmt.id}
-                  content={cmt.content}
-                  date={cmt.date}
-                  img={cmt.img}
-                  name={cmt.name}
+                  key={cmt?._id}
+                  parentId={cmt?._id}
+                  bookId={bookId}
+                  userId={dataStudent?._id || ''}
+                  content={cmt?.comment_content}
+                  date={cmt?.updatedAt}
+                  img={cmt?.comment_userId?.profileImage}
+                  name={cmt?.comment_userId?.name}
                 ></CommentBook>
-              ))}
+              )) : (
+                <Typography component={'h3'} variant="h6" sx={{
+                  color: "var(--color-primary2)",
+                  opacity: 0.5,
+                  textAlign: "center"
+                }}>Chưa có bình luận</Typography>
+              )}
             </Stack>
             {showLoadingCmt && (
               <Box className={style.loadingCmt} textAlign={"center"} pt={4}>
@@ -514,9 +664,9 @@ export default function BookDetailPage({
               </Box>
             )}
 
-            <Button sx={{ my: 4 }} onClick={handleShowMoreComments}>
+            {dataComments?.length > 0 && <Button sx={{ my: 4 }} onClick={handleShowMoreComments}>
               xem thêm bình luận
-            </Button>
+            </Button>}
           </Box>
         </Grid>
       </Grid>
