@@ -16,9 +16,14 @@ import { IoMdReturnLeft } from "react-icons/io";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import IQuantityInput from "../../../components/IQuantityInput";
+import {
+  useDeleteBookInCart,
+  useUpdateBookQuantiyInCart,
+} from "../../../hooks/apis/cart";
 import { useGetCheckoutReview } from "../../../hooks/apis/checkout_order";
 import { useOrderBookStudent } from "../../../hooks/apis/checkout_order/useOrderBookStudent";
 import styles from "./BookCheckout.module.css";
+import SubmitDialog from "../../../components/IDialog/SubmitDialog";
 
 export default function BookCheckout() {
   const { userId } = useParams();
@@ -48,6 +53,16 @@ export default function BookCheckout() {
       },
       dateReturnBook: "06-30-2024",
     });
+  const { mutate: updateBookQuantityInCart } = useUpdateBookQuantiyInCart();
+  const { mutate: deleteBookInCart, data: dataDeleteBookInCartData } =
+    useDeleteBookInCart();
+
+  function handleDeleteBookInCart(bookId) {
+    deleteBookInCart({
+      userId: studentData._id,
+      bookId: bookId,
+    });
+  }
 
   useEffect(() => {
     setCheckoutInformation(checkoutData?.data?.metadata || []);
@@ -80,12 +95,9 @@ export default function BookCheckout() {
       {
         onSuccess: (data) => {
           navigate("/book/my-bookshelf");
-          toast.success(
-            "Xác nhận thông tin mượn sách thành công!",
-            {
-              position: "top-center",
-            }
-          );
+          toast.success("Xác nhận thông tin mượn sách thành công!", {
+            position: "top-center",
+          });
         },
       }
     );
@@ -220,30 +232,63 @@ export default function BookCheckout() {
                       {book?.bookCategory[0]?.name}
                     </Typography>
                   </Stack>
-                  <Stack
-                    sx={{
-                      mt: "1rem",
-                      ml: "1rem",
-                    }}
-                  >
-                    <Box sx={{
-                      minWidth: "4rem",
-                      border: "1px solid var(--color-primary2)",
-                      borderRadius: "0.5rem",
-                      textAlign: "center",
-                    }}>
-                      {book?.bookQuantity || 1}
-                    </Box>
+                  <Stack alignItems={"flex-start"} pt={2}>
+                    <Box
+                      component={"span"}
+                      title="Không thể chỉnh sửa số lượng sách trong checkout, bấm vào giỏ hàng để thay đổi!"
+                      sx={{
+                        border: '1px solid #ccc',
+                        bgcolor: '#d1d5db',
+                        cursor: 'not-allowed',
+                        width: "fit-content",
+                        height: "fit-content",
+                        borderRadius: "1rem",
+                        minWidth: '3rem',
+                        textAlign: 'center',
+                        color: "#9ca3af",
+                        p: "0.15rem 0.5rem",
+                      }}
+                    >{book?.bookQuantity}</Box>
                   </Stack>
 
-                  <button
-                    className={clsx(
-                      "effect-spread-shadow-click-btn",
-                      styles.buttonDelete
-                    )}
-                  >
-                    X
-                  </button>
+                  <SubmitDialog
+                    propsButtonShowInfo={{
+                      size: "small",
+                    }}
+                    buttonShowInfo={{
+                      variant: "text",
+                      color: "error",
+                      title: "X",
+                    }}
+                    styleBtnShowInfo={{
+                      borderRadius: 8,
+                      height: "2rem",
+                      mt: "0.75rem",
+                      fontSize: "0.8rem",
+                      ":hover": {
+                        color: "#fff",
+                        backgroundColor: "red",
+                      },
+                    }}
+                    acceptButtonInfo={{
+                      title: "Xác nhận",
+                      color: "error",
+                    }}
+                    cancelButtonInfo={{
+                      title: "Hủy",
+                      color: "inherit",
+                    }}
+                    dialogInfo={{
+                      contentDialogTitle: "Xác nhận xóa",
+                      contentDialogDesc:
+                        "Bạn có chắc chắn xóa quyển sách  này khỏi giỏ hàng chứ? ",
+                    }}
+                    fncHandleClickAccept={(status) => {
+                      if (status === 1) {
+                        handleDeleteBookInCart(book?.bookId);
+                      }
+                    }}
+                  />
                 </Stack>
               </Stack>
             ))}

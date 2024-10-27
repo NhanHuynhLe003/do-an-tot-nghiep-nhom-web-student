@@ -21,12 +21,13 @@ export default function ListCardViewHorizontal({
       dataList &&
       dataList.map((book, index) => {
         const currentId =
-          book._id || "ID_" + index + Date.now() + Math.random() * 1000;
+          book._id || "ID_" + index;
         return {
           id: currentId,
           bookQuantity: book.book_quantity,
           component: (
             <CardBook
+              author={book?.book_author}
               isHiddenWhenOutOfStock={isHiddenWhenOutOfStock}
               idBook={currentId}
               img={book.book_thumb || book.img}

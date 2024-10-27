@@ -88,7 +88,6 @@ export default function CartBookOrder({
             const { params, data } = payload;
 
             if (data) {
-              console.log("Delete Book:", params?.id);
               const bookId = params?.id;
               const studentData = JSON.parse(
                 localStorage.getItem("studentData")
@@ -179,10 +178,8 @@ export default function CartBookOrder({
 
   function handleUpdateQuantityBook(payload) {
     const { id, value } = payload;
-    console.log("Update Quantity Book:", id, value);
     // Xử lý cập nhật số lượng sách đã chọn trong giỏ hàng
     const previousBookData = cartDataBookList.find((book) => book.id === id);
-    console.log("previousBookData:::", previousBookData);
     updateBookQuantityInCart({
       userId: dataStudent._id,
       book: {
@@ -193,9 +190,6 @@ export default function CartBookOrder({
     });
   }
 
-  useEffect(() => {
-    console.log("TEST_cartDataBookList:::", cartDataBookList);
-  }, [cartDataBookList]);
   return (
     <Box
       className={"Cart_Book_Order"}

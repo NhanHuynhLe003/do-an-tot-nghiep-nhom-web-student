@@ -5,9 +5,11 @@ import { COMMENTKEYS } from "../../../constants/ReactQuery/comment";
 export const useDeleteComment = (payload, options = {}) => {
   const queryClient = useQueryClient();
   return useMutation(
-    async (commentId) => {
+    async (commentData) => {
       const { data } = await axiosInstance.delete(
-        `/v1/api/comment/${commentId}`
+        `/v1/api/comment/${commentData?.commentId}?bookId=${
+          commentData?.bookId || ""
+        }`
       );
       return data;
     },

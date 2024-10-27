@@ -2,12 +2,12 @@ import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
 import style from "./sidebar.module.css";
 import clsx from "clsx";
-import { navList } from "../../../routes/navigation";
+import { bookNavigations } from "../../../routes/navigation";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import LogoPage from "../../../assets/images/logo-dtvt.png";
 
-export default function SideBar({ listNavigation = [...navList] }) {
+export default function SideBar({ listNavigation = [...bookNavigations] }) {
   const location = useLocation();
 
   const pathName = location.pathname;

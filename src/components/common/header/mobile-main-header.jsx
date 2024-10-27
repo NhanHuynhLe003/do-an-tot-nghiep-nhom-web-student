@@ -15,7 +15,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
 import { RiShoppingBag4Fill } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useStudentLogout } from "../../../hooks/apis/access";
 import { useGetBooksInCart } from "../../../hooks/apis/cart";
 import { useWindowSize } from "../../../hooks/useWindowSize";
@@ -24,6 +24,7 @@ import IDrawer from "../../IDrawer";
 import IPopOverBtn from "../../IPopOverBtn";
 import CartBookOrder from "./components/cartBookOrder";
 import { BREAK_POINTS } from "../../../constants/index";
+import { bookNavigations,  } from "../../../routes/navigation";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -80,6 +81,33 @@ export default function MobileMainHeader() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [cartUser, setCartUser] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState("");
+  const [urlNav, setUrlNav] = React.useState([]);
+  const location = useLocation();
+
+  const checkUrl = (location) => {
+    const currentUrl = location.pathname;
+
+
+    if(currentUrl.includes('book')){
+      console.log("BOOK::: ", currentUrl);
+      setUrlNav(bookNavigations);
+    }else if(currentUrl.includes('admin')){
+      console.log("ADMIN::: ", currentUrl);
+      setUrlNav([]);
+
+    } else if(currentUrl.includes('cv')){
+      console.log("CV::: ", currentUrl);
+      setUrlNav([]);
+    } else {
+      console.log("REST::: ", currentUrl);
+      setUrlNav(bookNavigations);
+
+    }
+  }
+
+  React.useEffect(() => {
+    checkUrl(location);
+  },[location])
 
   const { mutate: logout } = useStudentLogout();
 
@@ -166,6 +194,7 @@ export default function MobileMainHeader() {
           {/* Mở thanh drawer bên góc trái */}
           <nav>
             <IDrawer
+              listItem={urlNav}
               orientation="left"
               drawerButton={
                 <IconButton

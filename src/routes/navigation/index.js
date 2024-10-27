@@ -1,9 +1,8 @@
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
-import BookShelfIcon from "../../components/icons/BookShelfIcon";
 import { FaBookOpenReader } from "react-icons/fa6";
-import { GrUserAdmin } from "react-icons/gr";
-const navList = [
+import BookShelfIcon from "../../components/icons/BookShelfIcon";
+const bookNavigations = [
   {
     id: 1,
     name: "Trang Chủ",
@@ -31,4 +30,6 @@ const navList = [
   },
 ];
 
-export { navList };
+const adminNavigations = [];
+
+export { bookNavigations };

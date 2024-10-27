@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "react-query";
 import axiosInstance from "../../../apis/axiosConfig";
 import { CartKeys } from "../../../constants/ReactQuery";
+import { CheckoutOrderKeys } from "../../../constants";
 
 export const useDeleteBookInCart = (payload, options = {}) => {
   const queryClient = useQueryClient();
@@ -20,9 +21,15 @@ export const useDeleteBookInCart = (payload, options = {}) => {
       ],
       onSuccess: (data, variables, context) => {
         // Dùng để refetch lại dữ liệu GET_BOOKS_IN_CART sau khi XÓa sách khỏi giỏ hàng thanh cong
-        queryClient.invalidateQueries({
-          queryKey: [CartKeys.GET_BOOKS_IN_CART, data?.metadata?.cart_userId],
-        });
+
+        Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [CartKeys.GET_BOOKS_IN_CART],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: [CheckoutOrderKeys.GET_CHECKOUT_REVIEW],
+          }),
+        ]);
       },
 
       ...options,

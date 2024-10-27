@@ -16,8 +16,12 @@ import cvIcon from "../../assets/icons/cv-icon.png";
 import PageLoader from "../pageLoader";
 import style from "./CircleNav.module.css";
 import { Box } from "@mui/material";
+import { useWindowSize } from "../../hooks";
+import { BREAK_POINTS } from "../../constants";
 
 export default function CircleNav({ isOpenToggle = false }) {
+  const { width: widthWindow } = useWindowSize();
+
   //Dieu huong
   const navigate = useNavigate();
 
@@ -26,6 +30,13 @@ export default function CircleNav({ isOpenToggle = false }) {
 
   // Xử lý hiển thị loader
   const toggleLoader = (pageUrl = "/") => {
+    if (widthWindow < BREAK_POINTS.lg) {
+      setTimeout(() => {
+        navigate(pageUrl);
+      }, 400);
+      return;
+    }
+
     setLoaderActive(true);
     setTimeout(() => {
       setLoaderActive(false); //Loading sau 5s tắt

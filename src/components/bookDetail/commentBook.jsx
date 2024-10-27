@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Input,
   Popover,
   Stack,
   Typography,
@@ -15,10 +14,11 @@ import { HiDotsVertical } from "react-icons/hi";
 import { IoTrash } from "react-icons/io5";
 import { MdEdit } from "react-icons/md";
 import { toast } from "react-toastify";
-import { commentList } from "../../data/arrays";
 import { useCreateComment } from "../../hooks/apis/comment/useCreateComment";
+import { useDeleteComment } from "../../hooks/apis/comment/useDeleteComment";
 import { useGetComment } from "../../hooks/apis/comment/useGetComment";
-import { calculateTimeDifference } from "../../utils";
+import { useUpdateComment } from "../../hooks/apis/comment/useUpdateComment";
+import SubmitDialog from "../IDialog/SubmitDialog";
 import ChildCommentBook from "./childCommentBook";
 import TextShowMore from "./textShowMore";
 
@@ -33,12 +33,10 @@ export default function CommentBook({
   parentId = "",
   bookId = "",
   userId = "",
+  commentId = "",
+  isRatingMode = false,
+  rating = 0,
 }) {
-  const { data: childrenCommentList } = useGetComment({
-    bookId,
-    parentCommentId: parentId,
-  });
-  
   const contentBoxRef = useRef();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -51,6 +49,14 @@ export default function CommentBook({
     useState(false);
 
   const { mutate: createComment } = useCreateComment();
+  const { mutate: deleteCommentById } = useDeleteComment();
+  const { mutate: updateComment } = useUpdateComment();
+  const { data: childrenCommentList } = useGetComment({
+    bookId,
+    parentCommentId: parentId,
+    isRating: isRatingMode,
+  });
+
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
@@ -81,6 +87,46 @@ export default function CommentBook({
     setAnchorEl(null);
   };
 
+  const handleDeleteComment = () => {
+    deleteCommentById(
+      {
+        commentId,
+        bookId,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Xóa bình luận thành công !");
+        },
+        onError: () => {
+          toast.error("Có lỗi xảy ra khi xóa bình luận, vui lòng thử lại !");
+        },
+      }
+    );
+  };
+
+  const handleClickBtnUpdateComment = () => {};
+
+  const handleUpdateComment = () => {
+    updateComment(
+      {
+        commentId,
+        content: contentReply,
+        isRating: isRatingMode,
+        rating,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Cập nhật bình luận thành công !");
+        },
+        onError: () => {
+          toast.error(
+            "Có lỗi xảy ra khi cập nhật bình luận, vui lòng thử lại !"
+          );
+        },
+      }
+    );
+  };
+
   const handleClickBtnShowComments = () => {
     if (!isShowComments) {
       setIsLoadingCommentChildList(true);
@@ -102,6 +148,7 @@ export default function CommentBook({
         userId,
         content: contentReply,
         parentId: parentId,
+        isRating: isRatingMode,
       },
       {
         onSuccess: () => {
@@ -110,7 +157,9 @@ export default function CommentBook({
         },
         onError: () => {
           toast.error(
-            "Có lỗi xảy ra khi phản hồi bình luận, vui lòng thử lại !"
+            `Có lỗi xảy ra khi phản hồi ${
+              isRatingMode ? "đánh giá" : "bình luận"
+            }, vui lòng thử lại !`
           );
           setIsLoadingComment(false);
         },
@@ -121,11 +170,11 @@ export default function CommentBook({
   useEffect(() => {
     if (childrenCommentList) {
       setChildComments(
-        childrenCommentList?.data?.metadata?.map((cmt) => {
-          const date = new Date(cmt?.updatedAt);
+        childrenCommentList?.data?.metadata?.comments?.map((cmt) => {
+          const date = new Date(cmt?.createdAt);
           return {
             ...cmt,
-            updatedAt: format(date, "dd-MM-yyyy"),
+            createdAt: format(date, "dd-MM-yyyy"),
           };
         })
       );
@@ -146,21 +195,21 @@ export default function CommentBook({
         justifyContent={"space-between"}
         alignItems={"center"}
       >
-        <Stack direction={"row"} alignItems={"center"} gap={2}>
-          <Stack direction={"row"} alignItems={"center"}>
-            <Avatar
-              alt="Nguyen Van A"
-              src={img || "/imgs/avatar-user.jpg"}
-              sx={{ width: 40, height: 40, marginRight: "0.5rem" }}
-            />
-            <Typography
-              component={"p"}
-              sx={{ fontSize: "1.2rem", color: "var(color-white1)" }}
-            >
-              {name}
-            </Typography>
-          </Stack>
+        <Stack direction={"row"} alignItems={"center"}>
+          <Avatar
+            alt="Nguyen Van A"
+            src={img || "/imgs/avatar-user.jpg"}
+            sx={{ width: 40, height: 40, marginRight: "0.5rem" }}
+          />
+          <Typography
+            component={"p"}
+            sx={{ fontSize: "1.2rem", color: "var(color-white1)" }}
+          >
+            {name}
+          </Typography>
+        </Stack>
 
+        <Stack direction={"row"} alignItems={"center"} gap={1}>
           <Typography
             component={"p"}
             sx={{
@@ -169,71 +218,91 @@ export default function CommentBook({
               fontSize: "1rem",
             }}
           >
-            {calculateTimeDifference(date)} ngày trước
+            {date}
           </Typography>
+          <button
+            aria-describedby={id}
+            variant="contained"
+            onClick={handleClickShowAdvanceSetting}
+            style={{
+              backgroundColor: "transparent",
+              borderRadius: "50%",
+              border: "none",
+              cursor: "pointer",
+              width: 32,
+              height: 32,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <HiDotsVertical />
+          </button>
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleCloseAdvanceSetting}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+          >
+            <Button
+              variant="text"
+              sx={{
+                width: "100%",
+                textAlign: "left",
+                justifyContent: "flex-start",
+                px: 1,
+              }}
+              onClick={handleClickBtnUpdateComment}
+              startIcon={<MdEdit />}
+              color="inherit"
+              size="small"
+            >
+              Chỉnh sửa
+            </Button>
+            <SubmitDialog
+              fncHandleClickAccept={(status) => {
+                if (status) handleDeleteComment();
+              }}
+              dialogInfo={{
+                contentDialogDesc:
+                  "Bạn có chắc chắn muốn xóa bình luận này chứ ?",
+                contentDialogTitle: "Xác nhận xóa bình luận",
+              }}
+              acceptButtonInfo={{
+                title: "Xác nhận",
+                color: "error",
+              }}
+              cancelButtonInfo={{
+                title: "Hủy",
+                color: "inherit",
+              }}
+              buttonShowInfo={{
+                startIcon: <IoTrash />,
+                variant: "text",
+                color: "inherit",
+                title: "Xóa",
+              }}
+              styleBtnShowInfo={{
+                width: "100%",
+                textAlign: "left",
+                justifyContent: "flex-start",
+                px: 1,
+              }}
+            />
+          </Popover>
         </Stack>
-
-        <button
-          aria-describedby={id}
-          variant="contained"
-          onClick={handleClickShowAdvanceSetting}
-          style={{
-            backgroundColor: "transparent",
-            borderRadius: "50%",
-            border: "none",
-            cursor: "pointer",
-            width: 32,
-            height: 32,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <HiDotsVertical />
-        </button>
-
-        <Popover
-          id={id}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleCloseAdvanceSetting}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left",
-          }}
-        >
-          <Button
-            variant="text"
-            sx={{
-              width: "100%",
-              textAlign: "left",
-              justifyContent: "flex-start",
-              px: 1,
-            }}
-            startIcon={<MdEdit />}
-            color="inherit"
-            size="small"
-          >
-            Chỉnh sửa
-          </Button>
-          <Button
-            variant="text"
-            sx={{
-              width: "100%",
-              textAlign: "left",
-              justifyContent: "flex-start",
-              px: 1,
-            }}
-            startIcon={<IoTrash />}
-            color="inherit"
-            size="small"
-          >
-            Xóa
-          </Button>
-        </Popover>
       </Stack>
 
-      <TextShowMore text={content} textAlign={"left"}></TextShowMore>
+      <TextShowMore
+        text={content}
+        textAlign={"left"}
+        isRating={isRatingMode}
+        rating={rating}
+      ></TextShowMore>
 
       <Stack direction={"column"} alignItems={"flex-start"}>
         <Button
@@ -262,8 +331,8 @@ export default function CommentBook({
                   background: "transparent",
                   outline: "none",
                   paddingBottom: "0",
-                  lineHeight: '14px',
-                  overflow: 'hidden'
+                  lineHeight: "14px",
+                  overflow: "hidden",
                 }}
                 onChange={handleChangeContentReply}
                 placeholder="Nhập nội dung phản hồi...."
@@ -344,9 +413,11 @@ export default function CommentBook({
                   bookId={bookId}
                   userId={userId}
                   content={cmt?.comment_content}
-                  date={cmt?.updatedAt}
+                  date={cmt?.createdAt}
                   img={cmt?.comment_userId?.profileImage}
                   name={cmt?.comment_userId?.name}
+                  parentName={cmt?.comment_parentId?.comment_userId?.name}
+                  isRatingMode={isRatingMode}
                 ></ChildCommentBook>
               ))}
             </Box>

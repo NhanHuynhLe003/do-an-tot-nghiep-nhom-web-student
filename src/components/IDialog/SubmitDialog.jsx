@@ -23,10 +23,13 @@ export default function SubmitDialog({
     color: "error",
   },
   buttonShowInfo = {
+    startIcon: null,
+    endIcon: null,
     variant: "outlined",
     color: "error",
     title: "Show Dialog",
   },
+  propsButtonShowInfo = {}
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -54,10 +57,15 @@ export default function SubmitDialog({
     <React.Fragment>
       <Button
         type={type}
-        sx={{ ...styleBtnShowInfo }}
+        sx={{
+          ...styleBtnShowInfo,
+        }}
         variant={buttonShowInfo.variant}
         onClick={handleClickOpen}
         color={buttonShowInfo.color}
+        startIcon={buttonShowInfo.startIcon}
+        endIcon={buttonShowInfo.endIcon}
+        {...propsButtonShowInfo}
       >
         {buttonShowInfo.title}
       </Button>

@@ -10,7 +10,9 @@ export const useGetComment = (payload = {}, options = {}) => {
       await axiosInstance.get(
         `/v1/api/comment?bookId=${payload?.bookId}&parentCommentId=${
           payload?.parentCommentId || ""
-        }&skip=${payload.skip || 0}&limit=${payload.limit || 0}`,
+        }&isRating=${payload?.isRating || false}&skip=${
+          payload?.skip || 0
+        }&limit=${payload?.limit || 0}`,
         { ...payload }
       ),
     {

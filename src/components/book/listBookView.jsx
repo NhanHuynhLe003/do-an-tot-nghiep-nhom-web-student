@@ -18,7 +18,7 @@ export default function ListBookView({
   const listComponentBook = useMemo(() => {
     return dataList.map((book, index) => {
       const currentId =
-        book._id || `ID_${index}_${Date.now() + Math.random() * 1000}`;
+        book._id || index;
       return {
         id: currentId,
         bookQuantity: book.book_quantity,
@@ -26,10 +26,12 @@ export default function ListBookView({
           <CardBook
             isHiddenWhenOutOfStock={isHiddenWhenOutOfStock}
             idBook={currentId}
-            img={book.book_thumb || book.img}
-            title={book.book_name || book.title}
-            rating={book.book_ratingsAverage || book.vote}
-            bookQuantity={book.book_quantity}
+            img={book?.book_thumb || book.img}
+            title={book?.book_name || book.title}
+            rating={book?.book_ratingsAverage || book.vote}
+            bookQuantity={book?.book_quantity}
+            author={book?.book_author}
+            yearRelease={new Date(book?.book_publish_date).getFullYear()}    
           />
         ),
       };

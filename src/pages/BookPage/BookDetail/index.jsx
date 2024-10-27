@@ -14,13 +14,14 @@ import {
   Divider,
   Grid,
   IconButton,
-  Input,
   Rating,
   Stack,
-  Typography,
+  Typography
 } from "@mui/material";
 import clsx from "clsx";
+import { format } from "date-fns";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import FreeModeCarousel from "../../../components/ICarousel/FreeModeCarousel";
 import CardBook from "../../../components/book/cardBook";
 import CommentBook from "../../../components/bookDetail/commentBook";
@@ -28,58 +29,25 @@ import TextShowMore from "../../../components/bookDetail/textShowMore";
 import { useWindowSize } from "../../../hooks";
 import { useGetBookPublishDetailById } from "../../../hooks/apis/books/useGetBookPublishDetailById";
 import { useGetBooksByCategoryId } from "../../../hooks/apis/books/useGetBooksByCategoryId";
-import { convertISO, roundNumber } from "../../../utils";
 import { useAddBookToCartStudent } from "../../../hooks/apis/cart";
-import { toast } from "react-toastify";
-import { useGetComment } from "../../../hooks/apis/comment/useGetComment";
-import { format } from "date-fns";
 import { useCreateComment } from "../../../hooks/apis/comment/useCreateComment";
+import { useGetComment } from "../../../hooks/apis/comment/useGetComment";
+import { convertISO, roundNumber } from "../../../utils";
+import { useGetRatings } from "../../../hooks/apis/comment/useGetRatings";
+import RatingRankBoard from "../../../components/bookDetail/ratingRankBoard";
 export default function BookDetailPage({
-  img,
-  title = "book title",
-  author = "book author",
-  description = `Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nulla
-  amet rerum earum commodi eum tempora culpa dolores molestiae, enim
-  in labore dolore architecto quas consequuntur error blanditiis
-  quis? Molestias, quibusdam! Iusto similique doloribus dolorum
-  laborum quia in totam nihil delectus magnam voluptas, molestias
-  deserunt pariatur culpa autem nemo voluptatem eius vel tenetur!
-  consequuntur! Iure quis facilis ratione. Ea?`,
-  publisher = "Nhà xuất bản Tổng hợp thành phố Hồ Chí Minh",
-  yearPublic = "2024",
-  rating = 4.5,
   comments = commentList,
-  ratingList = [
-    {
-      id: 1,
-      avatar: "/imgs/avatar-user.jpg",
-      userName: "user0001",
-      datePublic: "03-05-2024",
-    },
-    {
-      id: 2,
-      avatar: "/imgs/avatar-user.jpg",
-      userName: "user0002",
-      datePublic: "08-05-2024",
-    },
-  ],
-  categories = [
-    { content: "Tâm Lý", tag: "psychology" },
-    { content: "Tiểu Thuyết", tag: "novel" },
-    { content: "Tự Truyện", tag: "self-help" },
-  ],
 }) {
   const dataStudent = JSON.parse(localStorage.getItem("studentData"));
   const { bookId } = useParams();
   const navigate = useNavigate();
 
-  const { width: windowWidth, height } = useWindowSize();
-
+  const { width: windowWidth } = useWindowSize();
+  const [commentsSize, setCommentsSize] = useState(0);
   const [currentBtnComment, setCurrentBtnComment] = React.useState(0);
   // Sử dụng useState để quản lý số lượng comment đã hiển thị
   const [dataComments, setDataComments] = useState(comments);
-  const [parentCommentId, setParentCommentId] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(7);
+  const [limitComments, setLimitComments] = useState(5);
   const [showLoadingCmt, setShowLoadingCmt] = useState(false);
   const [booksRelated, setBooksRelated] = useState([]);
   const [bookDetail, setBookDetail] = useState({});
@@ -88,12 +56,43 @@ export default function BookDetailPage({
     "667bb9c1f159a0af59debd15"
   );
   const [contentReply, setContentReply] = React.useState("");
+  const [isRatingMode, setIsRatingMode] = React.useState(false);
+  const [userRating, setUserRating] = React.useState(0);
+  const [ratingRankData, setRatingRankData] = React.useState({});
 
   const contentBoxRef = React.useRef(null);
 
   const { mutate: createComment } = useCreateComment();
+  const { data: commentListData } = useGetComment({
+    bookId: bookId,
+    parentCommentId: null,
+    limit: limitComments,
+    isRating: isRatingMode,
+  });
+  const {data: listRatingOfBook} = useGetRatings({bookId: bookId});
+
+  const {
+    data: bookPublishDetail,
+    isLoading: isLoadingBookPublishDetail,
+    error: errorBookPublishDetail,
+  } = useGetBookPublishDetailById({ bookId: bookId });
+  // Lấy ra list các cuốn sách có cùng thể loại
+  const {
+    data: bookListCategory,
+    isLoading: isLoadingData,
+  } = useGetBooksByCategoryId({
+    categoryId: currentCategory,
+  });
+  const { mutate: addBook } = useAddBookToCartStudent();
 
   const handleSubmitComment = () => {
+    if(isRatingMode && userRating === 0) {
+      toast.warning("Vui lòng chọn số sao đánh giá !", {
+        position: "top-right",
+      });
+      return;
+    }
+
     setIsLoadingComment(true);
 
     createComment(
@@ -102,6 +101,8 @@ export default function BookDetailPage({
         userId: dataStudent?._id,
         content: contentReply,
         parentId: null,
+        rating: userRating,
+        isRating: isRatingMode,
       },
       {
         onSuccess: () => {
@@ -118,27 +119,20 @@ export default function BookDetailPage({
     );
   };
 
-  const { data: commentListData } = useGetComment({
-    bookId: bookId,
-    parentCommentId: null,
-  });
+  const handleCommentInputKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      handleHideCommentBox();
+    }
+  }
 
-  const {
-    data: bookPublishDetail,
-    isLoading: isLoadingBookPublishDetail,
-    error: errorBookPublishDetail,
-  } = useGetBookPublishDetailById({ bookId: bookId });
-
-  // Lấy ra list các cuốn sách có cùng thể loại
-  const {
-    data: bookListCategory,
-    isLoading: isLoadingData,
-    error: errorData,
-  } = useGetBooksByCategoryId({
-    categoryId: currentCategory,
-  });
-
-  const { mutate: addBook } = useAddBookToCartStudent();
+  useEffect(() => {
+    if(listRatingOfBook){
+      const ratingData = {...listRatingOfBook?.data?.metadata};
+      console.log("ratingData:::::", ratingData);
+      setRatingRankData(ratingData);
+    }
+  },[listRatingOfBook]);
 
   useEffect(() => {
     // Kiểm tra xem sách hiện tại đã có dữ liệu chưa
@@ -162,12 +156,21 @@ export default function BookDetailPage({
 
   //================FUNCTION HANDLER=================
 
-  const handleChangeBtnComment = () => {
-    setCurrentBtnComment((prev) => (prev === 0 ? 1 : 0));
+  const handleChangeBtnComment = (mode = "comment") => {
+    return () => {
+      if (mode === "comment") {
+        setCurrentBtnComment(0);
+        setIsRatingMode(false);
+      } else {
+        setCurrentBtnComment(1);
+        setIsRatingMode(true);
+      }
+    };
   };
 
   const handleHideCommentBox = () => {
     setContentReply("");
+    setUserRating(0);
   };
 
   const handleChangeContentReply = (e) => {
@@ -178,7 +181,7 @@ export default function BookDetailPage({
     // Đặt chiều cao mới dựa trên chiều cao cuộn (scrollHeight)
     textarea.style.height = `${textarea.scrollHeight}px`;
     setContentReply(e.target.value);
-  }
+  };
 
   // Hàm để xử lý sự kiện bấm vào nút "xem thêm"
 
@@ -186,10 +189,16 @@ export default function BookDetailPage({
     setShowLoadingCmt(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setShowLoadingCmt(false);
-    setVisibleCount((prev) => (prev <= 7 ? comments.length : 7));
+    const newLimit = limitComments + 5;
+    setLimitComments(newLimit);
   };
 
-  const handleBorrowBookNow = () => {
+  const handleChangeRating = (e) => {
+    const value = e.target.value;
+    setUserRating(value);
+  }
+
+  const handleBorrowBookNow = (mode = 'borrow_now') => {
     const payload = {
       userId: dataStudent?._id,
       book: {
@@ -200,20 +209,25 @@ export default function BookDetailPage({
     addBook(payload, {
       onSuccess: () => {
         toast.success("Thêm sách thành công");
-        navigate(`/checkout/${dataStudent?._id}`);
+        if(mode==='borrow_now') navigate(`/checkout/${dataStudent?._id}`);
       },
     });
   };
 
   useEffect(() => {
     if (commentListData) {
-      const newCommentList = commentListData?.data?.metadata?.map((cmt) => {
-        const date = cmt?.updatedAt ? new Date(cmt?.updatedAt) : new Date();
-        return {
-          ...cmt,
-          updatedAt: format(date, "dd-MM-yyyy"),
-        };
-      });
+      const totalComments = commentListData?.data?.metadata?.total;
+
+      const newCommentList = commentListData?.data?.metadata?.comments?.map(
+        (cmt) => {
+          const date = cmt?.createdAt ? new Date(cmt?.createdAt) : new Date();
+          return {
+            ...cmt,
+            createdAt: format(date, "dd-MM-yyyy"),
+          };
+        }
+      );
+      setCommentsSize(totalComments);
       setDataComments(newCommentList);
     }
   }, [commentListData]);
@@ -391,7 +405,7 @@ export default function BookDetailPage({
               variant={"body1"}
               className={style.ratingCount}
             >
-              {ratingList.length} Đánh Giá
+              <b>{ratingRankData?.ratingCount || 0}</b> {" "} Đánh Giá
             </Typography>
           </Stack>
 
@@ -476,7 +490,7 @@ export default function BookDetailPage({
             >
               <Button
                 className={style.borrowBookBtn}
-                onClick={handleBorrowBookNow}
+                onClick={() => handleBorrowBookNow('borrow_now')}
                 sx={{
                   color: "var(--color-white1)",
                   backgroundColor: "var(--color-primary1)",
@@ -519,6 +533,7 @@ export default function BookDetailPage({
               </IconButton>
               <IconButton
                 className={style.btnControlGroup}
+                onClick={() => handleBorrowBookNow('add_to_cart')}
                 sx={{
                   color: "var(--color-primary1)",
                   border: "1px solid var(--color-primary1)",
@@ -562,9 +577,9 @@ export default function BookDetailPage({
                 opacity: currentBtnComment !== 0 && 0.6,
                 "&:hover": { border: "none" },
               }}
-              onClick={handleChangeBtnComment}
+              onClick={handleChangeBtnComment("comment")}
             >
-              Bình Luận <span>({dataComments?.length || 0})</span>
+              Bình Luận ({dataComments?.length || 0})
             </Button>
             <Button
               variant="outlined"
@@ -575,24 +590,33 @@ export default function BookDetailPage({
 
                 "&:hover": { border: "none" },
               }}
-              onClick={handleChangeBtnComment}
+              onClick={handleChangeBtnComment("rating")}
             >
-              Đánh Giá và Nhận Xét <span>(5)</span>
+              Đánh Giá và Nhận Xét ({ratingRankData?.ratingCount || 0})
             </Button>
           </Stack>
           <br />
           <Divider></Divider>
           <br />
+          {isRatingMode && <RatingRankBoard rating={ratingRankData?.bookRating?.book_ratingsAverage} ratingCount={ratingRankData?.ratingCount} ratingDetail={ratingRankData?.ratings}/>}
           <Box width={"100%"} mt={2}>
             <Stack direction={"row"} gap={1}>
-            <Avatar
-              alt="Nguyen Van A"
-              src={img}
-              sx={{ width: 40, height: 40, marginRight: "0.25rem" }}
-            />
-            <textarea
+              <Avatar
+                alt="Nguyen Van A"
+                src={dataStudent?.profileImage}
+                sx={{ width: 40, height: 40, marginRight: "0.25rem" }}
+              />
+              <Box width={'100%'} sx={{display: 'flex', flexDirection: 'column'}}>
+              
+              <h3>{dataStudent?.name}</h3>
+              {isRatingMode && <Rating value={userRating} sx={{alignSelf: 'flex-end', my: '0.5rem',":hover": {
+                opacity: 0.4
+              }}} precision={0.5} onChange={handleChangeRating}/>}
+              <textarea
+
                 ref={contentBoxRef}
                 style={{
+                  marginTop: !isRatingMode && '1rem',
                   width: "100%",
                   resize: "none",
                   borderLeft: "none",
@@ -601,15 +625,17 @@ export default function BookDetailPage({
                   background: "transparent",
                   outline: "none",
                   paddingBottom: "0",
-                  lineHeight: '14px',
-                  overflow: 'hidden'
+                  lineHeight: "14px",
+                  overflow: "hidden",
                 }}
                 value={contentReply}
+                onKeyDown={handleCommentInputKeyDown}
                 onChange={handleChangeContentReply}
                 placeholder="Nhập nội dung phản hồi...."
               />
+              </Box>
             </Stack>
-            <Stack direction={"row"} mt={3} justifyContent={'flex-end'}>
+            <Stack direction={"row"} mt={3} justifyContent={"flex-end"}>
               <Button
                 onClick={handleHideCommentBox}
                 type="button"
@@ -627,35 +653,46 @@ export default function BookDetailPage({
                 sx={{ borderRadius: 8, outline: "none", border: "none" }}
                 onClick={handleSubmitComment}
               >
-                Phản hồi
+                {isRatingMode ? "Đánh giá" : "Bình luận"}
               </Button>
             </Stack>
           </Box>
           {/* Comment List*/}
           <Box>
             <Stack direction={"column"} spacing={2} mt={4}>
-            {isLoadingComment && (
-              <Box className={style.loadingCmt} textAlign={"center"} pt={4}>
-                <CircularProgress size={50} />
-              </Box>
-            )}
-              {!isLoadingComment && dataComments?.length ? dataComments.slice(0, visibleCount).map((cmt) => (
-                <CommentBook
-                  key={cmt?._id}
-                  parentId={cmt?._id}
-                  bookId={bookId}
-                  userId={dataStudent?._id || ''}
-                  content={cmt?.comment_content}
-                  date={cmt?.updatedAt}
-                  img={cmt?.comment_userId?.profileImage}
-                  name={cmt?.comment_userId?.name}
-                ></CommentBook>
-              )) : (
-                <Typography component={'h3'} variant="h6" sx={{
-                  color: "var(--color-primary2)",
-                  opacity: 0.5,
-                  textAlign: "center"
-                }}>Chưa có bình luận</Typography>
+              {isLoadingComment && (
+                <Box className={style.loadingCmt} textAlign={"center"} pt={4}>
+                  <CircularProgress size={50} />
+                </Box>
+              )}
+              {!isLoadingComment && dataComments?.length ? (
+                dataComments.map((cmt) => (
+                  <CommentBook
+                    commentId={cmt?._id}
+                    rating={cmt?.rating}
+                    key={cmt?._id}
+                    parentId={cmt?._id}
+                    bookId={bookId}
+                    userId={dataStudent?._id || ""}
+                    content={cmt?.comment_content}
+                    date={cmt?.createdAt}
+                    img={cmt?.comment_userId?.profileImage}
+                    name={cmt?.comment_userId?.name}
+                    isRatingMode={isRatingMode}
+                  ></CommentBook>
+                ))
+              ) : (
+                <Typography
+                  component={"h3"}
+                  variant="h6"
+                  sx={{
+                    color: "var(--color-primary2)",
+                    opacity: 0.5,
+                    textAlign: "center",
+                  }}
+                >
+                  Chưa có bình luận
+                </Typography>
               )}
             </Stack>
             {showLoadingCmt && (
@@ -664,9 +701,11 @@ export default function BookDetailPage({
               </Box>
             )}
 
-            {dataComments?.length > 0 && <Button sx={{ my: 4 }} onClick={handleShowMoreComments}>
-              xem thêm bình luận
-            </Button>}
+            {limitComments < commentsSize && (
+              <Button sx={{ my: 4 }} onClick={handleShowMoreComments}>
+                xem thêm bình luận
+              </Button>
+            )}
           </Box>
         </Grid>
       </Grid>
