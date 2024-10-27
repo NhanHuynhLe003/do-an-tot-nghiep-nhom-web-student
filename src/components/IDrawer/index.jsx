@@ -1,16 +1,15 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
-import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
+import SwipeableDrawer from "@mui/material/SwipeableDrawer";
+import * as React from "react";
 
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import { Link, useLocation } from "react-router-dom";
+import theme from "../../theme";
 
 /**
  * @description component Drawer để mở thanh menu khi nhấn vào nút
@@ -22,14 +21,11 @@ import MailIcon from "@mui/icons-material/Mail";
 export default function IDrawer({
   orientation = "left",
   drawerButton = "SHOW",
-  listItem = [
-    { text: "Item 1", icon: <InboxIcon></InboxIcon> },
-    { text: "Item 2", icon: <MailIcon></MailIcon> },
-    { text: "Item 3", icon: <MailIcon></MailIcon> },
-    { text: "Item 4", icon: <InboxIcon></InboxIcon> },
-  ],
+  listItem = [],
   logo = "/logo-dtvt.png",
 }) {
+  const location = useLocation();
+
   // Khởi tạo state cho việc mở và đóng menu với các hướng
   const [state, setState] = React.useState({
     top: false,
@@ -67,13 +63,20 @@ export default function IDrawer({
           </ListItemButton>
         </ListItem>
         {listItem.map((item, index) => (
-          <ListItem key={item.text + index} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {item.icon ? item.icon : <InboxIcon />}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
+          <ListItem key={item?.id + index} disablePadding>
+            <Link to={`${item?.path}`} style={{
+              textDecoration: "none",
+              color: location.pathname ===item?.path ? '#fff' :"black",
+              backgroundColor: location.pathname ===item?.path && theme.colors.primary1,
+              width: "100%",
+            }}>
+              <ListItemButton>
+                <ListItemIcon>{React.cloneElement(item?.icon, {
+                  style: { color: location.pathname ===item?.path ? '#fff' :"black" },
+                })}</ListItemIcon>
+                <ListItemText primary={item?.name} />
+              </ListItemButton>
+            </Link>
           </ListItem>
         ))}
       </List>

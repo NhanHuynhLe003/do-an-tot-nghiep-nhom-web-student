@@ -97,10 +97,6 @@ export default function Book() {
     },
   };
 
-  function getValueCateSearch(value) {
-    console.log(value);
-  }
-
   return (
     <Box
       ref={mainPageRef}

@@ -1,0 +1,17 @@
+.ratingRankBoard {
+    position: relative;
+    border-radius: 2rem;
+    background-color: rgb(235, 238, 250);
+    width: 100%;
+    height: 0.75rem;
+}
+
+.ratingRankBoardBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 0.75rem;
+    background-color: #faaf00;
+    border-radius: 2rem;
+}

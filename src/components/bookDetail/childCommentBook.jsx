@@ -3,10 +3,9 @@ import {
   Box,
   Button,
   CircularProgress,
-  Input,
   Popover,
   Stack,
-  Typography,
+  Typography
 } from "@mui/material";
 import React, { useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
@@ -14,10 +13,10 @@ import { IoTrash } from "react-icons/io5";
 import { MdEdit } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useCreateComment } from "../../hooks/apis/comment/useCreateComment";
-import { calculateTimeDifference } from "../../utils";
 import TextShowMore from "./textShowMore";
 
 export default function ChildCommentBook({
+  parentName='',
   img = "/imgs/avatar-user.jpg",
   name = "Nguyễn Văn A",
   date = "20-03-2024",
@@ -28,6 +27,7 @@ export default function ChildCommentBook({
   parentId = "",
   bookId = "",
   userId = "",
+  isRatingMode = false,
 }) {
 
   const contentBoxRef = React.useRef(null);
@@ -76,14 +76,15 @@ export default function ChildCommentBook({
       bookId,
       userId,
       content: contentReply,
-      parentId: parentId
+      parentId: parentId,
+      isRating: isRatingMode,
     }, {
       onSuccess: () => {
         setIsLoadingComment(false);
         handleHideCommentBox();
       },
       onError: () => {
-        toast.error("Có lỗi xảy ra khi phản hồi bình luận, vui lòng thử lại sau");
+        toast.error(`Có lỗi xảy ra khi phản hồi ${isRatingMode ? 'đánh giá' : 'bình luận'}, vui lòng thử lại sau`);
         setIsLoadingComment(false);
       }
     })
@@ -126,7 +127,7 @@ export default function ChildCommentBook({
               fontSize: "0.8rem",
             }}
           >
-            {calculateTimeDifference(date)} ngày trước
+            {date}
           </Typography>
         </Stack>
 
@@ -190,7 +191,7 @@ export default function ChildCommentBook({
         </Popover>
       </Stack>
 
-      <TextShowMore text={content} textAlign={"left"} fontSize="0.9rem"></TextShowMore>
+      <TextShowMore text={`<span><b>@${parentName}</b> ${content}</span>`} textAlign={"left"} fontSize="0.9rem"></TextShowMore>
 
       <Stack direction={"column"} alignItems={"flex-start"}>
         <Button sx={{ textTransform: "none" , color: 'var(--color-primary-2)', fontSize: '0.7rem'}} onClick={handleShowCommentBox}>

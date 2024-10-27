@@ -1,10 +1,12 @@
-import { Button, Typography } from "@mui/material";
+import { Button, Rating, Stack, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 
 export default function TextShowMore({
   text,
   textAlign = "center",
   fontSize = "1rem",
+  isRating = false,
+  rating = 0
 }) {
   const [textContent, setTextContent] = React.useState(text);
   const [statusIsShowMore, setStatusIsShowMore] = React.useState(false);
@@ -36,7 +38,9 @@ export default function TextShowMore({
       }}
       textAlign={textAlign}
     >
-      {textContent}
+      <Stack direction={'row'} justifyContent={'space-between'} alignItems={'flex-start'}>
+
+      <div dangerouslySetInnerHTML={{__html: textContent}}/>
       {text?.length > 250 && (
         <Button
           type="button"
@@ -49,6 +53,8 @@ export default function TextShowMore({
           {statusIsShowMore ? "Ẩn bớt" : "Đọc thêm"}
         </Button>
       )}
+      {isRating && rating > 0 && <Rating readOnly value={rating} defaultValue={0} sx={{fontSize: '1.4rem'}} precision={0.5}/>}
+      </Stack>
     </Typography>
   );
 }

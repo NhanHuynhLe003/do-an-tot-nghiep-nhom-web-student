@@ -1,9 +1,10 @@
 .cardContainer {
     position: relative;
     transition: 150ms ease-in-out;
-
+    z-index: 1;
     border-radius: 1rem;
     overflow: hidden;
+    margin: 0.5rem 0;
 }
 
 
@@ -103,8 +104,8 @@
 
 .cardContainer .circleBtn {
     background-color: #fff;
-    width: 2rem;
-    height: 2.6rem;
+    width: 36px;
+    height: 40px;
     font-size: 1.25rem;
     border-radius: 50%;
     display: flex;
@@ -190,8 +191,8 @@
 
 /* Các nút khi card kích thước nhỏ hơn */
 .cardContainer .smallBtn {
-    width: 0.85rem;
-    height: 1.5rem;
+    width: 14px;
+    height: 24px;
     font-size: 0.8rem;
 }
 
